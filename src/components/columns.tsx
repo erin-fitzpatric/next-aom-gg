@@ -1,28 +1,28 @@
 "use client";
 
-import { Player } from "@/types/player";
+import { Player } from "@/types/Player";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown, MoreHorizontal } from "lucide-react"
-import { Button } from "../ui/button";
+import { ArrowUpDown } from "lucide-react";
+import { Button } from "./ui/button";
 
 export const columns: ColumnDef<Player>[] = [
   {
     accessorKey: "name",
-    header: ({ column }) => {
-      return (
-        <Button
-          variant="ghost"
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-        >
-          Name
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </Button>
-      )
-    },
+    header: "Name",
   },
   {
     accessorKey: "rank",
-    header: "Rank",
+    header: ({ column }) => {
+      return (
+        <div
+          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+          className="flex justify-items-start hover:cursor-pointer hover:opacity-75 hover:underline"
+        >
+          Rank
+          <ArrowUpDown className="ml-2 h-4 w-4" />
+        </div>
+      );
+    },
   },
   {
     accessorKey: "winPercent",
@@ -33,8 +33,6 @@ export const columns: ColumnDef<Player>[] = [
       const percentage = value * 100;
       return `${percentage.toFixed()}%`;
     },
-
-    // `${(row.cell. .winPercent * 100).toFixed(2)}%`,
   },
   {
     accessorKey: "totalGames",

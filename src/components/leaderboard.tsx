@@ -1,7 +1,7 @@
-import { Player } from "@/types/player";
+import { Player } from "@/types/Player";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
-import { Card } from "../ui/card";
+import { Card } from "./ui/card";
 
 async function getData(): Promise<Player[]> {
   // Fetch data from your API here.
@@ -78,7 +78,7 @@ async function getData(): Promise<Player[]> {
     },
     {
       id: "11",
-      name: "MbL",
+      name: "Aussie_Drongo",
       rank: 11,
       winPercent: 0.3,
       totalGames: 10,
@@ -93,14 +93,14 @@ async function getData(): Promise<Player[]> {
   ];
 }
 
-export default async function LeaderboardPage() {
+export default async function Leaderboard() {
   const data = await getData();
 
   return (
     <>
       <Card className="p-4">
         <div className="text-3xl font-bold text-center">
-          <h1>Leaderboard</h1>
+          <h1>Retold Leaderboard</h1>
         </div>
         <div className="container mx-auto py-4">
           <DataTable columns={columns} data={data} />
