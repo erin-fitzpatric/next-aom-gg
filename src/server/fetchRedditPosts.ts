@@ -14,7 +14,7 @@ export interface RedditPost {
 }
 let mappedPosts: RedditPost[];
 export default async function fetchRedditPosts(): Promise<RedditPost[]> {
-  if (mappedPosts) return mappedPosts; // return cached posts
+  if (mappedPosts.length > 0) return mappedPosts; // return cached posts
   try {
     const url = "https://www.reddit.com/r/AgeofMythology.json?limit=25";
     const response = await fetch(url, {
