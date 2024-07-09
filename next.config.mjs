@@ -6,6 +6,18 @@ const nextConfig = {
       {
         hostname: "i.ytimg.com",
       },
+      {
+        protocol: "https",
+        hostname: "a.thumbs.redditmedia.com",
+      },
+      {
+        protocol: "https",
+        hostname: "b.thumbs.redditmedia.com",
+      },
+      {
+        protocol: "https",
+        hostname: "i.redd.it",
+      },
     ],
   },
 };

@@ -1,6 +1,7 @@
 import FeaturedYoutubeVideos from "@/components/featured-youtube-videos";
 import Header from "@/components/header";
 import Leaderboard from "@/components/leaderboard";
+import RedditFeed from "@/components/reddit-feed";
 
 export default function Home() {
   return (
@@ -15,6 +16,9 @@ export default function Home() {
     <div className="w-full sm:w-auto">
       <FeaturedYoutubeVideos />
     </div>
+  </div>
+  <div className="">
+    <RedditFeed />
   </div>
 </main>
   );
