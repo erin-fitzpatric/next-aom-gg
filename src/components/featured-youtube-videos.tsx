@@ -44,7 +44,7 @@ export default function FeaturedYoutubeVideos() {
                 />
 
                 <h3 className="mt-2 text-green-400 overflow">
-                  {video.snippet.title}
+                  {new DOMParser().parseFromString(video.snippet.title, "text/html").documentElement.textContent}
                 </h3>
               </a>
             </div>
