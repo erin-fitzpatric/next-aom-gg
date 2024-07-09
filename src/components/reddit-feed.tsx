@@ -1,6 +1,5 @@
 "use client";
 
-import fetchRedditPosts, { RedditPost } from "@/server/fetchRedditPosts";
 import Image from "next/image";
 import { useEffect, useState } from "react";
 import { Card } from "./ui/card";
@@ -12,6 +11,8 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
+import fetchRedditPosts from "@/api/fetchRedditPosts";
+import { RedditPost } from "@/types/RedditPost";
 
 export default function RedditFeed() {
   const [redditPosts, setRedditPosts] = useState([]) as any[]; //todo type this

@@ -1,20 +1,10 @@
 "use server";
 
-export interface RedditPost {
-  id: string;
-  thumbnail_height?: number;
-  ups: number;
-  thumbnail_width?: number;
-  url?: string;
-  author: string;
-  title: string;
-  permalink: string;
-  total_awards_received: number;
-  num_comments: number;
-}
+import { RedditPost } from "@/types/RedditPost";
+
 let mappedPosts: RedditPost[];
 export default async function fetchRedditPosts(): Promise<RedditPost[]> {
-  if (mappedPosts.length > 0) return mappedPosts; // return cached posts
+  if (mappedPosts) return mappedPosts; // return cached posts
   try {
     const url = "https://www.reddit.com/r/AgeofMythology.json?limit=25";
     const response = await fetch(url, {
