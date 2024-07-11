@@ -12,10 +12,13 @@ export default async function fetchRedditPosts(): Promise<RedditPost[]> {
         Accept: "application/json",
       },
     });
+
+    if (!response.ok) {
+      throw new Error("Failed to fetch reddit posts");
+    }
+
     const data = await response.json();
-  
     const posts: any[] = data.data.children.map((child: any) => child.data);
-  
     mappedPosts = posts
       .filter((post) => !post.stickied)
       .map((post) => ({
@@ -30,11 +33,9 @@ export default async function fetchRedditPosts(): Promise<RedditPost[]> {
         total_awards_received: post.total_awards_received,
         num_comments: post.num_comments,
       }));
-  
-    return mappedPosts;
 
+    return mappedPosts;
   } catch (error) {
-    console.error("Error fetching reddit posts", error);
-    return [];
+    throw new Error(`Failed to fetch reddit posts: ${error}`);
   }
 }

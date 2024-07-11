@@ -9,11 +9,11 @@ export default function Home() {
   <div>
     <Header />
   </div>
-  <div className="flex min-h-screen flex-col sm:flex-row space-y-4 sm:space-y-0">
+  <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0">
     <div className="w-full sm:w-5/6 mb-4 sm:mb-0 sm:mr-4">
       <Leaderboard />
     </div>
-    <div className="w-full sm:w-auto">
+    <div className="flex-1">
       <FeaturedYoutubeVideos />
     </div>
   </div>

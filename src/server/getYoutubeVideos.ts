@@ -67,7 +67,7 @@ export default async function getYoutubeVideos(): Promise<YoutubeVideo[]> {
   if (storedVideos.length === 0) {
     storedVideos = await YoutubeVideoModel.find({
       createdAt: { $gt: new Date(Date.now() - 24 * 60 * 60 * 1000) },
-    });
+    }).limit(3);
   }
 
   const youtubeVideos: YoutubeVideo[] =

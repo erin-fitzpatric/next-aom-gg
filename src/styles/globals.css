@@ -52,6 +52,11 @@
     --tw-text-opacity: 1;
     color: rgb(250 204 21 / var(--tw-text-opacity)) /* #facc15 */;
   }
+
+  .card-header {
+    /* text-3xl font-bold text-center */
+    @apply text-3xl font-bold text-center;
+  }
 }
 
 @layer base {

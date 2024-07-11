@@ -21,8 +21,8 @@ export default function FeaturedYoutubeVideos() {
 
   return (
     <>
-      <Card className="p-4">
-        <h2 className="text-3xl font-bold text-center">Featured Videos</h2>
+      <Card className="p-4 h-full">
+        <h2 className="card-header">Featured Videos</h2>
         <div className="grid grid-cols-1 text-center py-4 justify-items-center">
           {videos?.map((video: YoutubeVideo) => (
             <div
@@ -43,7 +43,7 @@ export default function FeaturedYoutubeVideos() {
                   className="mx-auto"
                 />
 
-                <h3 className="mt-2 text-green-400 overflow">
+                <h3 className="mt-2 text-primary overflow">
                   {new DOMParser().parseFromString(video.snippet.title, "text/html").documentElement.textContent}
                 </h3>
               </a>

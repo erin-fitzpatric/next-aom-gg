@@ -20,7 +20,7 @@ const config = {
     },
     extend: {
       fontFamily: {
-        sans: ["var(--font-sans)", ...fontFamily.sans],
+        sans: ["Merriweather", ...fontFamily.sans],
       },
       colors: {
         border: "hsl(var(--border))",

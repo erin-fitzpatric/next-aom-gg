@@ -11,7 +11,7 @@ export default function Header() {
           height={50}
           alt="Medusa logo"
         />
-        <h1 className="text-2xl">AoM Stats</h1>
+        <h1 className="text-3xl text-primary">AoM Stats</h1>
       </div>
       <ModeToggle />
     </header>

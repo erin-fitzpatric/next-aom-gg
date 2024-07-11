@@ -2,21 +2,10 @@
 const nextConfig = {
   reactStrictMode: true,
   images: {
+    // have to allow all hosts for images to work with the remote patterns
     remotePatterns: [
       {
-        hostname: "i.ytimg.com",
-      },
-      {
-        protocol: "https",
-        hostname: "a.thumbs.redditmedia.com",
-      },
-      {
-        protocol: "https",
-        hostname: "b.thumbs.redditmedia.com",
-      },
-      {
-        protocol: "https",
-        hostname: "i.redd.it",
+        hostname: "*",
       },
     ],
   },

@@ -1,5 +1,4 @@
 import type { Metadata } from "next";
-import { Baskervville } from "next/font/google";
 import "../styles/globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -15,12 +14,6 @@ export const metadata: Metadata = {
   description: "Created by FitzBro",
 };
 
-const baskervville = Baskervville({
-  subsets: ["latin"],
-  variable: "--font-sans",
-  weight: "400",
-});
-
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <>
@@ -29,7 +22,6 @@ export default function RootLayout({ children }: RootLayoutProps) {
         <body
           className={cn(
             "min-h-screen bg-background antialiased",
-            baskervville.variable
           )}
         >
           <ThemeProvider
