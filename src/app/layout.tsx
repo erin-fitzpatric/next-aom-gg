@@ -12,8 +12,8 @@ type RootLayoutProps = {
 };
 
 export const metadata: Metadata = {
-  title: "Age of Mythology Stats",
-  description: "Created by FitzBro",
+  title: "AoM.gg",
+  description: "Leaderboard, recorded games, and more for Age of Mythology Retold. Created by FitzBro for the AoM community.",
 };
 
 export default function RootLayout({ children }: RootLayoutProps) {
