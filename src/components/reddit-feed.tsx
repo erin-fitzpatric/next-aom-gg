@@ -19,21 +19,14 @@ export default function RedditFeed() {
   async function getRedditPosts() {
     console.log("fetching reddit posts");
     // adding a retry because the reddit api is dumb
-    for (let attempt = 1; attempt <= 3; attempt++) {
-      try {
-        const response = await fetchRedditPosts();
-        setRedditPosts(response);
-        break;
-      } catch (error) {
-        if (attempt === 3) {
-          console.error(
-            "Failed to fetch reddit posts, retry limit reached",
-            error
-          );
-        }
-      }
+    try {
+      const response = await fetchRedditPosts();
+      setRedditPosts(response);
+    } catch (error) {
+      console.error("Failed to fetch reddit posts, retry limit reached", error);
     }
   }
+  
   useEffect(() => {
     getRedditPosts();
   }, []);
