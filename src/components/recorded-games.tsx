@@ -8,6 +8,7 @@ import { Card } from "./ui/card";
 import { useToast } from "./ui/use-toast";
 import { DownloadIcon } from "lucide-react";
 import { Input } from "./ui/input";
+import { readRecordedGameMetadata } from "@/api/recordedGame";
 
 export default function RecordedGames() {
   const [recs, setRecs] = useState<any[]>([]);
@@ -93,6 +94,32 @@ export default function RecordedGames() {
     }
   }
 
+  
+  async function testMetadataParser(e: any): Promise<void> {
+
+    e.preventDefault();
+    if (!recFile) return;
+    setIsLoading(true);
+
+    try {
+      const formData = new FormData();
+      formData.append("file", recFile);
+      console.log(`parsing recfile`);
+      let meta = await readRecordedGameMetadata(formData);
+      console.log(JSON.stringify(meta, undefined, 2));
+
+      toast({
+        title: "Success",
+        description: "Rec parsed successfully",
+      });
+      setIsLoading(false);
+    } catch (err) {
+      console.error("Error parsing rec", err);
+      setIsLoading(false);
+    }
+  }
+
+
   // async function handleSettingsDownload(): Promise<void> {
   //   console.log("downloading aom settings");
   //   if (!settingsBucket) {
@@ -161,6 +188,17 @@ export default function RecordedGames() {
           />
           <Button type="submit" className="mx-2">
             Upload
+          </Button>
+        </form>
+        <form onSubmit={testMetadataParser} className="flex mt-1">
+          <Input
+            type="file"
+            onChange={handleFileChange}
+            accept=".mythrec"
+            className="mr-2"
+          />
+          <Button type="submit" className="mx-2">
+            Parse
           </Button>
         </form>
       </div>
