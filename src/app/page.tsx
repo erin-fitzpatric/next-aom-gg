@@ -1,7 +1,12 @@
 import FeaturedYoutubeVideos from "@/components/featured-youtube-videos";
-import Header from "@/components/header";
 import Leaderboard from "@/components/leaderboard";
 import RedditFeed from "@/components/reddit-feed";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Home - AoM.gg",
+  description: "AoM.gg is your home for Age of Mythology Retold leaderboards, news, recorded games, and more. Built by FitzBro for the AoM community.",
+};
 
 export default function Home() {
   return (

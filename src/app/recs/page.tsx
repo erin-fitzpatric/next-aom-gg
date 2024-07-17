@@ -1,4 +1,10 @@
 import RecordedGames from "@/components/recorded-games";
+import { Metadata } from "next";
+
+export const metadata: Metadata = {
+  title: "Recorded Games - AoM.gg",
+  description: "AoM.gg is your home for Age of Mythology Retold leaderboards, news, recorded games, and more. Built by FitzBro for the AoM community.",
+};
 
 export default function Recs() {
   return (

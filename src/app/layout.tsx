@@ -1,4 +1,3 @@
-import type { Metadata } from "next";
 import "../styles/globals.css";
 import { cn } from "@/lib/utils";
 import { ThemeProvider } from "@/components/theme-provider";
@@ -9,11 +8,6 @@ import Header from "@/components/header";
 
 type RootLayoutProps = {
   children: ReactNode;
-};
-
-export const metadata: Metadata = {
-  title: "AoM.gg",
-  description: "Leaderboard, recorded games, and more for Age of Mythology Retold. Created by FitzBro for the AoM community.",
 };
 
 export default function RootLayout({ children }: RootLayoutProps) {
