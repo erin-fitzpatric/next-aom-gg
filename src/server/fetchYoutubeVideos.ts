@@ -1,6 +1,6 @@
 "use server"
 
-import { YoutubeVideo } from "@/types/Youtube";
+import { YoutubeVideo } from "@/types/YoutubeTypes";
 
 
 // Function to fetch videos from YouTube API
