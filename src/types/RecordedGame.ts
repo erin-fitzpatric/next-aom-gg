@@ -161,3 +161,30 @@ export const MajorGodsByIndex = new Map<number, string>([
 export class RecParseError extends Error
 {
 }
+
+
+type MetadataSchemaEntries<T extends (...args: any)=>any> = { [key: string]: {type: T, default: ReturnType<T>, required: boolean} };
+
+function recMetadataSchemaHelper<T extends (...args: any)=>any>(keyArray: ReadonlyArray<string>, valueType: T, defaultValue: ReturnType<T>)
+{
+    const obj: MetadataSchemaEntries<T> = {};
+    for (const keyName of keyArray)
+    {
+        obj[keyName] = {type: valueType, default: defaultValue, required: true}
+    }
+    return obj;
+}
+
+export const RecordedGamePlayerMetadataKeySchema = 
+{
+    ...recMetadataSchemaHelper(RecordedGamePlayerMetadataBooleans, Boolean, false),
+    ...recMetadataSchemaHelper(RecordedGamePlayerMetadataStrings, String, ""),
+    ...recMetadataSchemaHelper(RecordedGamePlayerMetadataNumbers, Number, 0),
+}
+
+export const RecordedGameMetadataKeySchema = 
+{
+    ...recMetadataSchemaHelper(RecordedGameMetadataBooleans, Boolean, false),
+    ...recMetadataSchemaHelper(RecordedGameMetadataStrings, String, ""),
+    ...recMetadataSchemaHelper(RecordedGameMetadataNumbers, Number, 0),
+}
