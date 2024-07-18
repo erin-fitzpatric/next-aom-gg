@@ -70,8 +70,50 @@ function encodeUtf16(str: string)
     return new Uint8Array(buffer);
 }
 
+function findBuildInfoString(decompressed: Buffer)
+{
+    // Find the build string, for the beta this was "AoMRT_s.exe 452295 //stream/Athens/beta"
+    // Given this is using a beta build the binary might not always be called "AoMRT_s.exe" 
+    // But as it's encoded like all the other strings, if we can search for something that is always in it (".exe"), we can go back until we find a null byte
+    // and that should always be the two high bytes of the string length field - as the length of the executable name shouldn't exceed 65536 in anyone's lifetime
+    // Again we make the assumption that nothing before this happens to contains these bytes, but given it's the very first utf16 text in the file that seems VERY unlikely
+    const encodedExe = encodeUtf16(".exe");
+    let buildInfoOffset = decompressed.indexOf(encodedExe);
+    if (buildInfoOffset < 0)
+    {
+        throw new RecParseError("Failed to find build info string");
+    }
+    const view = new DataView(decompressed.buffer);
+    let currentCharByte = view.getUint8(buildInfoOffset);
+    while (currentCharByte != 0 && buildInfoOffset > 2)
+    {
+        buildInfoOffset -= 2;
+        currentCharByte = view.getUint8(buildInfoOffset);
+    }
+    // Go back two more, so that we have the offset of the length of the build info string
+    buildInfoOffset -= 2;
+    if (currentCharByte != 0 || buildInfoOffset < 0)
+    {
+        throw new RecParseError("Failed to find start of build info string");
+    }
+    return readString(decompressed.buffer, buildInfoOffset);
+}
+
 async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): Promise<RecordedGameMetadata>
 {
+    const view = new DataView(decompressed.buffer);
+    const buildInfoString = findBuildInfoString(decompressed);
+    // eg "AoMRT_s.exe 452295 //stream/Athens/beta"
+    const splitInfoString = buildInfoString.split(" ");
+    if (splitInfoString.length != 3)
+    {
+        throw new RecParseError(`Build info string ${splitInfoString} did not split into three components`);
+    }
+    const buildNumber = parseInt(splitInfoString[1]);
+    if (isNaN(buildNumber))
+    {
+        throw new RecParseError(`Failed to parse build number from info string ${splitInfoString}`);
+    }
     // In the beta build, the metadata keys were always written with "gametype" first
     // The table itself is simply:
     // 1) uint32: number of keys
@@ -94,7 +136,6 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
         throw new RecParseError("Could not find metadata - ensure this is a multiplayer Retold recorded game");
     }
     // Go back 8 bytes to get to the number of keys (just going back 4 is the length of the "gametype" string we searched for)
-    const view = new DataView(decompressed.buffer);
     const keyCountOffset = metadataOffset - 8;
     console.log(`Reading key count at offset ${keyCountOffset}`);
     const keyCount = view.getUint32(keyCountOffset, true);
@@ -106,6 +147,8 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
     const output = {
         // 13 total: 12 players plus mother nature
         playerdata: [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}],
+        buildstring: buildInfoString,
+        buildnumber: buildNumber,
     };
     // Points to the length of the string of the first key
     let currentOffset = metadataOffset - 4;
