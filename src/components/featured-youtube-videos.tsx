@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { Card } from "./ui/card";
 import Image from "next/image";
 import getYoutubeVideos from "@/server/getYoutubeVideos";
-import { YoutubeVideo } from "@/types/Youtube";
+import { YoutubeVideo } from "../types/Youtube";
 
 export default function FeaturedYoutubeVideos() {
   const [videos, setVideos] = useState<Array<YoutubeVideo>>([]);
