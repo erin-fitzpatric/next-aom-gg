@@ -10,7 +10,7 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import fetchRedditPosts from "@/api/fetchRedditPosts";
+import fetchRedditPosts from "@/server/fetchRedditPosts";
 import { RedditPost } from "@/types/RedditPost";
 
 export default function RedditFeed() {

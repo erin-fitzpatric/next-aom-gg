@@ -1,6 +1,6 @@
 "use client";
 
-import { uploadS3Rec, listS3Recs, downloadS3File } from "@/api/aws";
+import { listS3Recs, downloadS3File } from "@/server/aws";
 import { useState, useEffect } from "react";
 import { SpinnerWithText } from "./spinner";
 import { Button } from "./ui/button";
@@ -8,7 +8,6 @@ import { Card } from "./ui/card";
 import { useToast } from "./ui/use-toast";
 import { DownloadIcon } from "lucide-react";
 import { Input } from "./ui/input";
-import { readRecordedGameMetadata } from "@/api/recordedGame";
 
 export default function RecordedGames() {
   const [recs, setRecs] = useState<any[]>([]);
@@ -17,12 +16,9 @@ export default function RecordedGames() {
     string | undefined
   >(undefined);
   const [recFile, setRecFile] = useState(null);
-  const [fileName, setFileName] = useState('');
+  const [fileName, setFileName] = useState("");
 
   const { toast } = useToast();
-
-  const recBucket = process.env.NEXT_PUBLIC_S3_REC_BUCKET_NAME;
-  const settingsBucket = process.env.NEXT_PUBLIC_S3_SETTINGS_BUCKET_NAME;
 
   const handleFileChange = (e: any) => {
     const selectedFile = e.target.files[0];
@@ -34,42 +30,49 @@ export default function RecordedGames() {
     setFileName(e.target.value);
   };
 
-
   async function handleUploadFile(e: any): Promise<void> {
-
     e.preventDefault();
     if (!recFile) return;
-    if (!recBucket) {
-      console.error("S3 recBucket missing");
-      return;
-    }
 
     // todo - implement Steam login and remove all of these prompts
-    const userName = prompt('Enter your gamertag:');
+    const userName = prompt("Enter your gamertag:");
     if (!userName) {
-      alert('Name is required to upload');
+      alert("Name is required to upload");
       return;
     }
-
     setIsLoading(true);
-    // set form data
-    const formData = new FormData();
-    formData.append("file", recFile);
-    formData.append('uploadedBy', userName);
-    formData.append('fileName', fileName);
 
     // upload file
-    console.log("uploading rec to s3");
     try {
-      await uploadS3Rec(formData);
+      const formData = new FormData();
+      formData.append("file", recFile);
+      formData.append("userName", userName);
 
-      toast({
-        title: "Success",
-        description: "Rec uploaded successfully",
+      const response = await fetch("/api/recordedGames", {
+        method: "POST",
+        body: formData,
       });
+
+      if (response.ok) {
+        toast({
+          title: "Success",
+          description: "Rec uploaded successfully",
+        });
+        // todo - update state and revalidate
+      } else {
+        toast({
+          title: "Error Uploading Rec",
+          description: "Try again later",
+        });
+      }
+
       setIsLoading(false);
     } catch (err) {
       console.error("Error uploading rec", err);
+      toast({
+        title: "Error Uploading Rec",
+        description: "Try again later",
+      });
       setIsLoading(false);
     }
   }
@@ -78,12 +81,8 @@ export default function RecordedGames() {
     // TODO - add loading spinner
 
     console.log("downloading rec", key);
-    if (!recBucket) {
-      console.error("S3 recBucket missing");
-      return;
-    }
     try {
-      const url = await downloadS3File(key, recBucket);
+      const url = await downloadS3File(key);
       window.open(url, "_blank");
     } catch (err) {
       console.error("Error downloading rec", err);
@@ -93,51 +92,6 @@ export default function RecordedGames() {
       });
     }
   }
-
-  
-  async function testMetadataParser(e: any): Promise<void> {
-
-    e.preventDefault();
-    if (!recFile) return;
-    setIsLoading(true);
-
-    try {
-      const formData = new FormData();
-      formData.append("file", recFile);
-      console.log(`parsing recfile`);
-      let meta = await readRecordedGameMetadata(formData);
-      console.log(JSON.stringify(meta, undefined, 2));
-
-      toast({
-        title: "Success",
-        description: "Rec parsed successfully",
-      });
-      setIsLoading(false);
-    } catch (err) {
-      console.error("Error parsing rec", err);
-      setIsLoading(false);
-    }
-  }
-
-
-  // async function handleSettingsDownload(): Promise<void> {
-  //   console.log("downloading aom settings");
-  //   if (!settingsBucket) {
-  //     console.error("S3 settings bucket missing");
-  //     return;
-  //   }
-  //   const key = "FitzLocalKeybindings.xml";
-  //   try {
-  //     const url = await downloadS3File(key, settingsBucket);
-  //     window.open(url, "_blank");
-  //   } catch (err) {
-  //     console.error("Error downloading settings", err);
-  //     toast({
-  //       title: "Error Downloading Settings",
-  //       description: "Try again later",
-  //     });
-  //   }
-  // }
 
   useEffect(() => {
     async function getRecs(): Promise<void> {
@@ -169,7 +123,8 @@ export default function RecordedGames() {
         <div className="text-center">
           <h3 className="text-white">Upload an AoM Retold Recorded Game</h3>
           <p>
-            C:\Users\fitzbro\Games\Age of Mythology Retold Beta\yourSteamId\replays
+            C:\Users\fitzbro\Games\Age of Mythology Retold
+            Beta\yourSteamId\replays
           </p>
         </div>
         <form onSubmit={handleUploadFile} className="flex mt-1">
@@ -188,17 +143,6 @@ export default function RecordedGames() {
           />
           <Button type="submit" className="mx-2">
             Upload
-          </Button>
-        </form>
-        <form onSubmit={testMetadataParser} className="flex mt-1">
-          <Input
-            type="file"
-            onChange={handleFileChange}
-            accept=".mythrec"
-            className="mr-2"
-          />
-          <Button type="submit" className="mx-2">
-            Parse
           </Button>
         </form>
       </div>

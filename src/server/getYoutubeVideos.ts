@@ -3,7 +3,7 @@
 import YoutubeVideoModel from "@/db/mongo/model/YoutubeVideoModel";
 import getMongoClient from "@/db/mongo/mongo-client";
 import { YoutubeVideo } from "@/types/youtube";
-import fetchYouTubeVideos from "../api/fetchYoutubeVideos";
+import fetchYouTubeVideos from "./fetchYoutubeVideos";
 
 function mapVideos(videos: YoutubeVideo[]): YoutubeVideo[] {
   return videos.map((video: any) => {

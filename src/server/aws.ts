@@ -1,4 +1,5 @@
 "use server";
+import { RecordedGameMetadata } from "@/types/RecordedGame";
 import {
   GetObjectCommand,
   ListObjectsV2Command,
@@ -6,8 +7,6 @@ import {
   S3Client,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
-import fs from "fs";
-import path from "path";
 
 const credentials = {
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -22,44 +21,50 @@ const s3Client = new S3Client([
 
 const { NEXT_PUBLIC_S3_REC_BUCKET_NAME } = process.env;
 
-export async function uploadS3Rec(formData: FormData) {
-  const file = formData.get("file") as File;
-  const uploadedBy = formData.get("uploadedBy") as string;
-  const fileName = formData.get("fileName") as string;
+type UploadS3RecParams = {
+  file: File;
+  metadata: RecordedGameMetadata;
+  userName: string; // depprecate this and use login info l8ter
+};
+
+type UploadS3RecResponse = {
+  message: string;
+  key: string;
+};
+
+export async function uploadRecToS3(uploadS3RecParams: UploadS3RecParams): Promise<UploadS3RecResponse> {
+  const { file, metadata, userName } = uploadS3RecParams;
+  const { gameguid } = metadata;
 
   if (!NEXT_PUBLIC_S3_REC_BUCKET_NAME) {
     throw new Error("S3 bucket not found");
   }
 
-  // verify file size is smaller than 10,000kb
-  if (file.size > 10000000) {
+  // verify file size is smaller than 15,000kb
+  if (file.size > 15000000) {
     console.log(`file ${file.name} size: ${file.size} is too large`);
     throw new Error("File size too large");
   }
 
+  // format file
   const fileContent = await file.arrayBuffer();
   const body = new Uint8Array(fileContent);
 
-  const timestamp = Date.now();
-  const date = new Date(timestamp);
-  const year = date.getFullYear();
-  const month = date.getMonth() + 1;
-  const day = date.getDate();
-  const dayMonthYear = `${day}-${month}-${year}`;
-
   const params = {
     Bucket: NEXT_PUBLIC_S3_REC_BUCKET_NAME,
-    Key: `${uploadedBy} (${dayMonthYear}) | ${fileName}.mythrec`,
+    Key: `${gameguid}.mythrec`,
     Body: body,
     Metadata: {
-      "uploaded-by": uploadedBy,
-      "file-name": file.name,
+      "uploaded-by": userName,
     },
   };
 
   try {
     await s3Client.send(new PutObjectCommand(params));
-    return;
+    return {
+      message: "File uploaded successfully",
+      key: `${gameguid}.mythrec`,
+    };
   } catch (err) {
     throw new Error("Error uploading file");
   }
@@ -98,11 +103,10 @@ export async function listS3Recs(
 }
 
 export async function downloadS3File(
-  recKey: string,
-  bucketName: string
+  recKey: string
 ): Promise<string> {
   const params = {
-    Bucket: bucketName,
+    Bucket: NEXT_PUBLIC_S3_REC_BUCKET_NAME || "",
     Key: recKey,
   };
   try {

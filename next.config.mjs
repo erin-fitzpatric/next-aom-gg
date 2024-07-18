@@ -1,4 +1,3 @@
-import bodyParser from "body-parser";
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   reactStrictMode: true,
@@ -9,13 +8,7 @@ const nextConfig = {
         hostname: "*",
       },
     ],
-  },
-  async serverMiddleware() {
-    return [
-      bodyParser.json({ limit: "15mb" }),
-      bodyParser.urlencoded({ limit: "15mb", extended: true }),
-    ];
-  },
+  }
 };
 
 export default nextConfig;

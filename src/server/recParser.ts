@@ -11,11 +11,10 @@ const RECORDED_GAME_MAX_STRING_LENGTH = 500;
 
 const inflatePromisify = promisify((buf: InputType, callback: CompressCallback) => { inflate(buf, {maxOutputLength: RECORDED_GAME_MAX_BYTES_TO_DECOMPRESS}, callback)});
 
-export async function readRecordedGameMetadata(formData: FormData): Promise<RecordedGameMetadata>
+export async function parseRecordedGameMetadata(file: File): Promise<RecordedGameMetadata>
 {
-    const recfile = formData.get("file") as File;
     console.log("Starting reading recorded game...");
-    const decompressed = await decompressL33tZlib(await recfile.arrayBuffer());
+    const decompressed = await decompressL33tZlib(await file.arrayBuffer());
     return await parseMetadataFromDecompressedRecordedGame(decompressed);
 }
 
