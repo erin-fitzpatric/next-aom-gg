@@ -1,6 +1,7 @@
 "use server"
 
-import { YoutubeVideo } from "@/types/youtube";
+import { YoutubeVideo } from "@/types/Youtube";
+
 
 // Function to fetch videos from YouTube API
 export default async function fetchYouTubeVideos(): Promise<YoutubeVideo[]> {

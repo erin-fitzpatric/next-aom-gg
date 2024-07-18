@@ -3,7 +3,7 @@
 import { useEffect, useState } from "react";
 import { Card } from "./ui/card";
 import Image from "next/image";
-import { YoutubeVideo } from "@/types/youtube";
+import { YoutubeVideo } from "@/types/Youtube";
 import getYoutubeVideos from "@/server/getYoutubeVideos";
 
 export default function FeaturedYoutubeVideos() {
