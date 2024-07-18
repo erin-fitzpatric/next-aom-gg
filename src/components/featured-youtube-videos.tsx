@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import { Card } from "./ui/card";
 import Image from "next/image";
-import { YoutubeVideo } from "@/types/Youtube";
 import getYoutubeVideos from "@/server/getYoutubeVideos";
+import { YoutubeVideo } from "@/types/Youtube";
 
 export default function FeaturedYoutubeVideos() {
-  const [videos, setVideos] = useState<Array<YoutubeVideo>>([]); // todo - fix typing to remove any
+  const [videos, setVideos] = useState<Array<YoutubeVideo>>([]);
 
   async function fetchVideos(): Promise<void> {
     console.log("fetching videos");
