@@ -213,9 +213,6 @@ function fixMetadataKey(keyName: string)
     return keyName;
 }
 
-function addMetadataKeyToOutput(output: any, keyName: string, value: number): void
-function addMetadataKeyToOutput(output: any, keyName: string, value: string): void
-function addMetadataKeyToOutput(output: any, keyName: string, value: boolean): void
 function addMetadataKeyToOutput(output: any, keyName: string, value: number | string | boolean): void
 {
     keyName = fixMetadataKey(keyName);
