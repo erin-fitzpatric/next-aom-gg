@@ -48,17 +48,15 @@ async function decompressL33tZlib(compressed: ArrayBuffer): Promise<Buffer>
         throw new RecParseError("Not a valid Age of Mythology file");
     }
     // Next four bytes contain the length of the decompressed data, but we don't really care about that
-    //try
+    try
     {
         const decompressed = await inflatePromisify(compressed.slice(8));
         return decompressed;
     }
-    /*
     catch (err)
     {
         throw new RecParseError("Failed to decompress file");
     }
-        */
 }
 
 function encodeUtf16(str: string)
