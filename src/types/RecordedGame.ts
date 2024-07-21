@@ -1,7 +1,6 @@
 // These strings currently must match those stored inside recorded games
 // A recorded game lacking any of these will throw an error
 // Any metadata in a recorded game not included here will be ignored - keys that aren't useful can just be removed
-
 export const RecordedGamePlayerMetadataStrings = [
     "name", 
     "clan",             // Unused in beta
@@ -138,6 +137,8 @@ export interface RecordedGameMetadata extends Record<typeof RecordedGameMetadata
 {
     // This array will INCLUDE MOTHER NATURE at index 0.
     playerdata: RecordedGamePlayerMetadata[];
+    buildstring: string,
+    buildnumber: number,
 }
 
 export const MajorGodsByIndex = new Map<number, string>([

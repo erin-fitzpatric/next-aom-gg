@@ -3,11 +3,11 @@
 import { useEffect, useState } from "react";
 import { Card } from "./ui/card";
 import Image from "next/image";
-import getYoutubeVideos from "@/server/getYoutubeVideos";
-import { YoutubeVideo } from "@/types/YoutubeTypes";
+import getYoutubeVideos from "@/server/controllers/youtube-controller";
+import { IYoutubeVideo } from "@/types/YoutubeTypes";
 
 export default function FeaturedYoutubeVideos() {
-  const [videos, setVideos] = useState<Array<YoutubeVideo>>([]);
+  const [videos, setVideos] = useState<Array<IYoutubeVideo>>([]);
 
   async function fetchVideos(): Promise<void> {
     console.log("fetching videos");
@@ -22,15 +22,25 @@ export default function FeaturedYoutubeVideos() {
   return (
     <>
       <Card className="h-full py-4">
+        <div>
+          {/* youtube-logo */}
+          <Image
+            src="/youtube-logo.png"
+            alt="Youtube Logo"
+            width={40}
+            height={40}
+            className="mx-auto"
+          ></Image>
+        </div>
         <h2 className="card-header">Featured Videos</h2>
         <div className="grid grid-cols-1 text-center justify-items-center my-4 ">
-          {videos?.map((video: YoutubeVideo) => (
+          {videos?.map((video: IYoutubeVideo) => (
             <div
-              key={video.id.videoId}
+              key={video.videoId}
               className="mx-1 border-2 border-amber-400 rounded-lg my-1 flex flex-col p-1 max-w-xs items-center hover:opacity-75 transition-opacity duration-200 ease-in-out hover:outline-double"
             >
               <a
-                href={`https://www.youtube.com/watch?v=${video.id.videoId}`}
+                href={`https://www.youtube.com/watch?v=${video.videoId}`}
                 target="_blank"
                 rel="noopener noreferrer"
               >
@@ -44,7 +54,12 @@ export default function FeaturedYoutubeVideos() {
                 />
 
                 <h3 className="p-1 rounded-lg text-primary overflow bg-secondary line-clamp-3 font-semibold">
-                  {new DOMParser().parseFromString(video.snippet.title, "text/html").documentElement.textContent}
+                  {
+                    new DOMParser().parseFromString(
+                      video.snippet.title,
+                      "text/html"
+                    ).documentElement.textContent
+                  }
                 </h3>
               </a>
             </div>

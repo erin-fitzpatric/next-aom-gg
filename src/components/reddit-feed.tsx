@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/carousel";
 import fetchRedditPosts from "@/server/fetchRedditPosts";
 import { RedditPost } from "@/types/RedditPost";
+import Image from "next/image";
 
 export default function RedditFeed() {
   const [redditPosts, setRedditPosts] = useState([]) as any[]; //todo type this
@@ -26,7 +27,7 @@ export default function RedditFeed() {
       console.error("Failed to fetch reddit posts, retry limit reached", error);
     }
   }
-  
+
   useEffect(() => {
     getRedditPosts();
   }, []);
@@ -34,6 +35,17 @@ export default function RedditFeed() {
   return (
     <>
       <Card className="p-4">
+        <div className="flex justify-center">
+          <Image
+            src="/reddit-logo.png"
+            alt="Reddit Logo"
+            width={42}
+            height={42}
+          ></Image>
+        </div>
+        <a href="https://www.reddit.com/r/AgeofMythology/">
+          <div className="flex justify-center text-gold cursor-pointer hover:underline">r/AgeOfMythology</div>
+        </a>
         <h2 className="card-header">Top Reddit Posts</h2>
         <Carousel className="pt-4">
           <CarouselContent className="flex items-center">

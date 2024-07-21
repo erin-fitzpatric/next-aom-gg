@@ -1,4 +1,4 @@
-import RecordedGames from "@/components/recorded-games";
+import RecordedGames from "@/components/recs/recorded-games";
 import { Metadata } from "next";
 
 export const metadata: Metadata = {
