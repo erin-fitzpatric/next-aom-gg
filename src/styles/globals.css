@@ -57,6 +57,11 @@
     /* text-3xl font-bold text-center */
     @apply text-3xl font-bold text-center;
   }
+
+  .min-h-2-lines {
+    min-height: 3rem; /* Adjust based on font size and line height */
+    line-height: 1.5rem; /* Adjust based on your design */
+  }
 }
 
 @layer base {

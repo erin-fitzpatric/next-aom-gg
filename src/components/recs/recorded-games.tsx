@@ -1,19 +1,19 @@
 "use client";
 
-import { listS3Recs, downloadS3File } from "@/server/aws";
 import { useState, useEffect } from "react";
 import { SpinnerWithText } from "../spinner";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { useToast } from "../ui/use-toast";
-import { DownloadIcon } from "lucide-react";
 import { Input } from "../ui/input";
+import RecTile from "./rec-tile";
+import { getMythRecs } from "@/server/controllers/mongo-controller";
 
 export default function RecordedGames() {
   const [recs, setRecs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [continuationToken, setContinuationToken] = useState<
-    string | undefined
+  const [page, setPage] = useState<
+    number | undefined
   >(undefined);
   const [recFile, setRecFile] = useState(null);
   const [fileName, setFileName] = useState("");
@@ -77,31 +77,15 @@ export default function RecordedGames() {
     }
   }
 
-  async function handleRecDownload(key: string): Promise<void> {
-    // TODO - add loading spinner
-
-    console.log("downloading rec", key);
-    try {
-      const url = await downloadS3File(key);
-      window.open(url, "_blank");
-    } catch (err) {
-      console.error("Error downloading rec", err);
-      toast({
-        title: "Error Downloading Rec",
-        description: "Try again later",
-      });
-    }
-  }
-
   useEffect(() => {
     async function getRecs(): Promise<void> {
       console.log("fetching recs");
       setIsLoading(true);
       try {
         // load first page of recs on page load
-        const { contents, nextContinuationToken } = await listS3Recs();
-        setContinuationToken(nextContinuationToken);
-        setRecs(contents);
+        const mythRecs = await getMythRecs();
+        setPage(1);
+        setRecs(mythRecs);
         setIsLoading(false);
       } catch (err) {
         console.error("Error fetching recs", err);
@@ -151,18 +135,16 @@ export default function RecordedGames() {
         {isLoading ? (
           <SpinnerWithText text={"Loading recorded games..."} />
         ) : (
-          <div>
+          <div className="flex flex-row flex-wrap justify-center">
             {recs?.map((rec) => (
-              <div
+              <Card
                 key={rec.Key}
-                className="cursor-pointer bg-secondary rounded-lg m-1 p-2 flex"
+                className="bg-secondary rounded-lg m-1 p-2 flex w-fit"
               >
-                <div key={rec.Key}>{rec.Key}</div>
-                <DownloadIcon
-                  onClick={() => handleRecDownload(rec.Key)}
-                  className="ml-2"
-                />
-              </div>
+                <div key={rec.Key}>
+                  <RecTile rec={rec}></RecTile>
+                </div>
+              </Card>
             ))}
           </div>
         )}

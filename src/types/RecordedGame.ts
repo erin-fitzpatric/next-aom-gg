@@ -1,7 +1,6 @@
 // These strings currently must match those stored inside recorded games
 // A recorded game lacking any of these will throw an error
 // Any metadata in a recorded game not included here will be ignored - keys that aren't useful can just be removed
-
 export const RecordedGamePlayerMetadataStrings = [
     "name", 
     "clan",             // Unused in beta
