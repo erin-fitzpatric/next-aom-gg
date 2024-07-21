@@ -1,4 +1,4 @@
-import uploadRec from "@/server/controllers/upload-rec"
+import uploadRec from "@/server/controllers/upload-rec-controller";
 
 export async function POST(request: Request) {
   const formData = await request.formData();

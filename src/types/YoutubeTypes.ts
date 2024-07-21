@@ -1,60 +1,68 @@
-export interface YoutubeVideo {
-  kind: string
-  etag: string
-  id: {
-    kind: string
-    videoId: string
-  }
-  snippet: YoutubeVideoSnippet
+export interface IYoutubeVideo {
+  videoId: string;
+  snippet: {
+    publishedAt: Date;
+    channelId: string;
+    title: string;
+    description: string;
+    thumbnails: IYoutubeThumbnail;
+    channelTitle: string;
+  };
 }
 
-export interface YoutubeVideoStatistics {
-  viewCount: string
-  likeCount: string
-  dislikeCount: string
-  favoriteCount: string
-  commentCount: string
+export interface IYoutubeThumbnail {
+  default: IYoutubeThumbnailType
+  medium: IYoutubeThumbnailType
+  high: IYoutubeThumbnailType
+  standard?: IYoutubeThumbnailType 
+  maxres?: IYoutubeThumbnailType 
 }
 
-export interface YoutubeVideoStatus {
-  uploadStatus: string
-  privacyStatus: string
-  license: string
-  embeddable: boolean
-  publicStatsViewable: boolean
-}
 
-export interface YoutubeVideoContentDetails {
-  duration: string
-  dimension: string
-  definition: string
-  caption: string
-  licensedContent: boolean
-  projection: string
-}
-
-export interface YoutubeVideoSnippet {
-  publishedAt: Date
-  channelId: string
-  title: string
-  description: string
-  thumbnails: {
-      default: YoutubeThumbnail
-      medium: YoutubeThumbnail
-      high: YoutubeThumbnail
-      standard?: YoutubeThumbnail | null
-      maxres?: YoutubeThumbnail | null
-  },
-  channelTitle: string
-  liveBroadcastContent: string
-
-}
-
-export interface YoutubeThumbnail {
+export interface IYoutubeThumbnailType {
   url: string
   width: number
   height: number
 }
+
+// DEPRECATED
+// export interface YoutubeVideoStatistics {
+//   viewCount: string
+//   likeCount: string
+//   dislikeCount: string
+//   favoriteCount: string
+//   commentCount: string
+// }
+
+// export interface YoutubeVideoStatus {
+//   uploadStatus: string
+//   privacyStatus: string
+//   license: string
+//   embeddable: boolean
+//   publicStatsViewable: boolean
+// }
+
+// export interface YoutubeVideoContentDetails {
+//   duration: string
+//   dimension: string
+//   definition: string
+//   caption: string
+//   licensedContent: boolean
+//   projection: string
+// }
+
+// export interface YoutubeVideoSnippet {
+//   publishedAt: Date
+//   channelId: string
+//   title: string
+//   description: string
+
+//   channelTitle: string
+//   liveBroadcastContent: string
+
+// }
+
+
 
 export interface YoutubeVideoParams {
   key?: string
