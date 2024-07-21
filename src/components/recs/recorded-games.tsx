@@ -2,12 +2,12 @@
 
 import { listS3Recs, downloadS3File } from "@/server/aws";
 import { useState, useEffect } from "react";
-import { SpinnerWithText } from "./spinner";
-import { Button } from "./ui/button";
-import { Card } from "./ui/card";
-import { useToast } from "./ui/use-toast";
+import { SpinnerWithText } from "../spinner";
+import { Button } from "../ui/button";
+import { Card } from "../ui/card";
+import { useToast } from "../ui/use-toast";
 import { DownloadIcon } from "lucide-react";
-import { Input } from "./ui/input";
+import { Input } from "../ui/input";
 
 export default function RecordedGames() {
   const [recs, setRecs] = useState<any[]>([]);
@@ -98,6 +98,7 @@ export default function RecordedGames() {
       console.log("fetching recs");
       setIsLoading(true);
       try {
+        // load first page of recs on page load
         const { contents, nextContinuationToken } = await listS3Recs();
         setContinuationToken(nextContinuationToken);
         setRecs(contents);

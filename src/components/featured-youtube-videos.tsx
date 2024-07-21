@@ -22,6 +22,16 @@ export default function FeaturedYoutubeVideos() {
   return (
     <>
       <Card className="h-full py-4">
+        <div>
+          {/* youtube-logo */}
+          <Image
+            src="/youtube-logo.png"
+            alt="Youtube Logo"
+            width={40}
+            height={40}
+            className="mx-auto"
+          ></Image>
+        </div>
         <h2 className="card-header">Featured Videos</h2>
         <div className="grid grid-cols-1 text-center justify-items-center my-4 ">
           {videos?.map((video: IYoutubeVideo) => (

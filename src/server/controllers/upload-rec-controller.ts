@@ -16,7 +16,6 @@ export default async function uploadRec(params: UploadRecParams): Promise<void> 
   // 1) parse file
   const recGameMetadata: RecordedGameMetadata = await parseRecordedGameMetadata(file);
 
-  // matchGuid
   // 2) save file to mongo, if game guid doesn't already exists
   let result;
   await getMongoClient();
@@ -24,14 +23,13 @@ export default async function uploadRec(params: UploadRecParams): Promise<void> 
     const inserted = await RecordedGameModel.create(recGameMetadata);
     result = inserted.toJSON();
   } catch (error) {
-    // todo - this will throw on unique constraint violation, but should probably be handled more gracefully
+    // TODO - this will throw on unique constraint violation, but should probably be handled more gracefully
     console.error("Error saving to mongo: ", error);
     throw new Error("Error saving to mongo");
   }
 
-  // 3) upload to s3
+  // 3) upload to S3
   try {
-
     await uploadRecToS3({
       file: file,
       metadata: {
