@@ -138,6 +138,8 @@ export interface RecordedGameMetadata extends Record<typeof RecordedGameMetadata
 {
     // This array will INCLUDE MOTHER NATURE at index 0.
     playerdata: RecordedGamePlayerMetadata[];
+    buildstring: string,
+    buildnumber: number,
 }
 
 export const MajorGodsByIndex = new Map<number, string>([
