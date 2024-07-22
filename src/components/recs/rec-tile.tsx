@@ -58,7 +58,7 @@ export default function RecTile({ rec }: { rec: MythRec }) {
             <TeamTile playerData={playerData[1]} /> {/* TODO - make team dynamic */}
             <div>
               <div className="text-center text-xl text-prim font-semibold w-[240px] min-h-2-lines line-clamp-2">
-                {mapData.name}
+                Mista 1v1 Fast Mythic
               </div>
               <Image
                 src={mapData.imagePath}
