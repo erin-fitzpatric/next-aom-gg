@@ -1,5 +1,6 @@
+"use client";
+
 import TeamTile from "./team-tile";
-import { useEffect, useState } from "react";
 import { MythRec as MythRec } from "@/types/MythRecs";
 import { randomMapNameToData } from "@/types/RandomMap";
 import RecTitle from "./rec-title";

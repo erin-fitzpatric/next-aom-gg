@@ -2,10 +2,8 @@
 
 import { useState, useEffect } from "react";
 import { SpinnerWithText } from "../spinner";
-import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { useToast } from "../ui/use-toast";
-import { Input } from "../ui/input";
 import RecTile from "./rec-tile";
 import { getMythRecs } from "@/server/controllers/mongo-controller";
 import RecUploader from "./rec-upload";
@@ -18,12 +16,17 @@ export default function RecordedGames() {
   const { toast } = useToast();
 
   const [screenSize, setScreenSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
+    width: 0,
+    height: 0,
   });
 
   useEffect(() => {
-
+    if (typeof window !== "undefined") {
+      setScreenSize({
+        width: window.innerWidth,
+        height: window.innerHeight,
+      });
+    }
   }, []);
 
   useEffect(() => {
@@ -56,18 +59,22 @@ export default function RecordedGames() {
       });
     };
 
-    window.addEventListener("resize", handleResize);
+    if (typeof window !== "undefined") {
+      window.addEventListener("resize", handleResize);
+    }
 
     // Clean up the event listener on component unmount
     return () => {
-      window.removeEventListener("resize", handleResize);
+      if (typeof window !== "undefined") {
+        window.removeEventListener("resize", handleResize);
+      }
     };
   }, [toast]);
 
   return (
     <Card className="p-4">
       <div>
-        <RecUploader screenSize={screenSize} />
+        <RecUploader />
       </div>
       <div className="mt-4">
         {isLoading ? (

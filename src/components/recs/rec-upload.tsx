@@ -2,13 +2,8 @@ import { useState } from "react";
 import { Button } from "../ui/button";
 import { Input } from "../ui/input";
 import { toast } from "../ui/use-toast";
-import { ScreenSize } from "@/types/ScreenSize";
 
-export default function RecUploader({
-  screenSize,
-}: {
-  screenSize: ScreenSize;
-}) {
+export default function RecUploader() {
   const [recFile, setRecFile] = useState(null);
   const [fileName, setFileName] = useState("");
 

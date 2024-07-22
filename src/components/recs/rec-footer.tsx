@@ -1,3 +1,5 @@
+"use client";
+
 import downloadMythRec from "@/server/controllers/download-rec-controller";
 import { MythRec } from "@/types/MythRecs";
 import { DownloadIcon } from "lucide-react";
