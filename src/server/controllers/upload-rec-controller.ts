@@ -7,6 +7,7 @@ import { uploadRecToS3 } from "../services/aws";
 export type UploadRecParams = {
   file: File;
   userName: string;
+  gameTitle: string;
 };
 
 
