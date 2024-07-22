@@ -16,7 +16,7 @@ export function recMetadataSchemaHelper<T extends (...args: any) => any>(
 ) {
   const obj: MetadataSchemaEntries<T> = {};
   for (const keyName of keyArray) {
-    obj[keyName] = { type: valueType, default: defaultValue, required: true };
+    obj[keyName] = { type: valueType, default: defaultValue, required: false };
   }
   return obj;
 }

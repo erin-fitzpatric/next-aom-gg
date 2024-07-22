@@ -1,10 +1,12 @@
-"use server"
+"use server";
 
-import RecordedGameModel, { IRecordedGame } from "@/db/mongo/model/RecordedGameModel";
+import RecordedGameModel, {
+  IRecordedGame,
+} from "@/db/mongo/model/RecordedGameModel";
 import getMongoClient from "@/db/mongo/mongo-client";
 import { MythRecs } from "@/types/MythRecs";
 
-export default async  function queryMythRecs(): Promise<MythRecs[]> {
+export async function queryMythRecs(): Promise<MythRecs[]> {
   await getMongoClient();
   try {
     const result: IRecordedGame[] = await RecordedGameModel.find()
@@ -12,7 +14,7 @@ export default async  function queryMythRecs(): Promise<MythRecs[]> {
       .limit(12);
 
     const mythRecs: MythRecs[] = result.map((video) => {
-      const mappedPlayerData  = video.playerdata.map((player) => {
+      const mappedPlayerData = video.playerdata.map((player) => {
         return {
           name: player.name,
           team: player.teamid,
@@ -25,17 +27,33 @@ export default async  function queryMythRecs(): Promise<MythRecs[]> {
           civWasRandom: player.civwasrandom,
           color: player.color,
         };
-      })
+      });
       return {
         gameGuid: video.gameguid,
         playerData: mappedPlayerData,
         mapName: video.gamemapname,
         createdAt: video.createdAt,
+        uploadedBy: video.uploadedBy ?? "FitzBro", // remove these defaults later
+        gameTitle: video.gameTitle ?? "Retold Rec", // remove these defaults later
+        downloadCount: video.downloadCount ?? 0,
       };
     });
     return mythRecs;
   } catch (err) {
     console.error(err);
     throw new Error("Failed to fetch Myth recordings: " + err);
+  }
+}
+
+export async function incrementDownloadCount(gameGuid: string): Promise<void> {
+  await getMongoClient();
+  try {
+    await RecordedGameModel.updateOne(
+      { gameguid: gameGuid },
+      { $inc: { downloadCount: 1 } }
+    );
+  } catch (err) {
+    console.error(err);
+    throw new Error("Failed to increment download count: " + err);
   }
 }

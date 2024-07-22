@@ -7,6 +7,7 @@ import {
   S3Client,
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
+import { MythRecDownloadLink } from "../controllers/download-rec-controller";
 
 const credentials = {
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -104,17 +105,19 @@ export async function listS3Recs(
 
 export async function downloadS3File(
   recKey: string
-): Promise<string> {
+): Promise<MythRecDownloadLink> {
   const params = {
     Bucket: NEXT_PUBLIC_S3_REC_BUCKET_NAME || "",
-    Key: recKey,
+    Key: recKey + ".mythrec",
   };
   try {
     const command = new GetObjectCommand(params);
     const signedUrl = await getSignedUrl(s3Client, command, {
       expiresIn: 3600,
     });
-    return signedUrl;
+    return {
+      signedUrl,
+    };
   } catch (err) {
     throw new Error("Error downloading file");
   }

@@ -12,9 +12,7 @@ import { getMythRecs } from "@/server/controllers/mongo-controller";
 export default function RecordedGames() {
   const [recs, setRecs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [page, setPage] = useState<
-    number | undefined
-  >(undefined);
+  const [page, setPage] = useState<number | undefined>(undefined);
   const [recFile, setRecFile] = useState(null);
   const [fileName, setFileName] = useState("");
 
@@ -47,6 +45,7 @@ export default function RecordedGames() {
       const formData = new FormData();
       formData.append("file", recFile);
       formData.append("userName", userName);
+      formData.append("gameTitle", fileName);
 
       const response = await fetch("/api/recordedGames", {
         method: "POST",
@@ -54,25 +53,30 @@ export default function RecordedGames() {
       });
 
       if (response.ok) {
+        // TODO - push inserted rec to state and revalidate
         toast({
           title: "Success",
           description: "Rec uploaded successfully",
         });
-        // todo - update state and revalidate
+      } else if (response.status === 400) {
+        toast({
+          title: "Rec already uploaded",
+          description: "Try again later",
+        });
       } else {
         toast({
           title: "Error Uploading Rec",
           description: "Try again later",
         });
       }
-
       setIsLoading(false);
-    } catch (err) {
+    } catch (err: any) {
       console.error("Error uploading rec", err);
       toast({
         title: "Error Uploading Rec",
         description: "Try again later",
       });
+
       setIsLoading(false);
     }
   }
@@ -123,7 +127,7 @@ export default function RecordedGames() {
             type="text"
             value={fileName}
             onChange={handleFileNameChange}
-            placeholder="Enter file name"
+            placeholder="Enter game title"
             className="border-b border-gray-400 focus:outline-none focus:border-blue-500 px-2 py-1"
           />
           <Button type="submit" className="mx-2">

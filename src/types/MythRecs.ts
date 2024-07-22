@@ -3,6 +3,9 @@ export interface MythRecs {
   playerData: IPlayerData[];
   mapName: string;
   createdAt: Date;
+  uploadedBy: string;
+  gameTitle: string;
+  downloadCount: number;
 }
 
 export interface IPlayerData {
