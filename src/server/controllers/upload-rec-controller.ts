@@ -3,7 +3,7 @@ import { uploadRecToS3 } from "../services/aws";
 import { RecordedGameMetadata } from "@/types/RecordedGame";
 import getMongoClient from "@/db/mongo/mongo-client";
 import RecordedGameModel from "@/db/mongo/model/RecordedGameModel";
-import { MythRecs as MythRec } from "@/types/MythRecs";
+import { MythRec as MythRec } from "@/types/MythRecs";
 
 export type UploadRecParams = {
   file: File;

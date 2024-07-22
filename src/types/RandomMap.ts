@@ -1,4 +1,4 @@
-interface RandomMapData
+export interface RandomMapData
 {
     name: string,
     imagePath: string,

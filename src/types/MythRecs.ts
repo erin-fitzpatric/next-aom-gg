@@ -1,4 +1,4 @@
-export interface MythRecs {
+export interface MythRec {
   gameGuid: string;
   playerData: IPlayerData[];
   mapName: string;

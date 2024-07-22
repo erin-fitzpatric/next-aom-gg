@@ -4,16 +4,16 @@ import RecordedGameModel, {
   IRecordedGame,
 } from "@/db/mongo/model/RecordedGameModel";
 import getMongoClient from "@/db/mongo/mongo-client";
-import { MythRecs } from "@/types/MythRecs";
+import { MythRec } from "@/types/MythRecs";
 
-export async function queryMythRecs(): Promise<MythRecs[]> {
+export async function queryMythRecs(): Promise<MythRec[]> {
   await getMongoClient();
   try {
     const result: IRecordedGame[] = await RecordedGameModel.find()
       .sort({ createdAt: -1 })
       .limit(12);
 
-    const mythRecs: MythRecs[] = result.map((video) => {
+    const mythRecs: MythRec[] = result.map((video) => {
       const mappedPlayerData = video.playerdata.map((player) => {
         return {
           name: player.name,
