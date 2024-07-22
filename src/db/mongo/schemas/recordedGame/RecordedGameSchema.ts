@@ -11,6 +11,9 @@ const Schema = mongoose.Schema;
 
 const RecordedGameSchema = new Schema(
   {
+    downloadCount: { type: Number, required: true, default: 0 },
+    uploadedBy: { type: String, required: true },
+    gameTitle: { type: String, required: true },
     playerdata: { type: [PlayerDataSchema], required: true },
     buildnumber: { type: Number, required: true, default: 0 },
     buildstring: { type: String, required: true, default: "" },
