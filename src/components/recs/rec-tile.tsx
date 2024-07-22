@@ -6,9 +6,8 @@ import { randomMapNameToData } from "@/types/RandomMap";
 import RecTitle from "./rec-title";
 import RecMap from "./rec-map";
 import RecFooter from "./rec-footer";
-import { ScreenSize } from "@/types/ScreenSize";
 
-export default function RecTile({ rec, screenSize }: { rec: MythRec, screenSize: ScreenSize }) {
+export default function RecTile({ rec, screenWidth }: { rec: MythRec, screenWidth: number }) {
   const { playerData, mapName, gameTitle } = rec;
 
   // TODO - process team data
@@ -17,7 +16,7 @@ export default function RecTile({ rec, screenSize }: { rec: MythRec, screenSize:
 
   return (
     <div>
-      {screenSize.width >= 768 ? (
+      {screenWidth >= 768 ? (
         <div>
           <div className="flex">
             <TeamTile playerData={playerData[1]} />{" "}
