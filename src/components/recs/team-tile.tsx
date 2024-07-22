@@ -1,15 +1,14 @@
-import { MajorGods, MajorGodsPortraitPath } from "@/types/MajorGods";
+import { majorGodIndexToData } from "@/types/MajorGods";
 import { IPlayerData } from "@/types/MythRecs";
 import Image from "next/image";
 
 export default function TeamTile({ playerData }: { playerData: IPlayerData }) {
   const { name, civ } = playerData;
-  const godName = MajorGods[civ];
-  const godPortraitPath = MajorGodsPortraitPath[godName];
+  const godData = majorGodIndexToData(civ);
   return (
     <div className="flex flex-col items-center my-auto px-2 w-32">
       <Image
-        src={godPortraitPath}
+        src={godData.portraitPath}
         alt={"super cool god description"}
         width={64}
         height={64}
