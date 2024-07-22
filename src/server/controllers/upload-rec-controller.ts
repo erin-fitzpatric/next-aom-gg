@@ -1,8 +1,8 @@
 import { parseRecordedGameMetadata } from "../recParser";
-import { uploadRecToS3 } from "../aws";
 import { RecordedGameMetadata } from "@/types/RecordedGame";
 import getMongoClient from "@/db/mongo/mongo-client";
 import RecordedGameModel from "@/db/mongo/model/RecordedGameModel";
+import { uploadRecToS3 } from "../services/aws";
 
 export type UploadRecParams = {
   file: File;
