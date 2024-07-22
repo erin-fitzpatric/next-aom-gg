@@ -18,7 +18,7 @@ export default function TeamTile({ playerData }: { playerData: IPlayerData }) {
         {name}
       </div>
       <div className="text-center truncate w-30 font-medium italic">
-        Rank: 1450
+        Rank: TBD
       </div>
     </div>
   );
