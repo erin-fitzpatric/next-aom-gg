@@ -15,10 +15,6 @@ export default function RecordedGames() {
   const [page, setPage] = useState<number | undefined>(undefined);
   const [recFile, setRecFile] = useState(null);
   const [fileName, setFileName] = useState("");
-  const [screenSize, setScreenSize] = useState({
-    width: window.innerWidth,
-    height: window.innerHeight,
-  });
 
   const { toast } = useToast();
 
@@ -99,23 +95,6 @@ export default function RecordedGames() {
       }
     }
     getRecs();
-
-    // Function to update the screen size
-    const handleResize = () => {
-      setScreenSize({
-        width: window.innerWidth,
-        height: window.innerHeight,
-      });
-    };
-
-    // Set initial screen size
-    handleResize();
-
-    // Add event listener
-    window.addEventListener("resize", handleResize);
-
-    // Remove event listener on cleanup
-    return () => window.removeEventListener("resize", handleResize);
   }, [toast]);
 
   return (
@@ -161,7 +140,7 @@ export default function RecordedGames() {
                 className="bg-secondary rounded-lg m-1 p-2 flex w-fit"
               >
                 <div key={rec.Key}>
-                  <RecTile rec={rec} screenWidth={screenSize.width}></RecTile>
+                  <RecTile rec={rec} screenWidth={window.innerWidth}></RecTile>
                 </div>
               </Card>
             ))}
