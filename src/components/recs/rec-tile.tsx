@@ -5,6 +5,7 @@ import { toast } from "../ui/use-toast";
 import TeamTile from "./team-tile";
 import { useEffect, useState } from "react";
 import { MythRecs as MythRec } from "@/types/MythRecs";
+import { randomMapNameToData } from "@/types/RandomMap";
 
 export default function RecTile({ rec }: { rec: MythRec }) {
   const { gameGuid, playerData, mapName, createdAt } = rec;
@@ -46,6 +47,9 @@ export default function RecTile({ rec }: { rec: MythRec }) {
 
   // TODO - process team data
 
+
+  const mapData = randomMapNameToData(mapName);
+
   return (
     <div>
       {screenSize.width >= 768 ? (
@@ -54,11 +58,11 @@ export default function RecTile({ rec }: { rec: MythRec }) {
             <TeamTile playerData={playerData[1]} /> {/* TODO - make team dynamic */}
             <div>
               <div className="text-center text-xl text-prim font-semibold w-[240px] min-h-2-lines line-clamp-2">
-                Mista 1v1 Fast Mythic Rush
+                {mapData.name}
               </div>
               <Image
-                src={`/maps/${mapName}.png`}
-                alt={mapName}
+                src={mapData.imagePath}
+                alt={mapData.name}
                 width={240}
                 height={240}
               ></Image>
