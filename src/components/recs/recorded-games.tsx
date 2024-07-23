@@ -18,7 +18,8 @@ import { InfoIcon } from "lucide-react";
 export default function RecordedGames() {
   const [recs, setRecs] = useState<any[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [page, setPage] = useState<number | undefined>(undefined);
+  const [isFetching, setIsFetching] = useState<boolean>(false);
+  const [page, setPage] = useState<number>(0);
   const [recFile, setRecFile] = useState(null);
   const [fileName, setFileName] = useState("");
   const { toast } = useToast();
@@ -80,27 +81,52 @@ export default function RecordedGames() {
     }
   }
 
-  useEffect(() => {
-    async function getRecs(): Promise<void> {
-      console.log("fetching recs");
-      setIsLoading(true);
-      try {
-        // load first page of recs on page load
-        const mythRecs = await getMythRecs();
-        setPage(1);
-        setRecs(mythRecs);
+  async function fetchRecs(): Promise<void> {
+    if (isFetching) return;
+    setIsFetching(true);
+    console.log("fetching recs");
+    try {
+      // load next page of recs
+      const mythRecs = await getMythRecs(page);
+      if (mythRecs.length === 0) {
+        console.log("no more recs");
         setIsLoading(false);
-      } catch (err) {
-        console.error("Error fetching recs", err);
-        setIsLoading(false);
-        toast({
-          title: "Error Fetching Recs",
-          description: "Try again later",
-        });
+        setIsFetching(false);
+        setPage(-1);
+        return;
       }
+      setRecs((recs) => [...recs, ...mythRecs]);
+      setIsLoading(false);
+      setIsFetching(false);
+    } catch (err) {
+      console.error("Error fetching recs", err);
+      setIsLoading(false);
+      setIsFetching(false);
+      toast({
+        title: "Error Fetching Recs",
+        description: "Try again later",
+      });
     }
-    getRecs();
-  }, [toast]);
+  }
+
+  useEffect(() => {
+    fetchRecs();
+  }, []);
+
+  useEffect(() => {
+    const handleScroll = () => {
+      const scrollPosition = window.scrollY + window.innerHeight;
+      const pageHeight = document.documentElement.scrollHeight;
+      if (pageHeight - scrollPosition <= 300 && page !== -1) {
+        if (isLoading) return;
+        setIsLoading(true);
+        fetchRecs();
+        setPage((prevPage) => prevPage + 1);
+      }
+    };
+    window.addEventListener("scroll", handleScroll);
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, [setPage, isLoading]);
 
   return (
     <Card className="p-4">
@@ -111,16 +137,16 @@ export default function RecordedGames() {
         <div className="flex gap-2 text-center">
           <h3 className="text-white">Upload an AoM Retold Recorded Game</h3>
           <Tooltip>
-              <TooltipTrigger>
-                <InfoIcon className="cursor-pointer hover:text-primary" />
-              </TooltipTrigger>
-              <TooltipContent>
-                <p>
-                  C:\Users\fitzbro\Games\Age of Mythology
-                  RetoldBeta\yourSteamId\replays
-                </p>
-              </TooltipContent>
-            </Tooltip>
+            <TooltipTrigger>
+              <InfoIcon className="cursor-pointer hover:text-primary" />
+            </TooltipTrigger>
+            <TooltipContent>
+              <p>
+                C:\Users\fitzbro\Games\Age of Mythology
+                RetoldBeta\yourSteamId\replays
+              </p>
+            </TooltipContent>
+          </Tooltip>
         </div>
         <form onSubmit={handleUploadFile} className="flex mt-1 flex-col">
           <Input

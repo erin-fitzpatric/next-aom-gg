@@ -6,12 +6,16 @@ import RecordedGameModel, {
 import getMongoClient from "@/db/mongo/mongo-client";
 import { MythRec } from "@/types/MythRecs";
 
-export async function queryMythRecs(): Promise<MythRec[]> {
+export async function queryMythRecs(pageIndex: number): Promise<MythRec[]> {
+  console.log("pageIndex", pageIndex);
+  const PAGE_SIZE = 36
+  const offset = (pageIndex * PAGE_SIZE)
   await getMongoClient();
   try {
     const result: IRecordedGame[] = await RecordedGameModel.find()
       .sort({ createdAt: -1 })
-      .limit(12);
+      .skip(offset)
+      .limit(PAGE_SIZE)
 
     const mythRecs: MythRec[] = result.map((video) => {
       const mappedPlayerData = video.playerdata.map((player) => {
