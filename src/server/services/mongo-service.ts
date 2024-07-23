@@ -21,21 +21,21 @@ export async function queryMythRecs(pageIndex: number): Promise<MythRec[]> {
       const mappedPlayerData = video.playerdata.map((player) => {
         return {
           name: player.name,
-          team: player.teamid,
+          team: player.teamId,
           civ: player.civ,
-          civList: player.civlist,
+          civList: player.civList,
           rating: player.rating,
           rank: player.rank,
-          powerRating: player.powerrating,
-          winRatio: player.winratio,
-          civWasRandom: player.civwasrandom,
+          powerRating: player.powerRating,
+          winRatio: player.winRatio,
+          civWasRandom: player.civWasRandom,
           color: player.color,
         };
       });
       return {
-        gameGuid: video.gameguid,
+        gameGuid: video.gameGuid,
         playerData: mappedPlayerData,
-        mapName: video.gamemapname,
+        mapName: video.gameMapName,
         createdAt: video.createdAt,
         uploadedBy: video.uploadedBy ?? "FitzBro", // remove these defaults later
         gameTitle: video.gameTitle ?? "Retold Rec", // remove these defaults later

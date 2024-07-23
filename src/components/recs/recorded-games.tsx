@@ -162,10 +162,10 @@ export default function RecordedGames() {
             placeholder="Enter file name"
             className="border-b border-gray-400 focus:outline-none focus:border-blue-500 px-2 py-1"
           />
+          <Button type="submit" className="flex mx-auto mt-2">
+            Upload
+          </Button>
         </form>
-        <Button type="submit" className="flex mx-auto mt-2">
-          Upload
-        </Button>
       </div>
       <div className="mt-4">
         {isLoading ? (

@@ -14,9 +14,9 @@ export interface IPlayerData {
   civ: number;
   civList: string;
   rating: number;
-  rank: string;
-  powerRating: string;
-  winRatio: string;
+  rank?: string;
+  powerRating?: string;
+  winRatio?: string;
   civWasRandom: boolean;
   color: number;
 }

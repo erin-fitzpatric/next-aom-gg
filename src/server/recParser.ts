@@ -1,5 +1,5 @@
 "use server";
-import { RecParseError, RecordedGameMetadata, RecordedGamePlayerMetadata, RecordedGameMetadataNumbers, RecordedGameMetadataStrings, RecordedGameMetadataBooleans, RecordedGamePlayerMetadataBooleans, RecordedGamePlayerMetadataNumbers, RecordedGamePlayerMetadataStrings } from "@/types/RecordedGame";
+import { RecParseError, RecordedGameMetadata, RecordedGamePlayerMetadata, RecordedGameMetadataNumbersRequired, RecordedGameMetadataStringsRequired, RecordedGameMetadataBooleansRequired, RecordedGamePlayerMetadataBooleansRequired, RecordedGamePlayerMetadataNumbersRequired, RecordedGamePlayerMetadataStringsRequired, RecordedGamePlayerMetadataNumbersOptional, RecordedGameMetadataNumbersOptional, RecordedGamePlayerMetadataStringsOptional, RecordedGameMetadataStringsOptional, RecordedGamePlayerMetadataBooleansOptional, RecordedGameMetadataBooleansOptional, RecordedGameRawKeysToCamelCase } from "@/types/RecordedGame";
 import { ErrorBoundaryHandler } from "next/dist/client/components/error-boundary";
 import { promisify } from "util";
 import { CompressCallback, inflate, InputType } from "zlib";
@@ -233,9 +233,9 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
     const typedOutput = output as RecordedGameMetadata;
 
     // Make sure all the keys are there that should be there
-    let playerDataKeys = RecordedGamePlayerMetadataNumbers as ReadonlyArray<string>;
-    playerDataKeys = playerDataKeys.concat(RecordedGamePlayerMetadataStrings as ReadonlyArray<string>);
-    playerDataKeys = playerDataKeys.concat(RecordedGamePlayerMetadataBooleans as ReadonlyArray<string>);
+    let playerDataKeys = RecordedGamePlayerMetadataNumbersRequired as ReadonlyArray<string>;
+    playerDataKeys = playerDataKeys.concat(RecordedGamePlayerMetadataStringsRequired as ReadonlyArray<string>);
+    playerDataKeys = playerDataKeys.concat(RecordedGamePlayerMetadataBooleansRequired as ReadonlyArray<string>);
     for (const playerIndex in typedOutput.playerdata)
     {
         const playerData = typedOutput.playerdata[playerIndex];
@@ -247,9 +247,9 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
             }
         }
     }
-    let mainDataKeys = RecordedGameMetadataNumbers as ReadonlyArray<string>;
-    mainDataKeys = mainDataKeys.concat(RecordedGameMetadataStrings as ReadonlyArray<string>);
-    mainDataKeys = mainDataKeys.concat(RecordedGameMetadataBooleans as ReadonlyArray<string>);
+    let mainDataKeys = RecordedGameMetadataNumbersRequired as ReadonlyArray<string>;
+    mainDataKeys = mainDataKeys.concat(RecordedGameMetadataStringsRequired as ReadonlyArray<string>);
+    mainDataKeys = mainDataKeys.concat(RecordedGameMetadataBooleansRequired as ReadonlyArray<string>);
     for (const key of mainDataKeys)
     {
         if (typedOutput[key as keyof RecordedGameMetadata] === undefined)
@@ -259,7 +259,7 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
     }
 
     // Now that everything is there, trim output.playerdata to the correct number of players
-    typedOutput.playerdata.splice(typedOutput.gamenumplayers+1, 13-typedOutput.gamenumplayers);
+    typedOutput.playerdata.splice(typedOutput.gameNumPlayers+1, 13-typedOutput.gameNumPlayers);
     return typedOutput;
 }
 
@@ -289,23 +289,26 @@ function addMetadataKeyToOutput(output: any, keyName: string, value: number | st
         keyName = keyName.slice(10 + playerNumberLength);
         targetObject = output.playerdata[playerNumber];
     }
-    let validKeys: string[] = [];
+    keyName = RecordedGameRawKeysToCamelCase.get(keyName) ?? keyName;
+    let requiredKeys: ReadonlyArray<String> = [];
+    let optionalKeys: ReadonlyArray<String> = [];
     let isValidKey = false;
     if (typeof value == "number")
     {
-        let placeToSearch = isPlayerKey ? RecordedGamePlayerMetadataNumbers : RecordedGameMetadataNumbers as ReadonlyArray<string>;
-        isValidKey = placeToSearch.includes(keyName);
+        requiredKeys = isPlayerKey ? RecordedGamePlayerMetadataNumbersRequired : RecordedGameMetadataNumbersRequired as ReadonlyArray<string>;
+        optionalKeys = isPlayerKey ? RecordedGamePlayerMetadataNumbersOptional : RecordedGameMetadataNumbersOptional as ReadonlyArray<string>;
     }
     else if (typeof value == "string")
     {
-        let placeToSearch = isPlayerKey ? RecordedGamePlayerMetadataStrings : RecordedGameMetadataStrings as ReadonlyArray<string>;
-        isValidKey = placeToSearch.includes(keyName);
+        requiredKeys = isPlayerKey ? RecordedGamePlayerMetadataStringsRequired : RecordedGameMetadataStringsRequired as ReadonlyArray<string>;
+        optionalKeys = isPlayerKey ? RecordedGamePlayerMetadataStringsOptional : RecordedGameMetadataStringsOptional as ReadonlyArray<string>;
     }
     else if (typeof value == "boolean")
     {
-        let placeToSearch = isPlayerKey ? RecordedGamePlayerMetadataBooleans : RecordedGameMetadataBooleans as ReadonlyArray<string>;
-        isValidKey = placeToSearch.includes(keyName);
+        requiredKeys = isPlayerKey ? RecordedGamePlayerMetadataBooleansRequired : RecordedGameMetadataBooleansRequired as ReadonlyArray<string>;
+        optionalKeys = isPlayerKey ? RecordedGamePlayerMetadataBooleansOptional : RecordedGameMetadataBooleansOptional as ReadonlyArray<string>;
     }
+    isValidKey = requiredKeys.includes(keyName) || optionalKeys.includes(keyName);
     if (!isValidKey)
     {
         console.log(`Discarded key ${keyName} value ${value}`);
