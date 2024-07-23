@@ -134,7 +134,7 @@ export const RecordedGamePlayerMetadataNumbersRequired = [
     "type",             // Unknown, so far all values 0
     "status",           // Unknown, so far all values 0
     "id",               // Unknown, so far all values = the player's number
-    "aiDifficulty",    
+    //"aiDifficulty",    
 ] as const;
 
 export const RecordedGamePlayerMetadataNumbersOptional = [ 
@@ -144,7 +144,7 @@ export const RecordedGamePlayerMetadataBooleansRequired = [
     "civWasRandom",     // Unknown if functional
     "civIsHidden",
     "ugcCheck",         // Unknown; "ugc" = user generated content?
-    "ready",
+    //"ready",
 ] as const;
 
 export const RecordedGamePlayerMetadataBooleansOptional = [
@@ -168,21 +168,20 @@ export const RecordedGameMetadataStringsRequired = [
 
 export const RecordedGameMetadataStringsOptional = [
     // Unsure if useful
-    "gameName",
-    "gamePassword",     
-    "gameLanguage",                         // Currently unused
-    "gameRegion",                           // Currently unused
+    //"gameName",
+    //"gamePassword",     
+    //"gameLanguage",                         // Currently unused
+    //"gameRegion",                           // Currently unused
     // Unknown, unsure if useful
     "customMapName",                        // Unknown
-    "gameLastMapSetSelected",               // Unknown
-    "gameArenaSeason",                      // Arena of the gods?
-    "gameArenaMission",
+    //"gameLastMapSetSelected",               // Unknown
+    //"gameArenaSeason",                      // Arena of the gods?
+    //"gameArenaMission",
     "gamePlayFabPartyAddress",              // Unknown
-    // Probably not useful
-    "gameMainMenuScenarioName",             // No idea why this is here
-    "gameContinueMainFileName",             // Unknown
-    "gameContinueCampaignFileName",         // Unknown
-    "gameContinueCampaignScenarioName",     // Unknown
+    //"gameMainMenuScenarioName",             // No idea why this is here
+    //"gameContinueMainFileName",             // Unknown
+    //"gameContinueCampaignFileName",         // Unknown
+    //"gameContinueCampaignScenarioName",     // Unknown
 ] as const;
 
 export const RecordedGameMetadataNumbersRequired = [
@@ -200,32 +199,32 @@ export const RecordedGameMetadataNumbersRequired = [
     "gameSpeed",
     "gameMapVisibility",
     "gameHandicapMode",
-    "gameRandomSeed",                       // Possibly the seed used in the random map generator
-    "gameDifficulty",                       // Likely global AI difficulty
+    //"gameRandomSeed",                       // Possibly the seed used in the random map generator
+    //"gameDifficulty",                       // Likely global AI difficulty
     "mapSetFilter",
     "gameHostTime",                         // 0 in all beta recs I have looked at
     "gameLatency",                          // 0 in all beta recs I have looked at
     "gameNoRush",                           // Treaty/no rush wasn't offered as a setting in the beta
     "gameArenaPlayerChosenDifficulty",      // Arena of the gods again?
-    "gameCustomMapFileCount",
+    //"gameCustomMapFileCount",
     "mapModId",
     "mapModCrc",
     // I have no idea what any of these are, but they sound very campaign-like
     // Probably can be removed from here
-    "gameMpCoopCampaignId",
-    "gameMpCoopScenarioId",
-    "gameCampaignSelected",
-    "gameCampaignProgress",
-    "gameCampaignFarthest",
-    "gameCampaignProgress1",
-    "gameCampaignFarthest1",
-    "gameCampaignProgress2",
-    "gameCampaignFarthest2Act1",
-    "gameCampaignFarthest2Act2",
-    "gameCampaignFarthest2Act3",
-    "gameContinueCampaignScenarioNameId",
-    "gameContinueCampaignId",
-    "gameContinueCampaignScenarioId",
+    //"gameMpCoopCampaignId",
+    //"gameMpCoopScenarioId",
+    //"gameCampaignSelected",
+    //"gameCampaignProgress",
+    //"gameCampaignFarthest",
+    //"gameCampaignProgress1",
+    //"gameCampaignFarthest1",
+    //"gameCampaignProgress2",
+    //"gameCampaignFarthest2Act1",
+    //"gameCampaignFarthest2Act2",
+    //"gameCampaignFarthest2Act3",
+    //"gameContinueCampaignScenarioNameId",
+    //"gameContinueCampaignId",
+    //"gameContinueCampaignScenarioId",
 ] as const;
 
 export const RecordedGameMetadataNumbersOptional = [] as const;
@@ -243,17 +242,17 @@ export const RecordedGameMetadataBooleansRequired = [
     "gameAllowAiAssist",
     "gameMilitaryAutoqueue",
     "gameRestrictPause",
-    "gameRmDebug",                  // Most likely whether the game was run with random map debugging enabled
+    //"gameRmDebug",                  // Most likely whether the game was run with random map debugging enabled
     "gameRestored",
     "gameFreeForAll",               // How is this different to every player being on their own team?
-    "gameRecordGame",               // The fact that this is a named variable inside a recorded game seems very confusing
+    //"gameRecordGame",               // The fact that this is a named variable inside a recorded game seems very confusing
     "gameBlockade",                 // aoe3 holdover?
     "gameKoth",                     // King of the hill as a togglable option rather than specific map?
     "gameRegicide",                 // Regicide as a togglable option rather than specific map?
     "gameSuddenDeath",
     "gameNomadStart",
-    "gameAiVsAi",
-    "gameStoryMode",
+    //"gameAiVsAi",
+    //"gameStoryMode",
     "gameIsMpScenario",
     "gameIsMpCoop",
     "gameMapRecommendedSettings",
