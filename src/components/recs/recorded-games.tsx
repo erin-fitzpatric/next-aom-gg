@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useContext } from "react";
 import { SpinnerWithText } from "../spinner";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
@@ -8,6 +8,12 @@ import { useToast } from "../ui/use-toast";
 import { Input } from "../ui/input";
 import RecTile from "./rec-tile";
 import { getMythRecs } from "@/server/controllers/mongo-controller";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
+import { InfoIcon } from "lucide-react";
 
 export default function RecordedGames() {
   const [recs, setRecs] = useState<any[]>([]);
@@ -15,7 +21,6 @@ export default function RecordedGames() {
   const [page, setPage] = useState<number | undefined>(undefined);
   const [recFile, setRecFile] = useState(null);
   const [fileName, setFileName] = useState("");
-
   const { toast } = useToast();
 
   const handleFileChange = (e: any) => {
@@ -103,14 +108,21 @@ export default function RecordedGames() {
         <h2>Recorded Games</h2>
       </div>
       <div className="mx-auto w-fit mt-4 bg-secondary p-4 rounded-xl outline-double text-gold">
-        <div className="text-center">
+        <div className="flex gap-2 text-center">
           <h3 className="text-white">Upload an AoM Retold Recorded Game</h3>
-          <p>
-            C:\Users\fitzbro\Games\Age of Mythology Retold
-            Beta\yourSteamId\replays
-          </p>
+          <Tooltip>
+              <TooltipTrigger>
+                <InfoIcon className="cursor-pointer hover:text-primary" />
+              </TooltipTrigger>
+              <TooltipContent>
+                <p>
+                  C:\Users\fitzbro\Games\Age of Mythology
+                  RetoldBeta\yourSteamId\replays
+                </p>
+              </TooltipContent>
+            </Tooltip>
         </div>
-        <form onSubmit={handleUploadFile} className="flex mt-1">
+        <form onSubmit={handleUploadFile} className="flex mt-1 flex-col">
           <Input
             type="file"
             onChange={handleFileChange}
@@ -124,26 +136,31 @@ export default function RecordedGames() {
             placeholder="Enter file name"
             className="border-b border-gray-400 focus:outline-none focus:border-blue-500 px-2 py-1"
           />
-          <Button type="submit" className="mx-2">
-            Upload
-          </Button>
         </form>
+        <Button type="submit" className="flex mx-auto mt-2">
+          Upload
+        </Button>
       </div>
       <div className="mt-4">
         {isLoading ? (
           <SpinnerWithText text={"Loading recorded games..."} />
         ) : (
           <div className="flex flex-row flex-wrap justify-center">
-            {recs?.map((rec) => (
-              <Card
-                key={rec.Key}
-                className="bg-secondary rounded-lg m-1 p-2 flex w-fit"
-              >
-                <div key={rec.Key}>
-                  <RecTile rec={rec} screenWidth={window.innerWidth}></RecTile>
-                </div>
-              </Card>
-            ))}
+            {recs?.map(
+              (rec) => (
+                console.log("red", rec),
+                (
+                  <Card
+                    key={rec.gameGuid}
+                    className="bg-secondary rounded-lg m-1 p-2 flex w-fit"
+                  >
+                    <div>
+                      <RecTile rec={rec}></RecTile>
+                    </div>
+                  </Card>
+                )
+              )
+            )}
           </div>
         )}
       </div>

@@ -6,9 +6,12 @@ import { randomMapNameToData } from "@/types/RandomMap";
 import RecTitle from "./rec-title";
 import RecMap from "./rec-map";
 import RecFooter from "./rec-footer";
+import { useContext, useEffect } from "react";
+import { WindowContext } from "../provider/window-provider";
 
-export default function RecTile({ rec, screenWidth }: { rec: MythRec, screenWidth: number }) {
+export default function RecTile({ rec }: { rec: MythRec }) {
   const { playerData, mapName, gameTitle } = rec;
+  const windowSize = useContext(WindowContext);
 
   // TODO - process team data
 
@@ -16,7 +19,7 @@ export default function RecTile({ rec, screenWidth }: { rec: MythRec, screenWidt
 
   return (
     <div>
-      {screenWidth >= 768 ? (
+      {windowSize && windowSize.width >= 768 ? (
         <div>
           <div className="flex">
             <TeamTile playerData={playerData[1]} />{" "}
