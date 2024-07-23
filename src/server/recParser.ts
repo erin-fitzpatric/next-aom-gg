@@ -260,6 +260,26 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
 
     // Now that everything is there, trim output.playerdata to the correct number of players
     typedOutput.playerData.splice(typedOutput.gameNumPlayers+1, 13-typedOutput.gameNumPlayers);
+    // Parse teams into more manageable list
+    typedOutput.teams = [];
+    const teamIdToTeamArrayIndex = new Map<number, number>();
+    for (const playerData of typedOutput.playerData)
+    {
+        // Mother nature doesn't belong to a team
+        if (playerData.id == 0) continue;
+        const teamId = playerData.teamId;
+        let index = teamIdToTeamArrayIndex.get(teamId);
+        if (index === undefined)
+        {
+            index = typedOutput.teams.length;
+            teamIdToTeamArrayIndex.set(teamId, index);
+            typedOutput.teams.push([playerData.id]);
+        }
+        else
+        {
+            typedOutput.teams[index].push(playerData.id);
+        }
+    }
     return typedOutput;
 }
 

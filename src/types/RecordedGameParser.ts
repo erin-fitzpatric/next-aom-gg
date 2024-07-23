@@ -270,11 +270,24 @@ export interface RecordedGameMetadata extends Record<typeof RecordedGameMetadata
                                               Partial<Record<typeof RecordedGameMetadataNumbersOptional[number], number>>,
                                               Partial<Record<typeof RecordedGameMetadataBooleansOptional[number], boolean>>
 {
-    // This array will INCLUDE MOTHER NATURE at index 0.
+    /**
+     * This array will contain an entry for player 0 (mother nature) at index 0.
+     */
     playerData: RecordedGamePlayerMetadata[];
+    /**
+     * The raw build info string from the recorded game, eg "AoMRT_s.exe 452295 //stream/Athens/beta"
+     */
     buildString: string,
+    /**
+     * The game build number from the build info string
+     */
     buildNumber: number,
     parsedAt: Date,
+    /**
+     * Contains 1 entry per team. Each entry contains the player numbers of players on that team.
+     * Eg: a 3v3 with p1/2/3 vs p4/5/6 = [[1, 2, 3], [4, 5, 6]]
+     */
+    teams: number[][],
 }
 
 export class RecParseError extends Error
