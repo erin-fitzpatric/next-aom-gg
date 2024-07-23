@@ -1,6 +1,5 @@
 "use server";
-import { RecParseError, RecordedGameMetadata, RecordedGamePlayerMetadata, RecordedGameMetadataNumbersRequired, RecordedGameMetadataStringsRequired, RecordedGameMetadataBooleansRequired, RecordedGamePlayerMetadataBooleansRequired, RecordedGamePlayerMetadataNumbersRequired, RecordedGamePlayerMetadataStringsRequired, RecordedGamePlayerMetadataNumbersOptional, RecordedGameMetadataNumbersOptional, RecordedGamePlayerMetadataStringsOptional, RecordedGameMetadataStringsOptional, RecordedGamePlayerMetadataBooleansOptional, RecordedGameMetadataBooleansOptional, RecordedGameRawKeysToCamelCase } from "@/types/RecordedGame";
-import { ErrorBoundaryHandler } from "next/dist/client/components/error-boundary";
+import { RecParseError, RecordedGameMetadata, RecordedGamePlayerMetadata, RecordedGameMetadataNumbersRequired, RecordedGameMetadataStringsRequired, RecordedGameMetadataBooleansRequired, RecordedGamePlayerMetadataBooleansRequired, RecordedGamePlayerMetadataNumbersRequired, RecordedGamePlayerMetadataStringsRequired, RecordedGamePlayerMetadataNumbersOptional, RecordedGameMetadataNumbersOptional, RecordedGamePlayerMetadataStringsOptional, RecordedGameMetadataStringsOptional, RecordedGamePlayerMetadataBooleansOptional, RecordedGameMetadataBooleansOptional, RecordedGameRawKeysToCamelCase } from "@/types/RecordedGameParser";
 import { promisify } from "util";
 import { CompressCallback, inflate, InputType } from "zlib";
 
@@ -69,8 +68,8 @@ async function decompressL33tZlib(compressed: ArrayBuffer): Promise<Buffer>
     }
     catch (err)
     {
-        console.error("Decompression error: ", err);
-        throw new RecParseError("Failed to decompress file");
+        console.error("Decompression error: " + err);
+        throw new RecParseError("Failed to decompress file: " + err);
     }
 }
 
@@ -161,9 +160,10 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
     }
     const output = {
         // 13 total: 12 players plus mother nature
-        playerdata: [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}],
-        buildstring: buildInfoString,
-        buildnumber: buildNumber,
+        playerData: [{}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}, {}],
+        buildString: buildInfoString,
+        buildNumber: buildNumber,
+        parsedAt: new Date(),
     };
     // Points to the length of the string of the first key
     let currentOffset = metadataOffset - 4;
@@ -236,9 +236,9 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
     let playerDataKeys = RecordedGamePlayerMetadataNumbersRequired as ReadonlyArray<string>;
     playerDataKeys = playerDataKeys.concat(RecordedGamePlayerMetadataStringsRequired as ReadonlyArray<string>);
     playerDataKeys = playerDataKeys.concat(RecordedGamePlayerMetadataBooleansRequired as ReadonlyArray<string>);
-    for (const playerIndex in typedOutput.playerdata)
+    for (const playerIndex in typedOutput.playerData)
     {
-        const playerData = typedOutput.playerdata[playerIndex];
+        const playerData = typedOutput.playerData[playerIndex];
         for (const key of playerDataKeys)
         {
             if (playerData[key as keyof RecordedGamePlayerMetadata] === undefined)
@@ -259,7 +259,7 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
     }
 
     // Now that everything is there, trim output.playerdata to the correct number of players
-    typedOutput.playerdata.splice(typedOutput.gameNumPlayers+1, 13-typedOutput.gameNumPlayers);
+    typedOutput.playerData.splice(typedOutput.gameNumPlayers+1, 13-typedOutput.gameNumPlayers);
     return typedOutput;
 }
 
@@ -287,7 +287,7 @@ function addMetadataKeyToOutput(output: any, keyName: string, value: number | st
         }
         const playerNumberLength = playerNumber.toFixed(0).length;
         keyName = keyName.slice(10 + playerNumberLength);
-        targetObject = output.playerdata[playerNumber];
+        targetObject = output.playerData[playerNumber];
     }
     keyName = RecordedGameRawKeysToCamelCase.get(keyName) ?? keyName;
     let requiredKeys: ReadonlyArray<String> = [];

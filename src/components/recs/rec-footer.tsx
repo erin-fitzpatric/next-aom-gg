@@ -1,12 +1,12 @@
 "use client";
 
 import downloadMythRec from "@/server/controllers/download-rec-controller";
-import { MythRec } from "@/types/MythRecs";
 import { DownloadIcon } from "lucide-react";
 import { toast } from "../ui/use-toast";
 import { useEffect, useState } from "react";
+import { IRecordedGame } from "@/types/RecordedGame";
 
-export default function RecFooter({ rec }: { rec: MythRec }) {
+export default function RecFooter({ rec }: { rec: IRecordedGame }) {
   const { gameGuid, uploadedBy, downloadCount } = rec;
 
 

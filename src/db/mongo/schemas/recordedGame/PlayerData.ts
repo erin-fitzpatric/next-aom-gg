@@ -1,6 +1,6 @@
 import mongoose from "mongoose";
 import { recMetadataSchemaHelper } from "@/utils/utils";
-import { RecordedGamePlayerMetadataBooleansOptional, RecordedGamePlayerMetadataBooleansRequired, RecordedGamePlayerMetadataNumbersOptional, RecordedGamePlayerMetadataNumbersRequired, RecordedGamePlayerMetadataStringsOptional, RecordedGamePlayerMetadataStringsRequired } from "@/types/RecordedGame";
+import { RecordedGamePlayerMetadataBooleansOptional, RecordedGamePlayerMetadataBooleansRequired, RecordedGamePlayerMetadataNumbersOptional, RecordedGamePlayerMetadataNumbersRequired, RecordedGamePlayerMetadataStringsOptional, RecordedGamePlayerMetadataStringsRequired } from "@/types/RecordedGameParser";
 
 const Schema = mongoose.Schema;
 

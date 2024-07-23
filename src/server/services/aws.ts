@@ -1,5 +1,5 @@
 "use server";
-import { RecordedGameMetadata } from "@/types/RecordedGame";
+import { RecordedGameMetadata } from "@/types/RecordedGameParser";
 import {
   GetObjectCommand,
   ListObjectsV2Command,
@@ -35,7 +35,7 @@ type UploadS3RecResponse = {
 
 export async function uploadRecToS3(uploadS3RecParams: UploadS3RecParams): Promise<UploadS3RecResponse> {
   const { file, metadata, userName } = uploadS3RecParams;
-  const { gameguid } = metadata;
+  const { gameGuid } = metadata;
 
   if (!NEXT_PUBLIC_S3_REC_BUCKET_NAME) {
     throw new Error("S3 bucket not found");
@@ -53,7 +53,7 @@ export async function uploadRecToS3(uploadS3RecParams: UploadS3RecParams): Promi
 
   const params = {
     Bucket: NEXT_PUBLIC_S3_REC_BUCKET_NAME,
-    Key: `${gameguid}.mythrec`,
+    Key: `${gameGuid}.mythrec`,
     Body: body,
     Metadata: {
       "uploaded-by": userName,
@@ -64,7 +64,7 @@ export async function uploadRecToS3(uploadS3RecParams: UploadS3RecParams): Promi
     await s3Client.send(new PutObjectCommand(params));
     return {
       message: "File uploaded successfully",
-      key: `${gameguid}.mythrec`,
+      key: `${gameGuid}.mythrec`,
     };
   } catch (err) {
     throw new Error("Error uploading file");

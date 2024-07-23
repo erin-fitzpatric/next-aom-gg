@@ -1,48 +1,25 @@
 "use server";
 
-import RecordedGameModel, {
-  IRecordedGame,
-} from "@/db/mongo/model/RecordedGameModel";
+import RecordedGameModel from "@/db/mongo/model/RecordedGameModel";
 import getMongoClient from "@/db/mongo/mongo-client";
-import { MythRec } from "@/types/MythRecs";
+import { IRecordedGame } from "@/types/RecordedGame";
+import { removeMongoObjectID } from "@/utils/utils";
 
-export async function queryMythRecs(pageIndex: number): Promise<MythRec[]> {
+export async function queryMythRecs(pageIndex: number): Promise<IRecordedGame[]> {
   console.log("pageIndex", pageIndex);
   const PAGE_SIZE = 36
   const offset = (pageIndex * PAGE_SIZE)
   await getMongoClient();
   try {
-    const result: IRecordedGame[] = await RecordedGameModel.find()
+    const result = await RecordedGameModel.find().lean()
       .sort({ createdAt: -1 })
       .skip(offset)
       .limit(PAGE_SIZE)
 
-    const mythRecs: MythRec[] = result.map((video) => {
-      const mappedPlayerData = video.playerdata.map((player) => {
-        return {
-          name: player.name,
-          team: player.teamId,
-          civ: player.civ,
-          civList: player.civList,
-          rating: player.rating,
-          rank: player.rank,
-          powerRating: player.powerRating,
-          winRatio: player.winRatio,
-          civWasRandom: player.civWasRandom,
-          color: player.color,
-        };
-      });
-      return {
-        gameGuid: video.gameGuid,
-        playerData: mappedPlayerData,
-        mapName: video.gameMapName,
-        createdAt: video.createdAt,
-        uploadedBy: video.uploadedBy ?? "FitzBro", // remove these defaults later
-        gameTitle: video.gameTitle ?? "Retold Rec", // remove these defaults later
-        downloadCount: video.downloadCount ?? 0,
-      };
-    });
-    return mythRecs;
+    // Remove _id from each playerData object and the object as a whole
+    result.map((rec) => { removeMongoObjectID(rec.playerData)});
+    removeMongoObjectID(result);
+    return result;
   } catch (err) {
     console.error(err);
     throw new Error("Failed to fetch Myth recordings: " + err);

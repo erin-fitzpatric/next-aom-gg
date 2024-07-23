@@ -1,8 +1,8 @@
 import { majorGodIndexToData } from "@/types/MajorGods";
-import { IPlayerData } from "@/types/MythRecs";
+import { RecordedGamePlayerMetadata } from "@/types/RecordedGameParser";
 import Image from "next/image";
 
-export default function TeamTile({ playerData }: { playerData: IPlayerData }) {
+export default function TeamTile({ playerData }: { playerData: RecordedGamePlayerMetadata }) {
   const { name, civ } = playerData;
   const godData = majorGodIndexToData(civ);
   return (

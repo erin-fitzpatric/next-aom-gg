@@ -14,9 +14,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { InfoIcon } from "lucide-react";
+import { IRecordedGame } from "@/types/RecordedGame";
 
 export default function RecordedGames() {
-  const [recs, setRecs] = useState<any[]>([]);
+  const [recs, setRecs] = useState<IRecordedGame[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isFetching, setIsFetching] = useState<boolean>(false);
   const [page, setPage] = useState<number>(0);
