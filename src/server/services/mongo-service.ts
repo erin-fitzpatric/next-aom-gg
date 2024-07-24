@@ -8,7 +8,7 @@ import { MythRec } from "@/types/MythRecs";
 
 export async function queryMythRecs(pageIndex: number): Promise<MythRec[]> {
   console.log("pageIndex", pageIndex);
-  const PAGE_SIZE = 36
+  const PAGE_SIZE = 2
   const offset = (pageIndex * PAGE_SIZE)
   await getMongoClient();
   try {

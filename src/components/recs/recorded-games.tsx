@@ -81,27 +81,17 @@ export default function RecordedGames() {
   }
 
   async function fetchRecs(currentPage: number): Promise<void> {
+    if (currentPage === -1) return;
     const mythRecs = await getMythRecs(currentPage);
 
     if (!mythRecs.length) {
       setCurrentPage(-1);
-      setIsLoading(false);
       return;
     }
 
-    // only sets recs if the gameGuid is not already in the list
-    const newRecsIds: any[] = mythRecs.map((rec) => rec.gameGuid);
-    const currentRecIds = recs.map((rec) => rec.gameGuid);
-
-    const uniqueMythRecs = newRecsIds.filter(
-      (rec) => !currentRecIds.includes(rec.gameGuid)
-    );
-    setRecs(uniqueMythRecs);
-    setIsLoading(false);
+    // add mythrecs to recs
+    setRecs((prevRecs) => [...prevRecs, ...mythRecs]);
   }
-
-
-  const renderAfterCalled = useRef(false);
 
   useEffect(() => {
     async function handleScroll(): Promise<void> {
@@ -115,12 +105,11 @@ export default function RecordedGames() {
         setIsLoading(true);
         setCurrentPage((prevPage) => prevPage + 1);
         fetchRecs(currentPage);
+        setIsLoading(false);
       }
     }
-    if (!renderAfterCalled.current) {
-      fetchRecs(currentPage);
-    }
-    renderAfterCalled.current = true;
+    fetchRecs(currentPage);
+    setIsLoading(false);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [currentPage, isLoading]);
@@ -171,7 +160,6 @@ export default function RecordedGames() {
           <div className="flex flex-row flex-wrap justify-center">
             {recs?.map(
               (rec) => (
-                console.log("recorded game", rec),
                 (
                   <Card
                     key={rec.gameGuid}
