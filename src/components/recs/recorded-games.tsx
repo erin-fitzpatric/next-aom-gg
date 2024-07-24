@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useContext } from "react";
+import { useState, useEffect, useContext, useRef } from "react";
 import { SpinnerWithText } from "../spinner";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
@@ -19,10 +19,9 @@ import { IRecordedGame } from "@/types/RecordedGame";
 export default function RecordedGames() {
   const [recs, setRecs] = useState<IRecordedGame[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [isFetching, setIsFetching] = useState<boolean>(false);
-  const [page, setPage] = useState<number>(0);
   const [recFile, setRecFile] = useState(null);
   const [fileName, setFileName] = useState("");
+  const [currentPage, setCurrentPage] = useState<number>(0);
   const { toast } = useToast();
 
   const handleFileChange = (e: any) => {
@@ -82,52 +81,39 @@ export default function RecordedGames() {
     }
   }
 
-  async function fetchRecs(): Promise<void> {
-    if (isFetching) return;
-    setIsFetching(true);
-    console.log("fetching recs");
-    try {
-      // load next page of recs
-      const mythRecs = await getMythRecs(page);
-      if (mythRecs.length === 0) {
-        console.log("no more recs");
-        setIsLoading(false);
-        setIsFetching(false);
-        setPage(-1);
-        return;
-      }
-      setRecs((recs) => [...recs, ...mythRecs]);
-      setIsLoading(false);
-      setIsFetching(false);
-    } catch (err) {
-      console.error("Error fetching recs", err);
-      setIsLoading(false);
-      setIsFetching(false);
-      toast({
-        title: "Error Fetching Recs",
-        description: "Try again later",
-      });
+  async function fetchRecs(currentPage: number): Promise<void> {
+    if (currentPage === -1) return;
+    const mythRecs = await getMythRecs(currentPage);
+
+    if (!mythRecs.length) {
+      setCurrentPage(-1);
+      return;
     }
+
+    // add mythrecs to recs
+    setRecs((prevRecs) => [...prevRecs, ...mythRecs]);
   }
 
   useEffect(() => {
-    fetchRecs();
-  }, []);
-
-  useEffect(() => {
-    const handleScroll = () => {
+    async function handleScroll(): Promise<void> {
       const scrollPosition = window.scrollY + window.innerHeight;
       const pageHeight = document.documentElement.scrollHeight;
-      if (pageHeight - scrollPosition <= 300 && page !== -1) {
-        if (isLoading) return;
+      if (
+        pageHeight - scrollPosition <= 300 &&
+        currentPage !== -1 &&
+        !isLoading
+      ) {
         setIsLoading(true);
-        fetchRecs();
-        setPage((prevPage) => prevPage + 1);
+        setCurrentPage((prevPage) => prevPage + 1);
+        fetchRecs(currentPage);
+        setIsLoading(false);
       }
-    };
+    }
+    fetchRecs(currentPage);
+    setIsLoading(false);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [setPage, isLoading]);
+  }, [currentPage, isLoading]);
 
   return (
     <Card className="p-4">
@@ -169,13 +155,12 @@ export default function RecordedGames() {
         </form>
       </div>
       <div className="mt-4">
-        {isLoading ? (
+        {isLoading && recs ? (
           <SpinnerWithText text={"Loading recorded games..."} />
         ) : (
           <div className="flex flex-row flex-wrap justify-center">
             {recs?.map(
               (rec) => (
-                console.log("red", rec),
                 (
                   <Card
                     key={rec.gameGuid}
