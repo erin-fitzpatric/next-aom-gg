@@ -103,7 +103,8 @@ export function teamIndexToPlayerData(metadata: IRecordedGame, teamIndex: number
  */
 export function splitTeams(metadata: IRecordedGame): {left: number[], right: number[]}
 {
-    // TODO hack for old mongo format
+    // TODO hack for old mongo format 
+    
     if (metadata.teams === undefined)
     {
         metadata.teams = [];

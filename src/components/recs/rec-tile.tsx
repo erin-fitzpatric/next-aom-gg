@@ -17,7 +17,6 @@ export default function RecTile({ rec }: { rec: IRecordedGame }) {
 
   const mapData = randomMapNameToData(rec.gameMapName);
   const teamSplit = splitTeams(rec);
-  console.log(JSON.stringify(teamSplit));
 
   const leftTeams = teamSplit.left.map((teamIndex) =>
   (

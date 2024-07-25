@@ -95,6 +95,7 @@ export default function RecordedGames() {
   }
 
   useEffect(() => {
+    console.log("useEffect");
     async function handleScroll(): Promise<void> {
       const scrollPosition = window.scrollY + window.innerHeight;
       const pageHeight = document.documentElement.scrollHeight;
@@ -105,12 +106,14 @@ export default function RecordedGames() {
       ) {
         setIsLoading(true);
         setCurrentPage((prevPage) => prevPage + 1);
+        console.log(`fetchRecs page ${currentPage} inside handleScroll`);
         fetchRecs(currentPage);
         setIsLoading(false);
       }
     }
-    fetchRecs(currentPage);
-    setIsLoading(false);
+    //console.log(`fetchRecs page ${currentPage} outside scroll conditional`);
+    //fetchRecs(currentPage);
+    //setIsLoading(false);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [currentPage, isLoading]);
