@@ -103,33 +103,6 @@ export function teamIndexToPlayerData(metadata: IRecordedGame, teamIndex: number
  */
 export function splitTeams(metadata: IRecordedGame): {left: number[], right: number[]}
 {
-    // TODO hack for old mongo format 
-    
-    if (metadata.teams === undefined)
-    {
-        metadata.teams = [];
-        const teamIdToTeamArrayIndex = new Map<number, number>();
-        for (const playerData of metadata.playerData)
-        {
-            // Mother nature doesn't belong to a team
-            if (playerData.id == 0) continue;
-            const teamId = (playerData as any).teamid || playerData.teamId;
-            let index = teamIdToTeamArrayIndex.get(teamId);
-            if (index === undefined)
-            {
-                index = metadata.teams.length;
-                teamIdToTeamArrayIndex.set(teamId, index);
-                metadata.teams.push([playerData.id]);
-            }
-            else
-            {
-                metadata.teams[index].push(playerData.id);
-            }
-            console.log(`p${playerData.id} has team ${teamId}`);
-        }
-    }
-    
-
   // Fast track the case of two teams
   const numTeams = metadata.teams.length;
   if (numTeams == 2)
