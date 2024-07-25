@@ -16,7 +16,9 @@ export async function queryMythRecs(pageIndex: number): Promise<IRecordedGame[]>
       .skip(offset)
       .limit(PAGE_SIZE)
 
+    result.map((rec: any) => { rec.playerData = rec.playerdata; });
     // Remove _id from each playerData object and the object as a whole
+    // This is a nonserialisable property which will cause React warnings when passed to client
     result.map((rec) => { removeMongoObjectID(rec.playerData)});
     removeMongoObjectID(result);
     return result;

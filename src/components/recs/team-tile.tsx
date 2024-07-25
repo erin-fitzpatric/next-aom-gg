@@ -1,8 +1,10 @@
+import { teamIndexToPlayerData } from "@/server/teams";
 import { majorGodIndexToData } from "@/types/MajorGods";
+import { IRecordedGame } from "@/types/RecordedGame";
 import { RecordedGamePlayerMetadata } from "@/types/RecordedGameParser";
 import Image from "next/image";
 
-export default function TeamTile({ playerData }: { playerData: RecordedGamePlayerMetadata }) {
+function PlayerTile(playerData: RecordedGamePlayerMetadata) {
   const { name, civ } = playerData;
   const godData = majorGodIndexToData(civ);
   return (
@@ -19,6 +21,25 @@ export default function TeamTile({ playerData }: { playerData: RecordedGamePlaye
       </div>
       <div className="text-center truncate w-30 font-medium italic">
         Rank: TBD
+      </div>
+    </div>
+  );
+}
+
+export default function TeamTile({recData, teamIndex} : {recData: IRecordedGame, teamIndex: number}) {
+  const playerData = teamIndexToPlayerData(recData, teamIndex);
+  // The format of the teams in the recs seems to be a problem and needs more real recs to work on - in particular, what to do with a value of -1
+  // and just doing this should hopefully push things back towards how they were before
+  //return PlayerTile(playerData[0]);
+
+  const teamName = `Team ${1+teamIndex}`;
+  return (
+    <div>
+      <div className="text-center truncate w-30 font-medium">
+        {teamName}
+      </div>
+      <div>
+        {playerData.map((thisPlayer) => PlayerTile(thisPlayer))}
       </div>
     </div>
   );
