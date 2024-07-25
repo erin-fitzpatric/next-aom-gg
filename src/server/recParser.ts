@@ -336,7 +336,7 @@ function addMetadataKeyToOutput(output: any, keyName: string, value: number | st
     isValidKey = requiredKeys.includes(keyName) || optionalKeys.includes(keyName);
     if (!isValidKey)
     {
-        console.log(`Discarded key ${keyName} value ${value}`);
+        // console.log(`Discarded key ${keyName} value ${value}`);
         return;
     }
     targetObject[keyName] = value;
