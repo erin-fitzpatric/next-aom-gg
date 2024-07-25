@@ -1,19 +1,15 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { SpinnerWithText } from "../spinner";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { useToast } from "../ui/use-toast";
 import { Input } from "../ui/input";
 import RecTile from "./rec-tile";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
-import { InfoIcon } from "lucide-react";
 import { getMythRecs } from "@/server/controllers/mongo-controller";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import { InfoIcon } from "lucide-react";
 
 export default function RecordedGames() {
   const [currentPage, setCurrentPage] = useState<number>(0);
@@ -22,6 +18,7 @@ export default function RecordedGames() {
   const [recs, setRecs] = useState<any[]>([]);
   const [recFile, setRecFile] = useState(null);
   const [fileName, setFileName] = useState("");
+  const initialFetch = useRef(true);
   const { toast } = useToast();
 
   const handleFileChange = (e: any) => {
@@ -82,7 +79,7 @@ export default function RecordedGames() {
   const fetchRecs = useCallback(async (pageNum: number) => {
     const mythRecs = await getMythRecs(pageNum);
 
-    if (!mythRecs.length) {
+    if (mythRecs.length === 0) {
       setHasMore(false);
       setIsLoading(false);
       return;
@@ -92,7 +89,7 @@ export default function RecordedGames() {
     setIsLoading(false);
   }, []);
 
-  const handleScroll = useCallback(async () => {
+  const handleScroll = useCallback(() => {
     if (isLoading || !hasMore) return;
     const scrollPosition = window.scrollY + window.innerHeight;
     const pageHeight = document.documentElement.scrollHeight;
@@ -100,19 +97,21 @@ export default function RecordedGames() {
       setIsLoading(true);
       const nextPage = currentPage + 1;
       setCurrentPage(nextPage);
-      await fetchRecs(nextPage);
+      fetchRecs(nextPage);
       console.log("loaded page", nextPage);
     }
-  }, [isLoading, currentPage, fetchRecs, hasMore]);
+  }, [isLoading, hasMore, currentPage, fetchRecs]);
 
   useEffect(() => {
-    fetchRecs(0);
-  }, [fetchRecs]);
-
-  useEffect(() => {
+    if (initialFetch.current) {
+      fetchRecs(0);
+      initialFetch.current = false;
+      console.log("loaded first page");
+    };
+    
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [handleScroll]);
+  }, [fetchRecs, handleScroll]);
 
   return (
     <Card className="p-4">
