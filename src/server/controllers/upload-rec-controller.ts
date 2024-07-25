@@ -62,7 +62,7 @@ export default async function uploadRec(
   } catch (error) {
     console.error("Error uploading to s3: ", error);
     // delete from mongo if s3 upload fails
-    RecordedGameModel.deleteOne({ gameguid: recGameMetadata.gameGuid });
+    RecordedGameModel.deleteOne({ gameGuid: recGameMetadata.gameGuid });
     throw new Error("Error uploading to s3");
   }
 }
