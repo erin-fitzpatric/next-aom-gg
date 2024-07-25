@@ -7,11 +7,13 @@ import { Card } from "../ui/card";
 import { useToast } from "../ui/use-toast";
 import { Input } from "../ui/input";
 import RecTile from "./rec-tile";
-// import { getMythRecs } from "@/server/controllers/mongo-controller";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { InfoIcon } from "lucide-react";
 import { getMythRecs } from "@/server/controllers/mongo-controller";
-
 
 export default function RecordedGames() {
   const [currentPage, setCurrentPage] = useState<number>(0);
@@ -36,7 +38,6 @@ export default function RecordedGames() {
     e.preventDefault();
     if (!recFile) return;
 
-    // todo - implement Steam login and remove all of these prompts
     const userName = prompt("Enter your gamertag:");
     if (!userName) {
       alert("Name is required to upload");
@@ -44,7 +45,6 @@ export default function RecordedGames() {
     }
     setIsLoading(true);
 
-    // upload file
     try {
       const formData = new FormData();
       formData.append("file", recFile);
@@ -107,10 +107,12 @@ export default function RecordedGames() {
 
   useEffect(() => {
     fetchRecs(0);
-    window.addEventListener("scroll", handleScroll);
+  }, [fetchRecs]);
 
+  useEffect(() => {
+    window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [handleScroll, fetchRecs]);
+  }, [handleScroll]);
 
   return (
     <Card className="p-4">
@@ -152,19 +154,19 @@ export default function RecordedGames() {
         </Button>
       </div>
       <div className="mt-4">
-          <div className="flex flex-row flex-wrap justify-center">
-            {recs?.map((rec) => (
-              <Card
-                key={rec.gameGuid}
-                className="bg-secondary rounded-lg m-1 p-2 flex w-fit"
-              >
-                <div>
-                  <RecTile rec={rec}></RecTile>
-                </div>
-              </Card>
-            ))}
-          </div>
-          {isLoading && <SpinnerWithText text={"Loading recorded games..."} />}
+        <div className="flex flex-row flex-wrap justify-center">
+          {recs?.map((rec) => (
+            <Card
+              key={rec.gameGuid}
+              className="bg-secondary rounded-lg m-1 p-2 flex w-fit"
+            >
+              <div>
+                <RecTile rec={rec}></RecTile>
+              </div>
+            </Card>
+          ))}
+        </div>
+        {isLoading && <SpinnerWithText text={"Loading recorded games..."} />}
       </div>
     </Card>
   );
