@@ -11,7 +11,7 @@ export async function POST(request: Request) {
     const gameData = await uploadRec({ userName, file, gameTitle });
     return Response.json({ gameData });
   } catch (error: any) {
-    if (error.message === "Unique key violation") {
+    if (error.message === "UNIQUE_KEY_VIOLATION") {
       return Response.json({ error: "Rec already uploaded" }, { status: 400 });
     } else {
       console.error("Error uploading rec", error);

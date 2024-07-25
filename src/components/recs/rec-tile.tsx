@@ -18,13 +18,16 @@ export default function RecTile({ rec }: { rec: IRecordedGame }) {
   const mapData = randomMapNameToData(rec.gameMapName);
   const teamSplit = splitTeams(rec);
 
+  let teamCount = 0;
   const leftTeams = teamSplit.left.map((teamIndex) =>
-  (
-    <TeamTile recData={rec} teamIndex={teamIndex}/>
+    (
+    teamCount++,
+    <TeamTile key={`${rec.gameGuid}-${teamCount}`} recData={rec} teamIndex={teamIndex}/>
   ));
   const rightTeams = teamSplit.right.map((teamIndex) =>
   (
-    <TeamTile recData={rec} teamIndex={teamIndex} />
+    teamCount++,
+    <TeamTile key={`${rec.gameGuid}-${teamCount}`} recData={rec} teamIndex={teamIndex} />
   ))
 
   return (
