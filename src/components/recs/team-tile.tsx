@@ -34,7 +34,7 @@ export default function TeamTile({recData, teamIndex} : {recData: IRecordedGame,
 
   const teamName = `Team ${1+teamIndex}`;
   let teamHeader = undefined;
-  if (recData.teams.length >= 2)
+  if (recData.teams.length >= 3)
   {
     teamHeader = (
       <div className="text-center truncate w-30 font-medium">
