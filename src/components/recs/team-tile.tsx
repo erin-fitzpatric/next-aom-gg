@@ -4,11 +4,11 @@ import { IRecordedGame } from "@/types/RecordedGame";
 import { RecordedGamePlayerMetadata } from "@/types/RecordedGameParser";
 import Image from "next/image";
 
-function PlayerTile(playerData: RecordedGamePlayerMetadata) {
-  const { name, civ } = playerData;
+function PlayerTile(playerData: RecordedGamePlayerMetadata, gameGuid: string) {
+  const { name, civ, id } = playerData;
   const godData = majorGodIndexToData(civ);
   return (
-    <div className="flex flex-col items-center my-auto px-2 w-32">
+    <div className="flex flex-col items-center my-auto px-2 w-32" key={`${gameGuid}-player-${id}`}>
       <Image
         src={godData.portraitPath}
         alt={"super cool god description"}
@@ -31,6 +31,7 @@ export default function TeamTile({
   recData: IRecordedGame;
   teamIndex: number;
 }) {
+  const { gameGuid } = recData;
   const playerData = teamIndexToPlayerData(recData, teamIndex);
   // The format of the teams in the recs seems to be a problem and needs more real recs to work on - in particular, what to do with a value of -1
   // and just doing this should hopefully push things back towards how they were before
@@ -47,7 +48,7 @@ export default function TeamTile({
   return (
     <div className="flex flex-col items-center my-auto px-2 w-32">
       {teamHeader}
-      <div>{playerData.map((thisPlayer) => PlayerTile(thisPlayer))}</div>
+      <div>{playerData.map((thisPlayer) => PlayerTile(thisPlayer, gameGuid))}</div>
     </div>
   );
 }
