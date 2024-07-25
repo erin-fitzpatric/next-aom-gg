@@ -33,11 +33,19 @@ export default function TeamTile({recData, teamIndex} : {recData: IRecordedGame,
   //return PlayerTile(playerData[0]);
 
   const teamName = `Team ${1+teamIndex}`;
-  return (
-    <div>
+  let teamHeader = undefined;
+  if (recData.teams.length >= 2)
+  {
+    teamHeader = (
       <div className="text-center truncate w-30 font-medium">
         {teamName}
       </div>
+    )
+  }
+
+  return (
+    <div className="flex flex-col items-center my-auto px-2 w-32">
+      {teamHeader}
       <div>
         {playerData.map((thisPlayer) => PlayerTile(thisPlayer))}
       </div>
