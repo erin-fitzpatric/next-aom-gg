@@ -280,6 +280,11 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
             typedOutput.teams[index].push(playerData.id);
         }
     }
+    // For now: force all 2 player games into 1v1s, until the meaning of teamID === -1 is known
+    if (typedOutput.teams.length == 1 && typedOutput.gameNumPlayers == 2)
+    {
+        typedOutput.teams = [[1], [2]];
+    }
     return typedOutput;
 }
 
