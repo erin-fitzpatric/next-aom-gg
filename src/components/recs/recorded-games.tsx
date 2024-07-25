@@ -11,7 +11,6 @@ import { getMythRecs } from "@/server/controllers/mongo-controller";
 import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { InfoIcon } from "lucide-react";
 
-
 export default function RecordedGames() {
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
@@ -36,7 +35,6 @@ export default function RecordedGames() {
     e.preventDefault();
     if (!recFile) return;
 
-    // todo - implement Steam login and remove all of these prompts
     const userName = prompt("Enter your gamertag:");
     if (!userName) {
       alert("Name is required to upload");
@@ -44,7 +42,6 @@ export default function RecordedGames() {
     }
     setIsLoading(true);
 
-    // upload file
     try {
       const formData = new FormData();
       formData.append("file", recFile);
@@ -156,78 +153,20 @@ export default function RecordedGames() {
         </Button>
       </div>
       <div className="mt-4">
-          <div className="flex flex-row flex-wrap justify-center">
-            {recs?.map((rec) => (
-              <Card
-                key={rec.gameGuid}
-                className="bg-secondary rounded-lg m-1 p-2 flex w-fit"
-              >
-                <div>
-                  <RecTile rec={rec}></RecTile>
-                </div>
-              </Card>
-            ))}
-          </div>
-          {isLoading && <SpinnerWithText text={"Loading recorded games..."} />}
+        <div className="flex flex-row flex-wrap justify-center">
+          {recs?.map((rec) => (
+            <Card
+              key={rec.gameGuid}
+              className="bg-secondary rounded-lg m-1 p-2 flex w-fit"
+            >
+              <div>
+                <RecTile rec={rec}></RecTile>
+              </div>
+            </Card>
+          ))}
+        </div>
+        {isLoading && <SpinnerWithText text={"Loading recorded games..."} />}
       </div>
     </Card>
   );
 }
-
-
-// async function getMythRecsMock(pageNum: number) {
-//   await new Promise((resolve) => setTimeout(resolve, 1000));
-
-//   if (pageNum >= 3) {
-//     return [];
-//   }
-
-//   const data = {
-//     gameGuid: "",
-//     playerData: [
-//       {
-//         name: "",
-//         team: 0,
-//         civ: 0,
-//         civList: "",
-//         rating: 0,
-//         rank: "",
-//         powerRating: "",
-//         winRatio: "",
-//         civWasRandom: false,
-//         color: 0,
-//       },
-//       {
-//         name: "Shodyra",
-//         team: 0,
-//         civ: 1,
-//         civList: "0002",
-//         rating: 0,
-//         rank: "",
-//         powerRating: "",
-//         winRatio: "",
-//         civWasRandom: false,
-//         color: 1,
-//       },
-//       {
-//         name: "FitzBro",
-//         team: 1,
-//         civ: 5,
-//         civList: "0020",
-//         rating: 0,
-//         rank: "",
-//         powerRating: "",
-//         winRatio: "",
-//         civWasRandom: false,
-//         color: 2,
-//       },
-//     ],
-//     mapName: "alfheim",
-//     createdAt: "2024-07-22T03:39:00.671Z",
-//     uploadedBy: "FitzBro",
-//     gameTitle: "Cool game",
-//     downloadCount: 5,
-//   };
-
-//   return Array(5).fill(data).map(v => ({ ...v, gameGuid: Math.random().toString(36).slice(2, 12) }));
-// }
