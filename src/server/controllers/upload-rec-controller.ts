@@ -37,7 +37,7 @@ export default async function uploadRec(
     const inserted = await RecordedGameModel.create({
       ...mappedRecGameMetadata,
       uploadedBy: userName,
-      gameTitle: gameTitle,
+      gameTitle,
     });
     result = inserted.toJSON();
   } catch (error: any) {
