@@ -1,35 +1,43 @@
 "use client";
 
 import TeamTile from "./team-tile";
-import { MythRec as MythRec } from "@/types/MythRecs";
 import { randomMapNameToData } from "@/types/RandomMap";
 import RecTitle from "./rec-title";
 import RecMap from "./rec-map";
 import RecFooter from "./rec-footer";
 import { useContext, useEffect } from "react";
 import { WindowContext } from "../provider/window-provider";
+import { IRecordedGame } from "@/types/RecordedGame";
+import { splitTeams } from "@/server/teams";
 
-export default function RecTile({ rec }: { rec: MythRec }) {
-  const { playerData, mapName, gameTitle } = rec;
+export default function RecTile({ rec }: { rec: IRecordedGame }) {
   const windowSize = useContext(WindowContext);
 
   // TODO - process team data
 
-  const mapData = randomMapNameToData(mapName);
+  const mapData = randomMapNameToData(rec.gameMapName);
+  const teamSplit = splitTeams(rec);
+
+  const leftTeams = teamSplit.left.map((teamIndex) =>
+  (
+    <TeamTile recData={rec} teamIndex={teamIndex}/>
+  ));
+  const rightTeams = teamSplit.right.map((teamIndex) =>
+  (
+    <TeamTile recData={rec} teamIndex={teamIndex} />
+  ))
 
   return (
     <div>
       {windowSize && windowSize.width >= 768 ? (
         <div>
           <div className="flex">
-            <TeamTile playerData={playerData[1]} />{" "}
-            {/* TODO - make team dynamic */}
+            {leftTeams}
             <div>
-              <RecTitle gameTitle={gameTitle} />
+              <RecTitle gameTitle={rec.gameTitle} />
               <RecMap mapData={mapData} />
             </div>
-            <TeamTile playerData={playerData[2]} />{" "}
-            {/* TODO - make team dynamic */}
+            {rightTeams}
           </div>
           <RecFooter rec={rec} />
         </div>
@@ -37,12 +45,12 @@ export default function RecTile({ rec }: { rec: MythRec }) {
         <div>
           <div className="flex flex-col">
             <div>
-              <RecTitle gameTitle={gameTitle} />
+              <RecTitle gameTitle={rec.gameTitle} />
               <RecMap mapData={mapData} />
             </div>
             <div className="mx-auto pt-2">
-              <TeamTile playerData={playerData[1]} />{" "}
-              <TeamTile playerData={playerData[2]} />{" "}
+              {leftTeams}
+              {rightTeams}
             </div>
           </div>
           <RecFooter rec={rec} />

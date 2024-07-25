@@ -1,5 +1,5 @@
 import { parseRecordedGameMetadata } from "../recParser";
-import { RecordedGameMetadata } from "@/types/RecordedGame";
+import { RecordedGameMetadata } from "@/types/RecordedGameParser";
 import getMongoClient from "@/db/mongo/mongo-client";
 import RecordedGameModel from "@/db/mongo/model/RecordedGameModel";
 import { uploadRecToS3 } from "../services/aws";
@@ -41,9 +41,7 @@ export default async function uploadRec(params: UploadRecParams): Promise<void> 
   } catch (error) {
     console.error("Error uploading to s3: ", error);
     // delete from mongo if s3 upload fails
-    RecordedGameModel.deleteOne({ gameguid: recGameMetadata.gameguid });
+    RecordedGameModel.deleteOne({ gameguid: recGameMetadata.gameGuid });
     throw new Error("Error uploading to s3");
   }
-
-  return result;
 }

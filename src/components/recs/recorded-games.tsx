@@ -14,9 +14,10 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { InfoIcon } from "lucide-react";
+import { IRecordedGame } from "@/types/RecordedGame";
 
 export default function RecordedGames() {
-  const [recs, setRecs] = useState<any[]>([]);
+  const [recs, setRecs] = useState<IRecordedGame[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [recFile, setRecFile] = useState(null);
   const [fileName, setFileName] = useState("");
@@ -94,6 +95,7 @@ export default function RecordedGames() {
   }
 
   useEffect(() => {
+    console.log("useEffect");
     async function handleScroll(): Promise<void> {
       const scrollPosition = window.scrollY + window.innerHeight;
       const pageHeight = document.documentElement.scrollHeight;
@@ -104,12 +106,14 @@ export default function RecordedGames() {
       ) {
         setIsLoading(true);
         setCurrentPage((prevPage) => prevPage + 1);
+        console.log(`fetchRecs page ${currentPage} inside handleScroll`);
         fetchRecs(currentPage);
         setIsLoading(false);
       }
     }
-    fetchRecs(currentPage);
-    setIsLoading(false);
+    //console.log(`fetchRecs page ${currentPage} outside scroll conditional`);
+    //fetchRecs(currentPage);
+    //setIsLoading(false);
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [currentPage, isLoading]);
@@ -148,10 +152,10 @@ export default function RecordedGames() {
             placeholder="Enter file name"
             className="border-b border-gray-400 focus:outline-none focus:border-blue-500 px-2 py-1"
           />
+          <Button type="submit" className="flex mx-auto mt-2">
+            Upload
+          </Button>
         </form>
-        <Button type="submit" className="flex mx-auto mt-2">
-          Upload
-        </Button>
       </div>
       <div className="mt-4">
         {isLoading && recs ? (

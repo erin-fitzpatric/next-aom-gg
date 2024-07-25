@@ -2,10 +2,13 @@ import mongoose from "mongoose";
 import PlayerDataSchema from "./PlayerData";
 import { recMetadataSchemaHelper } from "@/utils/utils";
 import {
-  RecordedGameMetadataBooleans,
-  RecordedGameMetadataNumbers,
-  RecordedGameMetadataStrings,
-} from "@/types/RecordedGame";
+  RecordedGameMetadataBooleansOptional,
+  RecordedGameMetadataBooleansRequired,
+  RecordedGameMetadataNumbersOptional,
+  RecordedGameMetadataNumbersRequired,
+  RecordedGameMetadataStringsOptional,
+  RecordedGameMetadataStringsRequired,
+} from "@/types/RecordedGameParser";
 
 const Schema = mongoose.Schema;
 
@@ -17,9 +20,14 @@ const RecordedGameSchema = new Schema(
     playerdata: { type: [PlayerDataSchema], required: true },
     buildnumber: { type: Number, required: true, default: 0 },
     buildstring: { type: String, required: true, default: "" },
-    ...recMetadataSchemaHelper(RecordedGameMetadataBooleans, Boolean, false),
-    ...recMetadataSchemaHelper(RecordedGameMetadataStrings, String, ""),
-    ...recMetadataSchemaHelper(RecordedGameMetadataNumbers, Number, 0),
+    parsedAt: { type: Date, required: true},
+    teams: { type: [[Number]]},
+    ...recMetadataSchemaHelper(RecordedGameMetadataBooleansRequired, Boolean, false, true),
+    ...recMetadataSchemaHelper(RecordedGameMetadataStringsRequired, String, "", true),
+    ...recMetadataSchemaHelper(RecordedGameMetadataNumbersRequired, Number, 0, true),
+    ...recMetadataSchemaHelper(RecordedGameMetadataBooleansOptional, Boolean, false, false),
+    ...recMetadataSchemaHelper(RecordedGameMetadataStringsOptional, String, "", false),
+    ...recMetadataSchemaHelper(RecordedGameMetadataNumbersOptional, Number, 0, false),
   },
   { timestamps: true }
 );

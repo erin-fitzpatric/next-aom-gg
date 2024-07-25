@@ -1,14 +1,17 @@
 import mongoose from "mongoose";
 import { recMetadataSchemaHelper } from "@/utils/utils";
-import { RecordedGamePlayerMetadataBooleans, RecordedGamePlayerMetadataNumbers, RecordedGamePlayerMetadataStrings } from "@/types/RecordedGame";
+import { RecordedGamePlayerMetadataBooleansOptional, RecordedGamePlayerMetadataBooleansRequired, RecordedGamePlayerMetadataNumbersOptional, RecordedGamePlayerMetadataNumbersRequired, RecordedGamePlayerMetadataStringsOptional, RecordedGamePlayerMetadataStringsRequired } from "@/types/RecordedGameParser";
 
 const Schema = mongoose.Schema;
 
 const PlayerDataSchema = new Schema(
   {
-    ...recMetadataSchemaHelper(RecordedGamePlayerMetadataBooleans, Boolean, false),
-    ...recMetadataSchemaHelper(RecordedGamePlayerMetadataStrings, String, ""),
-    ...recMetadataSchemaHelper(RecordedGamePlayerMetadataNumbers, Number, 0),
+    ...recMetadataSchemaHelper(RecordedGamePlayerMetadataBooleansRequired, Boolean, false, true),
+    ...recMetadataSchemaHelper(RecordedGamePlayerMetadataStringsRequired, String, "", true),
+    ...recMetadataSchemaHelper(RecordedGamePlayerMetadataNumbersRequired, Number, 0, true),
+    ...recMetadataSchemaHelper(RecordedGamePlayerMetadataBooleansOptional, Boolean, false, false),
+    ...recMetadataSchemaHelper(RecordedGamePlayerMetadataStringsOptional, String, "", false),
+    ...recMetadataSchemaHelper(RecordedGamePlayerMetadataNumbersOptional, Number, 0, false),
   },
   { timestamps: true }
 );
