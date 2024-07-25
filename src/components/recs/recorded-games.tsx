@@ -1,27 +1,24 @@
 "use client";
 
-import { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { SpinnerWithText } from "../spinner";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
 import { useToast } from "../ui/use-toast";
 import { Input } from "../ui/input";
 import RecTile from "./rec-tile";
-import { getMythRecs } from "@/server/controllers/mongo-controller";
-import {
-  Tooltip,
-  TooltipContent,
-  TooltipTrigger,
-} from "@/components/ui/tooltip";
+// import { getMythRecs } from "@/server/controllers/mongo-controller";
+import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
 import { InfoIcon } from "lucide-react";
-import { IRecordedGame } from "@/types/RecordedGame";
+
 
 export default function RecordedGames() {
-  const [recs, setRecs] = useState<IRecordedGame[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [recs, setRecs] = useState<any[]>([]);
   const [recFile, setRecFile] = useState(null);
   const [fileName, setFileName] = useState("");
-  const [currentPage, setCurrentPage] = useState<number>(0);
   const { toast } = useToast();
 
   const handleFileChange = (e: any) => {
@@ -51,7 +48,6 @@ export default function RecordedGames() {
       const formData = new FormData();
       formData.append("file", recFile);
       formData.append("userName", userName);
-      formData.append("gameTitle", fileName);
 
       const response = await fetch("/api/recordedGames", {
         method: "POST",
@@ -63,15 +59,8 @@ export default function RecordedGames() {
           title: "Success",
           description: "Rec uploaded successfully",
         });
-        // TODO - update state and revalidate
-      } else if(response.status === 400) {
-        toast({
-          title: "Rec Already Uploaded",
-          description: "This rec has already been uploaded - someone beat you to it!",
-        });
-      }
-      
-      else {
+        // todo - update state and revalidate
+      } else {
         toast({
           title: "Error Uploading Rec",
           description: "Try again later",
@@ -89,42 +78,38 @@ export default function RecordedGames() {
     }
   }
 
-  async function fetchRecs(currentPage: number): Promise<void> {
-    if (currentPage === -1) return;
-    const mythRecs = await getMythRecs(currentPage);
+  const fetchRecs = useCallback(async (pageNum: number) => {
+    const mythRecs = await getMythRecsMock(pageNum);
 
     if (!mythRecs.length) {
-      setCurrentPage(-1);
+      setHasMore(false);
+      setIsLoading(false);
       return;
     }
 
-    // add mythrecs to recs
     setRecs((prevRecs) => [...prevRecs, ...mythRecs]);
-  }
+    setIsLoading(false);
+  }, []);
+
+  const handleScroll = useCallback(async () => {
+    if (isLoading || !hasMore) return;
+    const scrollPosition = window.scrollY + window.innerHeight;
+    const pageHeight = document.documentElement.scrollHeight;
+    if (pageHeight - scrollPosition <= 300) {
+      setIsLoading(true);
+      const nextPage = currentPage + 1;
+      setCurrentPage(nextPage);
+      await fetchRecs(nextPage);
+      console.log("loaded page", nextPage);
+    }
+  }, [isLoading, currentPage, fetchRecs, hasMore]);
 
   useEffect(() => {
-    console.log("useEffect");
-    async function handleScroll(): Promise<void> {
-      const scrollPosition = window.scrollY + window.innerHeight;
-      const pageHeight = document.documentElement.scrollHeight;
-      if (
-        pageHeight - scrollPosition <= 300 &&
-        currentPage !== -1 &&
-        !isLoading
-      ) {
-        setIsLoading(true);
-        setCurrentPage((prevPage) => prevPage + 1);
-        console.log(`fetchRecs page ${currentPage} inside handleScroll`);
-        fetchRecs(currentPage);
-        setIsLoading(false);
-      }
-    }
-    //console.log(`fetchRecs page ${currentPage} outside scroll conditional`);
-    //fetchRecs(currentPage);
-    //setIsLoading(false);
+    fetchRecs(0);
     window.addEventListener("scroll", handleScroll);
+
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [currentPage, isLoading]);
+  }, [handleScroll, fetchRecs]);
 
   return (
     <Card className="p-4">
@@ -160,33 +145,84 @@ export default function RecordedGames() {
             placeholder="Enter file name"
             className="border-b border-gray-400 focus:outline-none focus:border-blue-500 px-2 py-1"
           />
-          <Button type="submit" className="flex mx-auto mt-2">
-            Upload
-          </Button>
         </form>
+        <Button type="submit" className="flex mx-auto mt-2">
+          Upload
+        </Button>
       </div>
       <div className="mt-4">
-        {isLoading && recs ? (
-          <SpinnerWithText text={"Loading recorded games..."} />
-        ) : (
           <div className="flex flex-row flex-wrap justify-center">
-            {recs?.map(
-              (rec) => (
-                (
-                  <Card
-                    key={rec.gameGuid}
-                    className="bg-secondary rounded-lg m-1 p-2 flex w-fit"
-                  >
-                    <div>
-                      <RecTile rec={rec}></RecTile>
-                    </div>
-                  </Card>
-                )
-              )
-            )}
+            {recs?.map((rec) => (
+              <Card
+                key={rec.gameGuid}
+                className="bg-secondary rounded-lg m-1 p-2 flex w-fit"
+              >
+                <div>
+                  <RecTile rec={rec}></RecTile>
+                </div>
+              </Card>
+            ))}
           </div>
-        )}
+          {isLoading && <SpinnerWithText text={"Loading recorded games..."} />}
       </div>
     </Card>
   );
+}
+
+
+async function getMythRecsMock(pageNum: number) {
+  await new Promise((resolve) => setTimeout(resolve, 1000));
+
+  if (pageNum >= 3) {
+    return [];
+  }
+
+  const data = {
+    gameGuid: "",
+    playerData: [
+      {
+        name: "",
+        team: 0,
+        civ: 0,
+        civList: "",
+        rating: 0,
+        rank: "",
+        powerRating: "",
+        winRatio: "",
+        civWasRandom: false,
+        color: 0,
+      },
+      {
+        name: "Shodyra",
+        team: 0,
+        civ: 1,
+        civList: "0002",
+        rating: 0,
+        rank: "",
+        powerRating: "",
+        winRatio: "",
+        civWasRandom: false,
+        color: 1,
+      },
+      {
+        name: "FitzBro",
+        team: 1,
+        civ: 5,
+        civList: "0020",
+        rating: 0,
+        rank: "",
+        powerRating: "",
+        winRatio: "",
+        civWasRandom: false,
+        color: 2,
+      },
+    ],
+    mapName: "alfheim",
+    createdAt: "2024-07-22T03:39:00.671Z",
+    uploadedBy: "FitzBro",
+    gameTitle: "Cool game",
+    downloadCount: 5,
+  };
+
+  return Array(5).fill(data).map(v => ({ ...v, gameGuid: Math.random().toString(36).slice(2, 12) }));
 }
