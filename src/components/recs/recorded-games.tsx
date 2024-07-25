@@ -8,7 +8,11 @@ import { useToast } from "../ui/use-toast";
 import { Input } from "../ui/input";
 import RecTile from "./rec-tile";
 import { getMythRecs } from "@/server/controllers/mongo-controller";
-import { Tooltip, TooltipContent, TooltipTrigger } from "@/components/ui/tooltip";
+import {
+  Tooltip,
+  TooltipContent,
+  TooltipTrigger,
+} from "@/components/ui/tooltip";
 import { InfoIcon } from "lucide-react";
 
 export default function RecordedGames() {
@@ -59,14 +63,13 @@ export default function RecordedGames() {
           description: "Rec uploaded successfully",
         });
         // TODO - update state and revalidate
-      } else if(response.status === 400) {
+      } else if (response.status === 400) {
         toast({
           title: "Rec Already Uploaded",
-          description: "This rec has already been uploaded - someone beat you to it!",
+          description:
+            "This rec has already been uploaded - someone beat you to it!",
         });
-      }
-      
-      else {
+      } else {
         toast({
           title: "Error Uploading Rec",
           description: "Try again later",
@@ -115,8 +118,8 @@ export default function RecordedGames() {
       fetchRecs(0);
       initialFetch.current = false;
       console.log("loaded first page");
-    };
-    
+    }
+
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
   }, [fetchRecs, handleScroll]);
@@ -155,10 +158,10 @@ export default function RecordedGames() {
             placeholder="Enter file name"
             className="border-b border-gray-400 focus:outline-none focus:border-blue-500 px-2 py-1"
           />
+          <Button type="submit" className="flex mx-auto mt-2">
+            Upload
+          </Button>
         </form>
-        <Button type="submit" className="flex mx-auto mt-2">
-          Upload
-        </Button>
       </div>
       <div className="mt-4">
         <div className="flex flex-row flex-wrap justify-center">
