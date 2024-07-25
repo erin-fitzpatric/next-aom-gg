@@ -94,7 +94,7 @@ function subsetSumClosest(vals: number[], targ: number): number[]
 
 export function teamIndexToPlayerData(metadata: IRecordedGame, teamIndex: number): RecordedGamePlayerMetadata[]
 {
-    return metadata.teams[teamIndex].map((playerIndex) => { return metadata.playerData[playerIndex]});
+    return metadata.teams[teamIndex].map((playerIndex) => { return metadata.playerData[playerIndex-1]});
 }
 
 /**

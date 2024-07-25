@@ -12,7 +12,6 @@ import { splitTeams } from "@/server/teams";
 
 export default function RecTile({ rec }: { rec: IRecordedGame }) {
   const windowSize = useContext(WindowContext);
-
   // TODO - process team data
 
   const mapData = randomMapNameToData(rec.gameMapName);

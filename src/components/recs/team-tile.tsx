@@ -16,9 +16,7 @@ function PlayerTile(playerData: RecordedGamePlayerMetadata) {
         height={64}
         className="rounded-full border-2 border-amber-400"
       ></Image>
-      <div className="text-center truncate w-30 font-medium">
-        {name}
-      </div>
+      <div className="text-center truncate w-30 font-medium">{name}</div>
       <div className="text-center truncate w-30 font-medium italic">
         Rank: TBD
       </div>
@@ -26,29 +24,30 @@ function PlayerTile(playerData: RecordedGamePlayerMetadata) {
   );
 }
 
-export default function TeamTile({recData, teamIndex} : {recData: IRecordedGame, teamIndex: number}) {
+export default function TeamTile({
+  recData,
+  teamIndex,
+}: {
+  recData: IRecordedGame;
+  teamIndex: number;
+}) {
   const playerData = teamIndexToPlayerData(recData, teamIndex);
   // The format of the teams in the recs seems to be a problem and needs more real recs to work on - in particular, what to do with a value of -1
   // and just doing this should hopefully push things back towards how they were before
   //return PlayerTile(playerData[0]);
 
-  const teamName = `Team ${1+teamIndex}`;
+  const teamName = `Team ${1 + teamIndex}`;
   let teamHeader = undefined;
-  if (recData.teams.length >= 3)
-  {
+  if (recData.teams.length >= 3) {
     teamHeader = (
-      <div className="text-center truncate w-30 font-medium">
-        {teamName}
-      </div>
-    )
+      <div className="text-center truncate w-30 font-medium">{teamName}</div>
+    );
   }
 
   return (
     <div className="flex flex-col items-center my-auto px-2 w-32">
       {teamHeader}
-      <div>
-        {playerData.map((thisPlayer) => PlayerTile(thisPlayer))}
-      </div>
+      <div>{playerData.map((thisPlayer) => PlayerTile(thisPlayer))}</div>
     </div>
   );
 }
