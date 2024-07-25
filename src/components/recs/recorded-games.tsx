@@ -46,6 +46,7 @@ export default function RecordedGames() {
       const formData = new FormData();
       formData.append("file", recFile);
       formData.append("userName", userName);
+      formData.append("gameTitle", fileName);
 
       const response = await fetch("/api/recordedGames", {
         method: "POST",
@@ -57,8 +58,15 @@ export default function RecordedGames() {
           title: "Success",
           description: "Rec uploaded successfully",
         });
-        // todo - update state and revalidate
-      } else {
+        // TODO - update state and revalidate
+      } else if(response.status === 400) {
+        toast({
+          title: "Rec Already Uploaded",
+          description: "This rec has already been uploaded - someone beat you to it!",
+        });
+      }
+      
+      else {
         toast({
           title: "Error Uploading Rec",
           description: "Try again later",
