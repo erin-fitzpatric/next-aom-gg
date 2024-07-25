@@ -260,31 +260,7 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
 
     // Now that everything is there, trim output.playerdata to the correct number of players
     typedOutput.playerData.splice(typedOutput.gameNumPlayers+1, 13-typedOutput.gameNumPlayers);
-    // Parse teams into more manageable list
-    typedOutput.teams = [];
-    const teamIdToTeamArrayIndex = new Map<number, number>();
-    for (const playerData of typedOutput.playerData)
-    {
-        // Mother nature doesn't belong to a team
-        if (playerData.id == 0) continue;
-        const teamId = playerData.teamId;
-        let index = teamIdToTeamArrayIndex.get(teamId);
-        if (index === undefined)
-        {
-            index = typedOutput.teams.length;
-            teamIdToTeamArrayIndex.set(teamId, index);
-            typedOutput.teams.push([playerData.id]);
-        }
-        else
-        {
-            typedOutput.teams[index].push(playerData.id);
-        }
-    }
-    // For now: force all 2 player games into 1v1s, until the meaning of teamID === -1 is known
-    if (typedOutput.teams.length == 1 && typedOutput.gameNumPlayers == 2)
-    {
-        typedOutput.teams = [[1], [2]];
-    }
+    parseTeams(typedOutput, decompressed);
     return typedOutput;
 }
 
@@ -340,4 +316,83 @@ function addMetadataKeyToOutput(output: any, keyName: string, value: number | st
         return;
     }
     targetObject[keyName] = value;
+}
+
+
+function parseTeams(output: RecordedGameMetadata, decompressed: Buffer)
+{
+    // player.teamId == -1 means they were set to random team.
+    // I don't know how these "real" team IDs map to the ones parsed from the normal table
+    // so if any are random, resolve the whole lot this way
+    let hasRandTeams = output.playerData.some((playerData, index) => (index > 0 && playerData.teamId === -1));
+    if (hasRandTeams)
+    {
+        const view = new DataView(decompressed.buffer);
+        // Later in the rec there is some structure where the player name appears twice
+        // with 9 bytes of something between the end of the first incidence of the name, and the length uint32 of the second
+        // Immediately after this looks like a int32 with the actual team ID in
+        for (const playerId in output.playerData)
+        {
+            const playerDataStructure = output.playerData[playerId];
+            if (playerDataStructure.id > 0)
+            {
+                const playerNameEncoded = encodeUtf16(playerDataStructure.name);
+                const playerNameBuffer = new ArrayBuffer(4 + playerNameEncoded.length);
+                const playerNameView = new DataView(playerNameBuffer);
+                playerNameView.setUint32(0, playerNameEncoded.length/2, true);
+                const playerNameArray = new Uint8Array(playerNameBuffer);
+                playerNameArray.set(playerNameEncoded, 4);
+                
+                const expectedOffsetDifference = 9 + playerNameArray.length;
+                let lastPosition = 1;
+                let successful = false;
+                while (lastPosition > 0)
+                {
+                    let nextPosition = decompressed.indexOf(playerNameArray, lastPosition+1);
+                    //console.log(`Offset gap: ${nextPosition - lastPosition}`);
+                    if (nextPosition - lastPosition == expectedOffsetDifference)
+                    {
+                        lastPosition = nextPosition;
+                        successful = true;
+                        break;
+                    }
+                    lastPosition = nextPosition;
+                }
+                if (!successful)
+                {
+                    throw new RecParseError(`Failed to resolve random team for player ${playerId} = ${playerDataStructure.name}`);
+                }
+                const teamOffset = lastPosition + playerNameArray.length;
+                const realTeamId = view.getUint32(teamOffset, true);
+                if (realTeamId < 0 || realTeamId > 12)
+                {
+                    throw new RecParseError(`Failed to resolve random team for player ${playerId}: read team id ${realTeamId}`);
+                }
+                output.playerData[playerId].teamId = realTeamId;
+                console.log(`Read the actual teamId for player ${playerId} -> ${realTeamId}`);
+            }
+        }
+    }
+
+    output.teams = [];
+    const teamIdToTeamArrayIndex = new Map<number, number>();
+    
+    for (const playerData of output.playerData)
+    {
+        // Mother nature doesn't belong to a team
+        if (playerData.id == 0) continue;
+        const teamId = playerData.teamId;
+        let index = teamIdToTeamArrayIndex.get(teamId);
+        if (index === undefined)
+        {
+            index = output.teams.length;
+            teamIdToTeamArrayIndex.set(teamId, index);
+            output.teams.push([playerData.id]);
+        }
+        else
+        {
+            output.teams[index].push(playerData.id);
+        }
+    }
+    
 }
