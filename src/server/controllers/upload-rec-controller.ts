@@ -28,6 +28,9 @@ export default async function uploadRec(
   const recGameMetadata: RecordedGameMetadata = await parseRecordedGameMetadata(
     file
   );
+  if (recGameMetadata.gameNumPlayers > 2) {
+    throw new Error("Only 2 player games are supported");
+  }
   const mappedRecGameMetadata = mapRecGameMetadata(recGameMetadata); //cleanup the data
 
   // 2) save file to mongo, if game guid doesn't already exists
@@ -62,7 +65,7 @@ export default async function uploadRec(
   } catch (error) {
     console.error("Error uploading to s3: ", error);
     // delete from mongo if s3 upload fails
-    RecordedGameModel.deleteOne({ gameguid: recGameMetadata.gameGuid });
+    RecordedGameModel.deleteOne({ gameGuid: recGameMetadata.gameGuid });
     throw new Error("Error uploading to s3");
   }
 }

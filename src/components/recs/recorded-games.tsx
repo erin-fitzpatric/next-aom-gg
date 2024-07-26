@@ -14,6 +14,8 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { InfoIcon } from "lucide-react";
+import RecFilters from "./filters/rec-filters";
+import { Filters } from "@/types/Filters";
 
 export default function RecordedGames() {
   const [currentPage, setCurrentPage] = useState<number>(0);
@@ -22,6 +24,7 @@ export default function RecordedGames() {
   const [recs, setRecs] = useState<any[]>([]);
   const [recFile, setRecFile] = useState(null);
   const [fileName, setFileName] = useState("");
+  const [filters, setFilters] = useState<Filters>({});
   const initialFetch = useRef(true);
   const { toast } = useToast();
 
@@ -62,7 +65,9 @@ export default function RecordedGames() {
           title: "Success",
           description: "Rec uploaded successfully",
         });
-        // TODO - update state and revalidate
+        // TODO - update state reload the page
+        const mythRecs = await getMythRecs(0);
+        setRecs(mythRecs);
       } else if (response.status === 400) {
         toast({
           title: "Rec Already Uploaded",
@@ -87,8 +92,8 @@ export default function RecordedGames() {
     }
   }
 
-  const fetchRecs = useCallback(async (pageNum: number) => {
-    const mythRecs = await getMythRecs(pageNum);
+  const fetchRecs = useCallback(async (pageNum: number, filters?: Filters) => {
+    const mythRecs = await getMythRecs(pageNum, filters);
 
     if (mythRecs.length === 0) {
       setHasMore(false);
@@ -108,16 +113,14 @@ export default function RecordedGames() {
       setIsLoading(true);
       const nextPage = currentPage + 1;
       setCurrentPage(nextPage);
-      fetchRecs(nextPage);
-      console.log("loaded page", nextPage);
+      fetchRecs(nextPage, filters);
     }
-  }, [isLoading, hasMore, currentPage, fetchRecs]);
+  }, [isLoading, hasMore, currentPage, fetchRecs, filters]);
 
   useEffect(() => {
     if (initialFetch.current) {
       fetchRecs(0);
       initialFetch.current = false;
-      console.log("loaded first page");
     }
 
     window.addEventListener("scroll", handleScroll);
@@ -125,10 +128,11 @@ export default function RecordedGames() {
   }, [fetchRecs, handleScroll]);
 
   return (
-    <Card className="p-4">
+    <div>
       <div className="card-header">
         <h2>Recorded Games</h2>
       </div>
+      {/* Upload Recs */}
       <div className="mx-auto w-fit mt-4 bg-secondary p-4 rounded-xl outline-double text-gold">
         <div className="flex gap-2 text-center">
           <h3 className="text-white">Upload an AoM Retold Recorded Game</h3>
@@ -163,21 +167,35 @@ export default function RecordedGames() {
           </Button>
         </form>
       </div>
-      <div className="mt-4">
-        <div className="flex flex-row flex-wrap justify-center">
-          {recs?.map((rec) => (
-            <Card
-              key={rec.gameGuid}
-              className="bg-secondary rounded-lg m-1 p-2 flex w-fit"
-            >
-              <div>
-                <RecTile rec={rec}></RecTile>
-              </div>
-            </Card>
-          ))}
+      {/* filters */}
+      <RecFilters
+        setRecs={setRecs}
+        setIsLoading={setIsLoading}
+        filters={filters}
+        setFilters={setFilters}
+      />
+      <Card className="p-4">
+        {/* Replay Gallery */}
+        <div className="">
+          <div className="flex flex-row flex-wrap justify-center">
+            {recs?.map((rec) => (
+              <Card
+                key={rec.gameGuid}
+                className="bg-secondary rounded-lg m-1 p-2 flex w-fit"
+              >
+                <div>
+                  <RecTile key={`rec-tile-${rec.gameGuid}`} rec={rec}></RecTile>
+                </div>
+              </Card>
+            ))}
+          </div>
+          {isLoading && (
+            <div className="flex justify-center mt-4">
+              <SpinnerWithText text={"Loading recorded games..."} />
+            </div>
+          )}
         </div>
-        {isLoading && <SpinnerWithText text={"Loading recorded games..."} />}
-      </div>
-    </Card>
+      </Card>
+    </div>
   );
 }
