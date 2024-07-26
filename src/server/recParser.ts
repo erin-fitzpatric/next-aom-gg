@@ -21,6 +21,7 @@ export async function parseRecordedGameMetadata(file: File): Promise<RecordedGam
 interface ParsedString
 {
     content: string,
+    unsafeContent: string,
     streamBytesConsumed: number,
 };
 
@@ -45,6 +46,7 @@ function readString(buffer: ArrayBuffer, offset: number): ParsedString
 
     return {
         content: saferContent,
+        unsafeContent: unsafeContent,
         streamBytesConsumed: streamBytesConsumed,
     };
 }  
@@ -168,6 +170,9 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
     // Points to the length of the string of the first key
     let currentOffset = metadataOffset - 4;
     let foundKeyType3 = false;
+    // We need to remember the unescaped player names, because looking up the "real" team ID needs these to search with
+    // searching with the escape version won't find anything
+    const stringKeysToUnsafeStrings = new Map<string, string>();
     for (let keyIndex=0; keyIndex<keyCount; keyIndex++)
     {
         if (foundKeyType3)
@@ -215,6 +220,7 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
                 const keyValueData = readString(decompressed.buffer, currentOffset);
                 const keyValue = keyValueData.content;
                 currentOffset += keyValueData.streamBytesConsumed;
+                stringKeysToUnsafeStrings.set(key, keyValueData.unsafeContent);
                 addMetadataKeyToOutput(output, key, keyValue);
                 break;
             }
@@ -260,7 +266,7 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
 
     // Now that everything is there, trim output.playerdata to the correct number of players
     typedOutput.playerData.splice(typedOutput.gameNumPlayers+1, 13-typedOutput.gameNumPlayers);
-    parseTeams(typedOutput, decompressed);
+    parseTeams(typedOutput, decompressed, stringKeysToUnsafeStrings);
     return typedOutput;
 }
 
@@ -319,7 +325,7 @@ function addMetadataKeyToOutput(output: any, keyName: string, value: number | st
 }
 
 
-function parseTeams(output: RecordedGameMetadata, decompressed: Buffer)
+function parseTeams(output: RecordedGameMetadata, decompressed: Buffer, stringKeysToUnsafeStrings: Map<string, string>)
 {
     // player.teamId == -1 means they were set to random team.
     // I don't know how these "real" team IDs map to the ones parsed from the normal table
@@ -336,7 +342,12 @@ function parseTeams(output: RecordedGameMetadata, decompressed: Buffer)
             const playerDataStructure = output.playerData[playerId];
             if (playerDataStructure.id > 0)
             {
-                const playerNameEncoded = encodeUtf16(playerDataStructure.name);
+                const unsafeName = stringKeysToUnsafeStrings.get(`gameplayer${playerId}name`);
+                if (unsafeName === undefined)
+                {
+                    throw new RecParseError(`Failed to resolve team for player ${playerId}: their unescaped name wasn't saved properly`);
+                }
+                const playerNameEncoded = encodeUtf16(unsafeName);
                 const playerNameBuffer = new ArrayBuffer(4 + playerNameEncoded.length);
                 const playerNameView = new DataView(playerNameBuffer);
                 playerNameView.setUint32(0, playerNameEncoded.length/2, true);
