@@ -31,7 +31,7 @@ export async function incrementDownloadCount(gameGuid: string): Promise<void> {
   await getMongoClient();
   try {
     await RecordedGameModel.updateOne(
-      { gameguid: gameGuid },
+      { gameGuid },
       { $inc: { downloadCount: 1 } }
     );
   } catch (err) {
