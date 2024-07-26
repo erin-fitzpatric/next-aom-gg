@@ -165,6 +165,7 @@ export default function RecordedGames() {
           <Button type="submit" className="flex mx-auto mt-2">
             Upload
           </Button>
+          <p className="mx-auto">(1vs1 Only for Now)</p>
         </form>
       </div>
       {/* filters */}
