@@ -7,11 +7,12 @@ import Image from "next/image";
 function PlayerTile(playerData: RecordedGamePlayerMetadata, gameGuid: string) {
   const { name, civ, id } = playerData;
   const godData = majorGodIndexToData(civ);
+  console.log(godData);
   return (
     <div className="flex flex-col items-center my-auto px-2 w-32" key={`${gameGuid}-player-${id}`}>
       <Image
         src={godData.portraitPath}
-        alt={"super cool god description"}
+        alt={godData.name}
         width={64}
         height={64}
         className="rounded-full border-2 border-amber-400"
