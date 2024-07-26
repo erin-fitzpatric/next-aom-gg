@@ -109,7 +109,6 @@ export default function RecordedGames() {
       const nextPage = currentPage + 1;
       setCurrentPage(nextPage);
       fetchRecs(nextPage);
-      console.log("loaded page", nextPage);
     }
   }, [isLoading, hasMore, currentPage, fetchRecs]);
 
@@ -117,7 +116,6 @@ export default function RecordedGames() {
     if (initialFetch.current) {
       fetchRecs(0);
       initialFetch.current = false;
-      console.log("loaded first page");
     }
 
     window.addEventListener("scroll", handleScroll);
@@ -171,7 +169,7 @@ export default function RecordedGames() {
               className="bg-secondary rounded-lg m-1 p-2 flex w-fit"
             >
               <div>
-                <RecTile rec={rec}></RecTile>
+                <RecTile key={`rec-tile-${rec.gameGuid}`} rec={rec}></RecTile>
               </div>
             </Card>
           ))}

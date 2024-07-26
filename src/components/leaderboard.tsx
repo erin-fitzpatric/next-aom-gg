@@ -1081,6 +1081,7 @@ export default async function Leaderboard() {
       <Card className="p-4 h-full">
         <div className="card-header">
           <h2>Retold Leaderboard</h2>
+          <p>Coming Soon...</p>
         </div>
         <div className="container mx-auto py-4">
           <DataTable columns={columns} data={data} />

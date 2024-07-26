@@ -7,7 +7,7 @@ import { removeMongoObjectID } from "@/utils/utils";
 
 export async function queryMythRecs(pageIndex: number): Promise<IRecordedGame[]> {
   console.log("pageIndex", pageIndex);
-  const PAGE_SIZE = 2
+  const PAGE_SIZE = 16
   const offset = (pageIndex * PAGE_SIZE)
   await getMongoClient();
   try {

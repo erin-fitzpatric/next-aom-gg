@@ -28,6 +28,9 @@ export default async function uploadRec(
   const recGameMetadata: RecordedGameMetadata = await parseRecordedGameMetadata(
     file
   );
+  if (recGameMetadata.gameNumPlayers > 2) {
+    throw new Error("Only 2 player games are supported");
+  }
   const mappedRecGameMetadata = mapRecGameMetadata(recGameMetadata); //cleanup the data
 
   // 2) save file to mongo, if game guid doesn't already exists

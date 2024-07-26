@@ -1,5 +1,8 @@
 "use server";
-import { RecordedGameMetadata } from "@/types/RecordedGameParser";
+import {
+  RecordedGameMetadata,
+  RecordedGamePlayerMetadata,
+} from "@/types/RecordedGameParser";
 import {
   GetObjectCommand,
   ListObjectsV2Command,
@@ -8,6 +11,7 @@ import {
 } from "@aws-sdk/client-s3";
 import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { MythRecDownloadLink } from "../controllers/download-rec-controller";
+import { IRecordedGame } from "@/types/RecordedGame";
 
 const credentials = {
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
@@ -33,7 +37,9 @@ type UploadS3RecResponse = {
   key: string;
 };
 
-export async function uploadRecToS3(uploadS3RecParams: UploadS3RecParams): Promise<UploadS3RecResponse> {
+export async function uploadRecToS3(
+  uploadS3RecParams: UploadS3RecParams
+): Promise<UploadS3RecResponse> {
   const { file, metadata, userName } = uploadS3RecParams;
   const { gameGuid } = metadata;
 
@@ -104,11 +110,13 @@ export async function listS3Recs(
 }
 
 export async function downloadS3File(
-  recKey: string
+  rec: IRecordedGame
 ): Promise<MythRecDownloadLink> {
+  const { gameTitle, gameGuid } = rec;
   const params = {
     Bucket: NEXT_PUBLIC_S3_REC_BUCKET_NAME || "",
-    Key: recKey + ".mythrec",
+    Key: gameGuid + ".mythrec",
+    ResponseContentDisposition: `attachment; filename="${gameTitle}.mythrec"`,
   };
   try {
     const command = new GetObjectCommand(params);
