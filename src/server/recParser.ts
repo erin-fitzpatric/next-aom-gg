@@ -1,5 +1,6 @@
 "use server";
-import { RecParseError, RecordedGameMetadata, RecordedGamePlayerMetadata, RecordedGameMetadataNumbersRequired, RecordedGameMetadataStringsRequired, RecordedGameMetadataBooleansRequired, RecordedGamePlayerMetadataBooleansRequired, RecordedGamePlayerMetadataNumbersRequired, RecordedGamePlayerMetadataStringsRequired, RecordedGamePlayerMetadataNumbersOptional, RecordedGameMetadataNumbersOptional, RecordedGamePlayerMetadataStringsOptional, RecordedGameMetadataStringsOptional, RecordedGamePlayerMetadataBooleansOptional, RecordedGameMetadataBooleansOptional, RecordedGameRawKeysToCamelCase } from "@/types/RecordedGameParser";
+import { RecordedGameMetadata, RecordedGamePlayerMetadata, RecordedGameMetadataNumbersRequired, RecordedGameMetadataStringsRequired, RecordedGameMetadataBooleansRequired, RecordedGamePlayerMetadataBooleansRequired, RecordedGamePlayerMetadataNumbersRequired, RecordedGamePlayerMetadataStringsRequired, RecordedGamePlayerMetadataNumbersOptional, RecordedGameMetadataNumbersOptional, RecordedGamePlayerMetadataStringsOptional, RecordedGameMetadataStringsOptional, RecordedGamePlayerMetadataBooleansOptional, RecordedGameMetadataBooleansOptional, RecordedGameRawKeysToCamelCase } from "@/types/RecordedGameParser";
+import { Errors } from "@/utils/errors";
 import { promisify } from "util";
 import { CompressCallback, inflate, InputType } from "zlib";
 
@@ -21,6 +22,7 @@ export async function parseRecordedGameMetadata(file: File): Promise<RecordedGam
 interface ParsedString
 {
     content: string,
+    unsafeContent: string,
     streamBytesConsumed: number,
 };
 
@@ -34,7 +36,7 @@ function readString(buffer: ArrayBuffer, offset: number): ParsedString
     const stringLength = view.getUint32(offset, true);
     if (stringLength > RECORDED_GAME_MAX_STRING_LENGTH)
     {
-        throw new RecParseError(`Attempted to read string at ${offset} with length ${stringLength}`);
+        throw new Error(Errors.PARSER_INTERNAL_ERROR, {cause:`Attempted to read string at ${offset} with illegal length ${stringLength}`});
     }
     const characterDataSlice = buffer.slice(offset+4, offset+4 + (2*stringLength));
     const uint8CharacterData = new Uint8Array(characterDataSlice);
@@ -45,6 +47,7 @@ function readString(buffer: ArrayBuffer, offset: number): ParsedString
 
     return {
         content: saferContent,
+        unsafeContent: unsafeContent,
         streamBytesConsumed: streamBytesConsumed,
     };
 }  
@@ -58,7 +61,7 @@ async function decompressL33tZlib(compressed: ArrayBuffer): Promise<Buffer>
     const leet = utf8Decoder.decode(compressed.slice(0, 4));
     if (leet != "l33t")
     {
-        throw new RecParseError("Not a valid Age of Mythology file");
+        throw new Error(Errors.FILE_IS_NOT_A_RECORDED_GAME, {cause:"Not a valid Age of Mythology file"});
     }
     // Next four bytes contain the length of the decompressed data, but we don't really care about that
     try
@@ -69,7 +72,7 @@ async function decompressL33tZlib(compressed: ArrayBuffer): Promise<Buffer>
     catch (err)
     {
         console.error("Decompression error: " + err);
-        throw new RecParseError("Failed to decompress file: " + err);
+        throw new Error(Errors.PARSER_INTERNAL_ERROR, {cause:"Failed to decompress file: " + err});
     }
 }
 
@@ -95,7 +98,7 @@ function findBuildInfoString(decompressed: Buffer)
     let buildInfoOffset = decompressed.indexOf(encodedExe);
     if (buildInfoOffset < 0)
     {
-        throw new RecParseError("Failed to find build info string");
+        throw new Error(Errors.PARSER_INTERNAL_ERROR, {cause: "Failed to find build info string"});
     }
     const view = new DataView(decompressed.buffer);
     let currentCharByte = view.getUint8(buildInfoOffset);
@@ -108,7 +111,7 @@ function findBuildInfoString(decompressed: Buffer)
     buildInfoOffset -= 2;
     if (currentCharByte != 0 || buildInfoOffset < 0)
     {
-        throw new RecParseError("Failed to find start of build info string");
+        throw new Error(Errors.PARSER_INTERNAL_ERROR, {cause: "Failed to backtrack to start of build info string"});
     }
     return readString(decompressed.buffer, buildInfoOffset).content;
 }
@@ -121,12 +124,12 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
     const splitInfoString = buildInfoString.split(" ");
     if (splitInfoString.length != 3)
     {
-        throw new RecParseError(`Build info string ${splitInfoString} did not split into three components`);
+        throw new Error(Errors.PARSER_INTERNAL_ERROR, {cause:`Build info string ${splitInfoString} did not split into three components`});
     }
     const buildNumber = parseInt(splitInfoString[1]);
     if (isNaN(buildNumber))
     {
-        throw new RecParseError(`Failed to parse build number from info string ${splitInfoString}`);
+        throw new Error(Errors.PARSER_INTERNAL_ERROR, {cause:`Failed to parse build number from info string ${splitInfoString}`});
     }
     // In the beta build, the metadata keys were always written with "gametype" first
     // The table itself is simply:
@@ -147,16 +150,20 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
     // Check vs 8 (rather than 0) to make sure trying to go backwards to get to the key count can't give also give a negative offset
     if (metadataOffset < 8)
     {
-        throw new RecParseError("Could not find metadata - ensure this is a multiplayer Retold recorded game");
+        if (decompressed.indexOf(encodeUtf16("benchmark")) < 650)
+        {
+            throw new Error(Errors.GAME_IS_BENCHMARK, {cause:"This looks like a recorded game of the benchmark - it is not a multiplayer game!"});
+        }
+        throw new Error(Errors.NOT_A_MULTIPLAYER_GAME, {cause:"Could not find metadata - ensure this is a multiplayer Retold recorded game"});
     }
     // Go back 8 bytes to get to the number of keys (just going back 4 is the length of the "gametype" string we searched for)
     const keyCountOffset = metadataOffset - 8;
     console.log(`Reading key count at offset ${keyCountOffset}`);
     const keyCount = view.getUint32(keyCountOffset, true);
     // Actual number of keys in beta recorded games = 383
-    if (keyCount < 50 || keyCount > 500)
+    if (keyCount < 50 || keyCount > 600)
     {
-        throw new RecParseError(`Bad metadata key count: ${keyCount} at ${keyCountOffset}`);
+        throw new Error(Errors.PARSER_INTERNAL_ERROR, {cause:`Bad metadata key count: ${keyCount} at ${keyCountOffset}`});
     }
     const output = {
         // 13 total: 12 players plus mother nature
@@ -168,11 +175,14 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
     // Points to the length of the string of the first key
     let currentOffset = metadataOffset - 4;
     let foundKeyType3 = false;
+    // We need to remember the unescaped player names, because looking up the "real" team ID needs these to search with
+    // searching with the escape version won't find anything
+    const stringKeysToUnsafeStrings = new Map<string, string>();
     for (let keyIndex=0; keyIndex<keyCount; keyIndex++)
     {
         if (foundKeyType3)
         {
-            throw new RecParseError("Key found after type 3, cannot read due to unknown data length");
+            throw new Error(Errors.PARSER_INTERNAL_ERROR, {cause: `Key index ${keyIndex} found after a type 3, cannot continue due to unknown data length`});
         }
         const keyData = readString(decompressed.buffer, currentOffset);
         const key = keyData.content;
@@ -215,6 +225,7 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
                 const keyValueData = readString(decompressed.buffer, currentOffset);
                 const keyValue = keyValueData.content;
                 currentOffset += keyValueData.streamBytesConsumed;
+                stringKeysToUnsafeStrings.set(key, keyValueData.unsafeContent);
                 addMetadataKeyToOutput(output, key, keyValue);
                 break;
             }
@@ -227,7 +238,7 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
                 break;
             }
             default:
-                throw new RecParseError(`Metadata key ${key} has unknown type ${keyType}`);
+                throw new Error(Errors.PARSER_INTERNAL_ERROR, {cause:`Metadata key ${key} has unknown type ${keyType}`});
         }
     }
     const typedOutput = output as RecordedGameMetadata;
@@ -243,7 +254,7 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
         {
             if (playerData[key as keyof RecordedGamePlayerMetadata] === undefined)
             {
-                throw new RecParseError(`Player ${playerIndex} metadata missing required key ${key}`);
+                throw new Error(Errors.PARSER_INTERNAL_ERROR, {cause:`Player ${playerIndex} metadata missing required key ${key}`});
             }
         }
     }
@@ -254,37 +265,25 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
     {
         if (typedOutput[key as keyof RecordedGameMetadata] === undefined)
         {
-            throw new RecParseError(`Recorded game metadata missing required key ${key}`);
+            throw new Error(Errors.PARSER_INTERNAL_ERROR, {cause:`Recorded game metadata missing required key ${key}`});
         }
     }
 
     // Now that everything is there, trim output.playerdata to the correct number of players
     typedOutput.playerData.splice(typedOutput.gameNumPlayers+1, 13-typedOutput.gameNumPlayers);
-    // Parse teams into more manageable list
-    typedOutput.teams = [];
-    const teamIdToTeamArrayIndex = new Map<number, number>();
-    for (const playerData of typedOutput.playerData)
+
+    // Reject any games with AI players
+    if (typedOutput.playerData.some((player) => { return player.aiPersonality !== undefined && player.aiPersonality.length > 0}))
     {
-        // Mother nature doesn't belong to a team
-        if (playerData.id == 0) continue;
-        const teamId = playerData.teamId;
-        let index = teamIdToTeamArrayIndex.get(teamId);
-        if (index === undefined)
-        {
-            index = typedOutput.teams.length;
-            teamIdToTeamArrayIndex.set(teamId, index);
-            typedOutput.teams.push([playerData.id]);
-        }
-        else
-        {
-            typedOutput.teams[index].push(playerData.id);
-        }
+        throw new Error(Errors.GAME_HAS_AI_PLAYERS);
     }
-    // For now: force all 2 player games into 1v1s, until the meaning of teamID === -1 is known
-    if (typedOutput.teams.length == 1 && typedOutput.gameNumPlayers == 2)
+
+    if (typedOutput.gameNumPlayers > 2)
     {
-        typedOutput.teams = [[1], [2]];
+        throw new Error(Errors.UNSUPPORTED_GAME_SIZE, {cause:`Currently uploads are limited to 1v1s only - this game has ${typedOutput.gameNumPlayers} players!`});
     }
+
+    parseTeams(typedOutput, decompressed, stringKeysToUnsafeStrings);
     return typedOutput;
 }
 
@@ -308,7 +307,7 @@ function addMetadataKeyToOutput(output: any, keyName: string, value: number | st
         let playerNumber = parseInt(keyName.slice(10, 12));
         if (isNaN(playerNumber))
         {
-            throw new RecParseError(`Failed to parse player number from metadata key ${keyName} with value ${value}`);
+            throw new Error(Errors.PARSER_INTERNAL_ERROR, {cause:`Failed to parse player number from metadata key ${keyName} with value ${value}`});
         }
         const playerNumberLength = playerNumber.toFixed(0).length;
         keyName = keyName.slice(10 + playerNumberLength);
@@ -340,4 +339,88 @@ function addMetadataKeyToOutput(output: any, keyName: string, value: number | st
         return;
     }
     targetObject[keyName] = value;
+}
+
+
+function parseTeams(output: RecordedGameMetadata, decompressed: Buffer, stringKeysToUnsafeStrings: Map<string, string>)
+{
+    // player.teamId == -1 means they were set to random team.
+    // I don't know how these "real" team IDs map to the ones parsed from the normal table
+    // so if any are random, resolve the whole lot this way
+    let hasRandTeams = output.playerData.some((playerData, index) => (index > 0 && playerData.teamId === -1));
+    if (hasRandTeams)
+    {
+        const view = new DataView(decompressed.buffer);
+        // Later in the rec there is some structure where the player name appears twice
+        // with 9 bytes of something between the end of the first incidence of the name, and the length uint32 of the second
+        // Immediately after this looks like a int32 with the actual team ID in
+        for (const playerId in output.playerData)
+        {
+            const playerDataStructure = output.playerData[playerId];
+            if (playerDataStructure.id > 0)
+            {
+                const unsafeName = stringKeysToUnsafeStrings.get(`gameplayer${playerId}name`);
+                if (unsafeName === undefined)
+                {
+                    throw new Error(Errors.PARSER_INTERNAL_ERROR, {cause:`Failed to resolve team for player ${playerId}: their unescaped name wasn't saved properly`});
+                }
+                const playerNameEncoded = encodeUtf16(unsafeName);
+                const playerNameBuffer = new ArrayBuffer(4 + playerNameEncoded.length);
+                const playerNameView = new DataView(playerNameBuffer);
+                playerNameView.setUint32(0, playerNameEncoded.length/2, true);
+                const playerNameArray = new Uint8Array(playerNameBuffer);
+                playerNameArray.set(playerNameEncoded, 4);
+                
+                const expectedOffsetDifference = 9 + playerNameArray.length;
+                let lastPosition = 1;
+                let successful = false;
+                while (lastPosition > 0)
+                {
+                    let nextPosition = decompressed.indexOf(playerNameArray, lastPosition+1);
+                    //console.log(`Offset gap: ${nextPosition - lastPosition}`);
+                    if (nextPosition - lastPosition == expectedOffsetDifference)
+                    {
+                        lastPosition = nextPosition;
+                        successful = true;
+                        break;
+                    }
+                    lastPosition = nextPosition;
+                }
+                if (!successful)
+                {
+                    throw new Error(Errors.PARSER_INTERNAL_ERROR, {cause: `Failed to resolve real team for player ${playerId} = ${playerDataStructure.name}`});
+                }
+                const teamOffset = lastPosition + playerNameArray.length;
+                const realTeamId = view.getUint32(teamOffset, true);
+                if (realTeamId < 0 || realTeamId > 12)
+                {
+                    throw new Error(Errors.PARSER_INTERNAL_ERROR, {cause:`Failed to resolve real team for player ${playerId}: read bad team id ${realTeamId}`});
+                }
+                output.playerData[playerId].teamId = realTeamId;
+                console.log(`Read the actual teamId for player ${playerId} -> ${realTeamId}`);
+            }
+        }
+    }
+
+    output.teams = [];
+    const teamIdToTeamArrayIndex = new Map<number, number>();
+    
+    for (const playerData of output.playerData)
+    {
+        // Mother nature doesn't belong to a team
+        if (playerData.id == 0) continue;
+        const teamId = playerData.teamId;
+        let index = teamIdToTeamArrayIndex.get(teamId);
+        if (index === undefined)
+        {
+            index = output.teams.length;
+            teamIdToTeamArrayIndex.set(teamId, index);
+            output.teams.push([playerData.id]);
+        }
+        else
+        {
+            output.teams[index].push(playerData.id);
+        }
+    }
+    
 }

@@ -289,7 +289,3 @@ export interface RecordedGameMetadata extends Record<typeof RecordedGameMetadata
      */
     teams: number[][],
 }
-
-export class RecParseError extends Error
-{
-}
