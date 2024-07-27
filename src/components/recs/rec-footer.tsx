@@ -3,19 +3,18 @@
 import downloadMythRec from "@/server/controllers/download-rec-controller";
 import { DownloadIcon } from "lucide-react";
 import { toast } from "../ui/use-toast";
-import { useEffect, useState } from "react";
 import { IRecordedGame } from "@/types/RecordedGame";
 
 export default function RecFooter({ rec }: { rec: IRecordedGame }) {
-  const { gameGuid, uploadedBy, downloadCount } = rec;
+  const { uploadedBy, downloadCount } = rec;
 
 
-  async function handleRecDownload(key: string): Promise<void> {
+  async function handleRecDownload(rec: IRecordedGame): Promise<void> {
     
     // TODO - add loading spinner
-    console.log("downloading rec", key);
+    console.log("downloading rec", rec.gameGuid);
     try {
-      const { signedUrl } = await downloadMythRec(key);
+      const { signedUrl } = await downloadMythRec(rec);
       if (typeof window !== "undefined") {
         window.open(signedUrl, "_blank");
       }
@@ -30,16 +29,16 @@ export default function RecFooter({ rec }: { rec: IRecordedGame }) {
 
   return (
     <div className="flex flex-row">
-      <div>
+      <div className="w-48 overflow-hidden">
         <p className="text-gold">Uploaded By:</p>
-        <p>{uploadedBy}</p> {/* TODO - add link to player profile */}
+        <p className="truncate">{uploadedBy}</p> {/* TODO - add link to player profile */}
       </div>
       <div className="flex flex-row ml-auto mt-auto">
         <div className="px-2">
           <p>{downloadCount}</p>
         </div>
         <DownloadIcon
-          onClick={() => handleRecDownload(gameGuid)}
+          onClick={() => handleRecDownload(rec)}
           className="ml-1 cursor-pointer text-primary"
         />
       </div>

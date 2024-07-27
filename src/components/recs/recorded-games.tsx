@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useContext, useRef } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { SpinnerWithText } from "../spinner";
 import { Button } from "../ui/button";
 import { Card } from "../ui/card";
@@ -14,14 +14,19 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { InfoIcon } from "lucide-react";
-import { IRecordedGame } from "@/types/RecordedGame";
+import RecFilters from "./filters/rec-filters";
+import { Filters } from "@/types/Filters";
 
 export default function RecordedGames() {
-  const [recs, setRecs] = useState<IRecordedGame[]>([]);
+  const [currentPage, setCurrentPage] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [hasMore, setHasMore] = useState(true);
+  const [isUploading, setIsUploading] = useState(false);
+  const [recs, setRecs] = useState<any[]>([]);
   const [recFile, setRecFile] = useState(null);
   const [fileName, setFileName] = useState("");
-  const [currentPage, setCurrentPage] = useState<number>(0);
+  const [filters, setFilters] = useState<Filters>({});
+  const initialFetch = useRef(true);
   const { toast } = useToast();
 
   const handleFileChange = (e: any) => {
@@ -38,15 +43,13 @@ export default function RecordedGames() {
     e.preventDefault();
     if (!recFile) return;
 
-    // todo - implement Steam login and remove all of these prompts
     const userName = prompt("Enter your gamertag:");
     if (!userName) {
       alert("Name is required to upload");
       return;
     }
-    setIsLoading(true);
+    setIsUploading(true);
 
-    // upload file
     try {
       const formData = new FormData();
       formData.append("file", recFile);
@@ -63,74 +66,77 @@ export default function RecordedGames() {
           title: "Success",
           description: "Rec uploaded successfully",
         });
-        // TODO - update state and revalidate
-      } else if(response.status === 400) {
+        const mythRecs = await getMythRecs(0);
+        setRecs(mythRecs);
+      } else if (response.status === 400) {
         toast({
           title: "Rec Already Uploaded",
-          description: "This rec has already been uploaded - someone beat you to it!",
+          description:
+            "This rec has already been uploaded - someone beat you to it!",
         });
-      }
-      
-      else {
+      } else {
         toast({
           title: "Error Uploading Rec",
           description: "Try again later",
         });
       }
-
-      setIsLoading(false);
+      setIsUploading(false);
     } catch (err) {
       console.error("Error uploading rec", err);
       toast({
         title: "Error Uploading Rec",
         description: "Try again later",
       });
-      setIsLoading(false);
+      setIsUploading(false);
     }
   }
 
-  async function fetchRecs(currentPage: number): Promise<void> {
-    if (currentPage === -1) return;
-    const mythRecs = await getMythRecs(currentPage);
+  const fetchRecs = useCallback(async (pageNum: number, filters?: Filters) => {
+    const mythRecs = await getMythRecs(pageNum, filters);
 
-    if (!mythRecs.length) {
-      setCurrentPage(-1);
+    if (mythRecs.length === 0) {
+      setHasMore(false);
+      setIsLoading(false);
       return;
     }
 
-    // add mythrecs to recs
     setRecs((prevRecs) => [...prevRecs, ...mythRecs]);
-  }
+    setIsLoading(false);
+  }, []);
+
+  const handleScroll = useCallback(() => {
+    if (isLoading || !hasMore) return;
+    const scrollPosition = window.scrollY + window.innerHeight;
+    const pageHeight = document.documentElement.scrollHeight;
+    if (pageHeight - scrollPosition <= 300) {
+      setIsLoading(true);
+      const nextPage = currentPage + 1;
+      setCurrentPage(nextPage);
+      fetchRecs(nextPage, filters);
+    }
+  }, [isLoading, hasMore, currentPage, fetchRecs, filters]);
 
   useEffect(() => {
-    console.log("useEffect");
-    async function handleScroll(): Promise<void> {
-      const scrollPosition = window.scrollY + window.innerHeight;
-      const pageHeight = document.documentElement.scrollHeight;
-      if (
-        pageHeight - scrollPosition <= 300 &&
-        currentPage !== -1 &&
-        !isLoading
-      ) {
-        setIsLoading(true);
-        setCurrentPage((prevPage) => prevPage + 1);
-        console.log(`fetchRecs page ${currentPage} inside handleScroll`);
-        fetchRecs(currentPage);
-        setIsLoading(false);
-      }
+    if (initialFetch.current) {
+      fetchRecs(0);
+      initialFetch.current = false;
     }
-    //console.log(`fetchRecs page ${currentPage} outside scroll conditional`);
-    //fetchRecs(currentPage);
-    //setIsLoading(false);
+
     window.addEventListener("scroll", handleScroll);
     return () => window.removeEventListener("scroll", handleScroll);
-  }, [currentPage, isLoading]);
+  }, [fetchRecs, handleScroll]);
+
+  // Reenable infinite scroll when filters change
+  useEffect(() => {
+    setHasMore(true);
+  }, [filters]);
 
   return (
-    <Card className="p-4">
+    <div>
       <div className="card-header">
         <h2>Recorded Games</h2>
       </div>
+      {/* Upload Recs */}
       <div className="mx-auto w-fit mt-4 bg-secondary p-4 rounded-xl outline-double text-gold">
         <div className="flex gap-2 text-center">
           <h3 className="text-white">Upload an AoM Retold Recorded Game</h3>
@@ -160,33 +166,59 @@ export default function RecordedGames() {
             placeholder="Enter file name"
             className="border-b border-gray-400 focus:outline-none focus:border-blue-500 px-2 py-1"
           />
-          <Button type="submit" className="flex mx-auto mt-2">
-            Upload
-          </Button>
+          {/* add spinner when uploading */}
+          {isUploading ? (
+            <div className="flex justify-center mt-4">
+              <SpinnerWithText text={"Uploading..."} />
+            </div>
+          ) : (
+            <Button type="submit" className="flex mx-auto mt-2">
+              Upload
+            </Button>
+          )}
+          <p className="mx-auto">(1vs1 Only for Now)</p>
         </form>
       </div>
-      <div className="mt-4">
-        {isLoading && recs ? (
-          <SpinnerWithText text={"Loading recorded games..."} />
-        ) : (
-          <div className="flex flex-row flex-wrap justify-center">
-            {recs?.map(
-              (rec) => (
-                (
-                  <Card
-                    key={rec.gameGuid}
-                    className="bg-secondary rounded-lg m-1 p-2 flex w-fit"
-                  >
-                    <div>
-                      <RecTile rec={rec}></RecTile>
-                    </div>
-                  </Card>
-                )
-              )
+      {/* filters */}
+      <RecFilters
+        setRecs={setRecs}
+        setIsLoading={setIsLoading}
+        filters={filters}
+        setFilters={setFilters}
+      />
+      {recs.length === 0 && !initialFetch ? (
+        <div className="flex justify-center mt-4">
+          <Card className="p-4 w-full">
+            <p className="flex justify-center">No recorded games found!</p>
+          </Card>
+        </div>
+      ) : (
+        <Card className="p-4">
+          {/* Replay Gallery */}
+          <div>
+            <div className="flex flex-row flex-wrap justify-center">
+              {recs?.map((rec) => (
+                <Card
+                  key={rec.gameGuid}
+                  className="bg-secondary rounded-lg m-1 p-2 flex w-fit"
+                >
+                  <div>
+                    <RecTile
+                      key={`rec-tile-${rec.gameGuid}`}
+                      rec={rec}
+                    ></RecTile>
+                  </div>
+                </Card>
+              ))}
+            </div>
+            {isLoading && (
+              <div className="flex justify-center mt-4">
+                <SpinnerWithText text={"Loading recorded games..."} />
+              </div>
             )}
           </div>
-        )}
-      </div>
-    </Card>
+        </Card>
+      )}
+    </div>
   );
 }

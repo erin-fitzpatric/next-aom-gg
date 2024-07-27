@@ -1,4 +1,5 @@
 import uploadRec from "@/server/controllers/upload-rec-controller";
+import { Errors } from "@/utils/errors";
 
 export async function POST(request: Request) {
   try {
@@ -11,9 +12,12 @@ export async function POST(request: Request) {
     const gameData = await uploadRec({ userName, file, gameTitle });
     return Response.json({ gameData });
   } catch (error: any) {
-    if (error.message === "UNIQUE_KEY_VIOLATION") {
-      return Response.json({ error: "Rec already uploaded" }, { status: 400 });
-    } else {
+    if (error.message === Errors.UNIQUE_KEY_VIOLATION) {
+      return Response.json({ error: Errors.UNIQUE_KEY_VIOLATION }, { status: 400 });
+    } else if (error.message = Errors.UNSUPPORTED_GAME_SIZE) {
+      return Response.json({ error: Errors.UNSUPPORTED_GAME_SIZE }, { status: 400 });
+    }
+    else {
       console.error("Error uploading rec", error);
       return Response.json({ error: "Error uploading rec" }, { status: 500 });
     }
