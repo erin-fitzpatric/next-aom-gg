@@ -146,8 +146,7 @@ export default function RecordedGames() {
             </TooltipTrigger>
             <TooltipContent>
               <p>
-                C:\Users\fitzbro\Games\Age of Mythology
-                RetoldBeta\yourSteamId\replays
+              C:\Users\efitz\Games\Age of Mythology Retold Playtest\yourSteamId\replays
               </p>
             </TooltipContent>
           </Tooltip>
