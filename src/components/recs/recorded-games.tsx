@@ -129,6 +129,7 @@ export default function RecordedGames() {
   // Reenable infinite scroll when filters change
   useEffect(() => {
     setHasMore(true);
+    setCurrentPage(0);
   }, [filters]);
 
   return (

@@ -1,4 +1,3 @@
-import { ModeToggle } from "./ui/mode-toggle";
 import Image from "next/image";
 import {
   NavigationMenu,
@@ -6,12 +5,12 @@ import {
   NavigationMenuList,
 } from "./ui/navigation-menu";
 import Link from "next/link";
+import Countdown from "./countdown";
 
 export default function Header() {
   return (
     <header className="flex justify-between items-center p-4">
       <div className="flex items-center space-x-4">
-
         <NavigationMenu>
           <NavigationMenuList>
             <NavigationMenuItem className="text-3xl space-x-4 flex">
@@ -37,8 +36,9 @@ export default function Header() {
           </NavigationMenuList>
         </NavigationMenu>
       </div>
-      <div className="ml-auto">
-        <ModeToggle />
+      {/* Launch Countdown */}
+      <div className="ml-auto flex">
+        <Countdown />
       </div>
     </header>
   );
