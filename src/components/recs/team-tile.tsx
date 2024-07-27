@@ -7,9 +7,11 @@ import Image from "next/image";
 function PlayerTile(playerData: RecordedGamePlayerMetadata, gameGuid: string) {
   const { name, civ, id } = playerData;
   const godData = majorGodIndexToData(civ);
-  console.log(godData);
   return (
-    <div className="flex flex-col items-center my-auto px-2 w-32" key={`${gameGuid}-player-${id}`}>
+    <div
+      className="flex flex-col items-center my-auto px-2 w-32"
+      key={`${gameGuid}-player-${id}`}
+    >
       <Image
         src={godData.portraitPath}
         alt={godData.name}
@@ -17,7 +19,13 @@ function PlayerTile(playerData: RecordedGamePlayerMetadata, gameGuid: string) {
         height={64}
         className="rounded-full border-2 border-amber-400"
       ></Image>
-      <div className="text-center truncate w-30 font-medium">{name}</div>
+      <div
+        className="text-center truncate font-medium w-full overflow-hidden"
+        title={name}
+      >
+        {name}
+      </div>
+
       <div className="text-center truncate w-30 font-medium italic">
         Rank: TBD
       </div>
@@ -49,7 +57,9 @@ export default function TeamTile({
   return (
     <div className="flex flex-col items-center my-auto px-2 w-32">
       {teamHeader}
-      <div>{playerData.map((thisPlayer) => PlayerTile(thisPlayer, gameGuid))}</div>
+      <div>
+        {playerData.map((thisPlayer) => PlayerTile(thisPlayer, gameGuid))}
+      </div>
     </div>
   );
 }

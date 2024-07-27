@@ -1,7 +1,7 @@
 import { RandomMapData } from "@/types/RandomMap";
 import Image from "next/image";
 
-export default function RecMap({mapData}: {mapData: RandomMapData}) {
+export default function RecMap({ mapData }: { mapData: RandomMapData }) {
   return (
     <>
       <Image
@@ -10,6 +10,9 @@ export default function RecMap({mapData}: {mapData: RandomMapData}) {
         width={240}
         height={240}
       ></Image>
+      <div className="flex justify-center italic">
+        <p>{mapData.name}</p>
+      </div>
     </>
   );
 }

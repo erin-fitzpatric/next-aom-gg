@@ -36,14 +36,14 @@ async function getData(): Promise<Player[]> {
     },
     {
       id: "5",
-      name: "H20",
+      name: "Nomad",
       rank: 5,
       winPercent: 0.6,
       totalGames: 70,
     },
     {
       id: "6",
-      name: "Kaiserklein",
+      name: "gks_aoe",
       rank: 6,
       winPercent: 0.55,
       totalGames: 60,
