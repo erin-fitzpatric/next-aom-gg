@@ -34,5 +34,6 @@ const RecordedGameSchema = new Schema(
 
 // define indexes
 RecordedGameSchema.index({ gameGuid: 1 }, { unique: true });
+RecordedGameSchema.index({ "$**": "text" });
 
 export default RecordedGameSchema;

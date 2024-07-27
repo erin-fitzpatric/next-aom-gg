@@ -48,7 +48,19 @@ function buildFilterQuery(
   const aggregateQuery = <PipelineStage[]>[];
   if (filters) {
     // TODO -we will refactor this later...right???
-    const { godIds, mapNames } = filters;
+    const { godIds, mapNames, searchQueryString } = filters;
+    if (searchQueryString) {
+      aggregateQuery.push({
+        $match: {
+          $or: [
+            { gameTitle: { $regex: searchQueryString, $options: "i" } },
+            { gameMapName: { $regex: searchQueryString, $options: "i" } },
+            { "playerData.name": { $regex: searchQueryString, $options: "i" } },
+            { uploadedBy: { $regex: searchQueryString, $options: "i" } },
+          ],
+        },
+      });
+    }
     if (godIds) {
       for (const godId of godIds) {
         aggregateQuery.push({ $match: { "playerData.civ": godId } });

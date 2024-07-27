@@ -3,6 +3,7 @@ import { Dispatch, SetStateAction } from "react";
 export type Filters = {
   godIds?: number[];
   mapNames?: string[];
+  searchQueryString?: string;
 };
 
 export interface FilterProps {
