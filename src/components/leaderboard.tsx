@@ -84,13 +84,6 @@ async function getData(): Promise<Player[]> {
       totalGames: 10,
     },
     {
-      id: "12",
-      name: "frerbud",
-      rank: 12,
-      winPercent: 0.25,
-      totalGames: 5,
-    },
-    {
       id: "1",
       name: "FitzBro",
       rank: 1,
