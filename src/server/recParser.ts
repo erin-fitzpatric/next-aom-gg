@@ -150,7 +150,8 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
     // Check vs 8 (rather than 0) to make sure trying to go backwards to get to the key count can't give also give a negative offset
     if (metadataOffset < 8)
     {
-        if (decompressed.indexOf(encodeUtf16("benchmark")) < 650)
+        const benchmarkIndex = decompressed.indexOf(encodeUtf16("benchmark"));
+        if (benchmarkIndex < 650 && benchmarkIndex > 0)
         {
             throw new Error(Errors.GAME_IS_BENCHMARK, {cause:"This looks like a recorded game of the benchmark - it is not a multiplayer game!"});
         }
