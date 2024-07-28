@@ -11,13 +11,12 @@ import dynamic from "next/dynamic";
 
 const Countdown = dynamic(() => import('./countdown'), { ssr: false });
 
-
 export default function Header() {
   // Get the client's timezone offset in minutes
   const timezoneOffset = new Date().getTimezoneOffset();
 
   return (
-    <header className="flex justify-between items-center p-4">
+    <header className="flex flex-col sm:flex-row justify-between items-center p-4">
       <div className="flex items-center space-x-4">
         <NavigationMenu>
           <NavigationMenuList>
@@ -45,7 +44,7 @@ export default function Header() {
         </NavigationMenu>
       </div>
       {/* Launch Countdown */}
-      <div className="ml-auto flex text-gold">
+      <div className="flex justify-center sm:justify-end w-full sm:w-auto mt-4 sm:mt-0 sm:pr-6">
         <Countdown
           targetDate={"2024-08-27T04:00:00Z"}
           title={"AoM Retold Launch Date"}
