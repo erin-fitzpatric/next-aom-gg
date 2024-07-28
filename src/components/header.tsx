@@ -8,6 +8,9 @@ import Link from "next/link";
 import Countdown from "./countdown";
 
 export default function Header() {
+  // Get the client's timezone offset in minutes
+  const timezoneOffset = new Date().getTimezoneOffset();
+
   return (
     <header className="flex justify-between items-center p-4">
       <div className="flex items-center space-x-4">
@@ -38,11 +41,11 @@ export default function Header() {
       </div>
       {/* Beta Countdown */}
       <div className="ml-auto flex">
-        <Countdown targetDate={new Date("2024-07-28T20:00:00")} title={'Next Stress Test'} />
+        <Countdown targetDate={new Date("2024-07-28T24:00:00")} title={'Next Stress Test'} timezoneOffset={timezoneOffset} />
       </div>
       {/* Launch Countdown */}
       <div className="ml-auto flex">
-        <Countdown targetDate={new Date("2024-08-27T00:00:00")} title={'AoM Retold Launch Date'} />
+        <Countdown targetDate={new Date("2024-08-27T00:00:00")} title={'AoM Retold Launch Date'} timezoneOffset={timezoneOffset} />
       </div>
     </header>
   );

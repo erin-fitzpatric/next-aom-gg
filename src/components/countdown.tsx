@@ -1,22 +1,32 @@
-"use client";
+'use client';
 import React, { useState, useEffect } from "react";
 
-export default function Countdown({ targetDate, title }: { targetDate: Date, title: string }) {
-  const [timeLeft, setTimeLeft] = useState({
-    days: 0,
-    hours: 0,
-    minutes: 0,
-    seconds: 0,
-  });
+interface CountdownProps {
+  targetDate: Date;
+  title: string;
+  timezoneOffset: number; // timezone offset in minutes
+}
 
-  function calculateTimeLeft() {
-    const difference = +new Date(targetDate) - +new Date();
-    let timeLeft = {
-      days: 0,
-      hours: 0,
-      minutes: 0,
-      seconds: 0,
-    };
+const Countdown: React.FC<CountdownProps> = ({ targetDate, title, timezoneOffset }) => {
+  const [timeLeft, setTimeLeft] = useState<{
+    days: number;
+    hours: number;
+    minutes: number;
+    seconds: number;
+  } | null>(calculateTimeLeft(targetDate, timezoneOffset));
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft(targetDate, timezoneOffset));
+    }, 1000);
+
+    return () => clearInterval(timer);
+  }, [targetDate, timezoneOffset]);
+
+  function calculateTimeLeft(targetDate: Date, timezoneOffset: number) {
+    const adjustedTargetDate = new Date(targetDate.getTime() - timezoneOffset * 60000);
+    const difference = +adjustedTargetDate - +new Date();
+    let timeLeft: { days: number; hours: number; minutes: number; seconds: number } | null = null;
 
     if (difference > 0) {
       timeLeft = {
@@ -30,21 +40,18 @@ export default function Countdown({ targetDate, title }: { targetDate: Date, tit
     return timeLeft;
   }
 
-  useEffect(() => {
-    setTimeLeft(calculateTimeLeft());
-    const timer = setInterval(() => {
-      setTimeLeft(calculateTimeLeft());
-    }, 1000);
-    return () => clearInterval(timer);
-  }, [targetDate]);
-
   return (
-    <div className="text-gold text-center mr-10 font-bold">
-      <h1>{title}</h1>
-      <div>
-        {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m{" "}
-        {timeLeft.seconds}s
-      </div>
+    <div className="countdown">
+      <h3>{title}</h3>
+      {timeLeft ? (
+        <div>
+          {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
+        </div>
+      ) : (
+        <div>Time is up!</div>
+      )}
     </div>
   );
-}
+};
+
+export default Countdown;
