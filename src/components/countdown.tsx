@@ -1,60 +1,49 @@
-'use client';
-
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect } from 'react';
 
 interface CountdownProps {
-  targetDate: Date;
+  targetDate: string; // ISO format string
   title: string;
 }
 
 const Countdown: React.FC<CountdownProps> = ({ targetDate, title }) => {
-  const [timeLeft, setTimeLeft] = useState<{
-    days: number;
-    hours: number;
-    minutes: number;
-    seconds: number;
-  } | null>(null);
+  const calculateTimeLeft = () => {
+    const target = new Date(targetDate).getTime();
+    const now = new Date().getTime();
+    const difference = target - now;
 
-  useEffect(() => {
-    // Get the client's timezone offset in minutes
-    const timezoneOffset = new Date().getTimezoneOffset();
-    const adjustedTargetDate = new Date(targetDate.getTime() - timezoneOffset * 60000);
+    let timeLeft = {
+      days: 0,
+      hours: 0,
+      minutes: 0,
+      seconds: 0,
+    };
 
-    function calculateTimeLeft() {
-      const difference = +adjustedTargetDate - +new Date();
-      let timeLeft: { days: number; hours: number; minutes: number; seconds: number } | null = null;
-
-      if (difference > 0) {
-        timeLeft = {
-          days: Math.floor(difference / (1000 * 60 * 60 * 24)),
-          hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
-          minutes: Math.floor((difference / 1000 / 60) % 60),
-          seconds: Math.floor((difference / 1000) % 60),
-        };
-      }
-
-      setTimeLeft(timeLeft);
+    if (difference > 0) {
+      timeLeft = {
+        days: Math.floor(difference / (1000 * 60 * 60 * 24)),
+        hours: Math.floor((difference / (1000 * 60 * 60)) % 24),
+        minutes: Math.floor((difference / 1000 / 60) % 60),
+        seconds: Math.floor((difference / 1000) % 60),
+      };
     }
 
-    // Update the countdown every second
+    return timeLeft;
+  };
+
+  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
+
+  useEffect(() => {
     const timer = setInterval(() => {
-      calculateTimeLeft();
+      setTimeLeft(calculateTimeLeft());
     }, 1000);
 
-    // Clean up interval on component unmount
     return () => clearInterval(timer);
   }, [targetDate]);
 
   return (
-    <div className="countdown">
-      <h3>{title}</h3>
-      {timeLeft ? (
-        <div>
-          {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s
-        </div>
-      ) : (
-        <div>Time is up!</div>
-      )}
+    <div className='text-center font-bold'>
+      <p>{title}</p>
+      <p>{timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s</p>
     </div>
   );
 };

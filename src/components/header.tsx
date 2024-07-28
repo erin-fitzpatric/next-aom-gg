@@ -1,3 +1,5 @@
+'use client';
+
 import Image from "next/image";
 import {
   NavigationMenu,
@@ -5,7 +7,10 @@ import {
   NavigationMenuList,
 } from "./ui/navigation-menu";
 import Link from "next/link";
-import Countdown from "./countdown";
+import dynamic from "next/dynamic";
+
+const Countdown = dynamic(() => import('./countdown'), { ssr: false });
+
 
 export default function Header() {
   // Get the client's timezone offset in minutes
@@ -41,7 +46,10 @@ export default function Header() {
       </div>
       {/* Launch Countdown */}
       <div className="ml-auto flex text-gold">
-        <Countdown targetDate={new Date("2024-08-27T00:00:00")} title={'AoM Retold Launch Date'} />
+        <Countdown
+          targetDate={"2024-08-27T04:00:00Z"}
+          title={"AoM Retold Launch Date"}
+        />
       </div>
     </header>
   );
