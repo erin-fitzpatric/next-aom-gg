@@ -48,7 +48,8 @@ function buildFilterQuery(
   const aggregateQuery = <PipelineStage[]>[];
   if (filters) {
     // TODO -we will refactor this later...right???
-    const { godIds, mapNames, searchQueryString } = filters;
+    const { godIds, mapNames, searchQueryString, buildNumbers } = filters;
+    // search
     if (searchQueryString) {
       aggregateQuery.push({
         $match: {
@@ -61,15 +62,24 @@ function buildFilterQuery(
         },
       });
     }
+    // gods
     if (godIds) {
       for (const godId of godIds) {
         aggregateQuery.push({ $match: { "playerData.civ": godId } });
       }
     }
 
+    // maps
     if (mapNames) {
       for (const mapName of mapNames) {
         aggregateQuery.push({ $match: { gameMapName: mapName } });
+      }
+    }
+
+    // build num
+    if (buildNumbers) {
+      for (const buildNumber of buildNumbers) {
+        aggregateQuery.push({ $match: { buildNumber } });
       }
     }
   }
@@ -79,6 +89,19 @@ function buildFilterQuery(
     { $limit: PAGE_SIZE }
   );
   return aggregateQuery;
+}
+
+export async function listBuildNumbers(): Promise<number[]> {
+  await getMongoClient();
+  try {
+    const buildNumbers = await RecordedGameModel.find()
+      .distinct("buildNumber")
+      .lean();
+    return buildNumbers.sort((a, b) => b - a);
+  } catch (err) {
+    console.error(err);
+    throw new Error("Failed to fetch build numbers: " + err);
+  }
 }
 
 export async function incrementDownloadCount(gameGuid: string): Promise<void> {
