@@ -40,9 +40,9 @@ export default function Header() {
         </NavigationMenu>
       </div>
       {/* Launch Countdown */}
-      <div className="ml-auto flex text-gold">
+      {/* <div className="ml-auto flex text-gold">
         <Countdown targetDate={new Date("2024-08-27T00:00:00")} title={'AoM Retold Launch Date'} />
-      </div>
+      </div> */}
     </header>
   );
 }
