@@ -3,17 +3,20 @@ import { MajorGodFilter } from "./major-god-filter";
 import { MapFilter } from "./map-filter";
 import { Filters } from "@/types/Filters";
 import RecSearch from "./rec-search";
+import { VersionFilter } from "./version-filter";
 
 export default function RecFilters({
   setRecs,
   setIsLoading,
   filters,
   setFilters,
+  buildNumbers,
 }: {
   setRecs: Dispatch<SetStateAction<any[]>>;
   setIsLoading: Dispatch<SetStateAction<boolean>>;
   filters: Filters;
   setFilters: Dispatch<SetStateAction<Filters>>;
+  buildNumbers: number[];
 }) {
   return (
     <div className="flex space-x-2 justify-end text-primary p-4">
@@ -34,6 +37,13 @@ export default function RecFilters({
         setIsLoading={setIsLoading}
         filters={filters}
         setFilters={setFilters}
+      />
+      <VersionFilter
+        setRecs={setRecs}
+        setIsLoading={setIsLoading}
+        filters={filters}
+        setFilters={setFilters}
+        buildNumbers={buildNumbers} 
       />
     </div>
   );

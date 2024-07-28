@@ -1,10 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 
-// Define the target date
-const targetDate = new Date("2024-08-27T00:00:00");
-
-export default function Countdown() {
+export default function Countdown({ targetDate, title }: { targetDate: Date, title: string }) {
   const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
   const [isMounted, setIsMounted] = useState(false);
 
@@ -45,7 +42,7 @@ export default function Countdown() {
 
   return (
     <div className="text-gold text-center mr-10 font-bold">
-      <h1>AoM Retold Launch Date</h1>
+      <h1>{title}</h1>
       <div>
         {timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m{" "}
         {timeLeft.seconds}s

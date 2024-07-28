@@ -4,6 +4,7 @@ export type Filters = {
   godIds?: number[];
   mapNames?: string[];
   searchQueryString?: string;
+  buildNumbers?: number[];
 };
 
 export interface FilterProps {
@@ -11,4 +12,5 @@ export interface FilterProps {
   setIsLoading: Dispatch<SetStateAction<boolean>>;
   setFilters: Dispatch<SetStateAction<Filters>>;
   filters: Filters;
+  buildNumbers?: number[];
 }

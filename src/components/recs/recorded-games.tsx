@@ -7,7 +7,7 @@ import { Card } from "../ui/card";
 import { useToast } from "../ui/use-toast";
 import { Input } from "../ui/input";
 import RecTile from "./rec-tile";
-import { getMythRecs } from "@/server/controllers/mongo-controller";
+import { getBuildNumbers, getMythRecs } from "@/server/controllers/mongo-controller";
 import {
   Tooltip,
   TooltipContent,
@@ -16,6 +16,7 @@ import {
 import { InfoIcon } from "lucide-react";
 import RecFilters from "./filters/rec-filters";
 import { Filters } from "@/types/Filters";
+import Loading from "../loading";
 
 export default function RecordedGames() {
   const [currentPage, setCurrentPage] = useState<number>(0);
@@ -26,6 +27,7 @@ export default function RecordedGames() {
   const [recFile, setRecFile] = useState(null);
   const [fileName, setFileName] = useState("");
   const [filters, setFilters] = useState<Filters>({});
+  const [buildNumbers, setBuildNumbers] = useState<number[]>([]);
   const initialFetch = useRef(true);
   const { toast } = useToast();
 
@@ -92,7 +94,14 @@ export default function RecordedGames() {
   }
 
   const fetchRecs = useCallback(async (pageNum: number, filters?: Filters) => {
-    const mythRecs = await getMythRecs(pageNum, filters);
+    let mappedFilters = filters;
+    if (initialFetch.current) {
+      const builds = await getBuildNumbers();
+      setBuildNumbers(builds);
+      mappedFilters = { buildNumbers: [builds[0]] }; // filter by latest build on load
+      setFilters(mappedFilters);
+    }
+    const mythRecs = await getMythRecs(pageNum, mappedFilters);
 
     if (mythRecs.length === 0) {
       setHasMore(false);
@@ -118,7 +127,7 @@ export default function RecordedGames() {
 
   useEffect(() => {
     if (initialFetch.current) {
-      fetchRecs(0);
+      fetchRecs(0, {buildNumbers: [-1]});
       initialFetch.current = false;
     }
 
@@ -132,7 +141,9 @@ export default function RecordedGames() {
     setCurrentPage(0);
   }, [filters]);
 
-  return (
+  return initialFetch.current ? (
+    <Loading />
+  ) : (
     <div>
       <div className="card-header">
         <h2>Recorded Games</h2>
@@ -147,7 +158,8 @@ export default function RecordedGames() {
             </TooltipTrigger>
             <TooltipContent>
               <p>
-              C:\Users\efitz\Games\Age of Mythology Retold Playtest\yourSteamId\replays
+                C:\Users\efitz\Games\Age of Mythology Retold
+                Playtest\yourSteamId\replays
               </p>
             </TooltipContent>
           </Tooltip>
@@ -185,8 +197,9 @@ export default function RecordedGames() {
         setIsLoading={setIsLoading}
         filters={filters}
         setFilters={setFilters}
+        buildNumbers={buildNumbers}
       />
-      {recs.length === 0 && !initialFetch ? (
+      {recs.length === 0 && !initialFetch.current ? (
         <div className="flex justify-center mt-4">
           <Card className="p-4 w-full">
             <p className="flex justify-center">No recorded games found!</p>
