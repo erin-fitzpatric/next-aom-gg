@@ -38,10 +38,10 @@ const Countdown: React.FC<CountdownProps> = ({ targetDate, title }) => {
     }, 1000);
 
     return () => clearInterval(timer);
-  }, [targetDate]);
+  });
 
   return (
-    <div className='text-center font-bold'>
+    <div className='text-center font-bold text-gold border-2 border-amber-400 rounded-lg p-2'>
       <p>{title}</p>
       <p>{timeLeft.days}d {timeLeft.hours}h {timeLeft.minutes}m {timeLeft.seconds}s</p>
     </div>
