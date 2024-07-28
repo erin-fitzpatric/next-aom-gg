@@ -2,11 +2,15 @@
 import React, { useState, useEffect } from "react";
 
 export default function Countdown({ targetDate, title }: { targetDate: Date, title: string }) {
-  const [timeLeft, setTimeLeft] = useState(calculateTimeLeft());
-  const [isMounted, setIsMounted] = useState(false);
+  const [timeLeft, setTimeLeft] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0,
+    seconds: 0,
+  });
 
   function calculateTimeLeft() {
-    const difference = +targetDate - +new Date();
+    const difference = +new Date(targetDate) - +new Date();
     let timeLeft = {
       days: 0,
       hours: 0,
@@ -27,18 +31,12 @@ export default function Countdown({ targetDate, title }: { targetDate: Date, tit
   }
 
   useEffect(() => {
-    setIsMounted(true);
-    if (isMounted) {
-      const timer = setInterval(() => {
-        setTimeLeft(calculateTimeLeft());
-      }, 1000);
-      return () => clearInterval(timer);
-    }
-  }, [isMounted]);
-
-  if (!isMounted) {
-    return null; // Render nothing on the server
-  }
+    setTimeLeft(calculateTimeLeft());
+    const timer = setInterval(() => {
+      setTimeLeft(calculateTimeLeft());
+    }, 1000);
+    return () => clearInterval(timer);
+  }, [targetDate]);
 
   return (
     <div className="text-gold text-center mr-10 font-bold">
