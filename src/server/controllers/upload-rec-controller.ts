@@ -3,7 +3,6 @@ import { RecordedGameMetadata } from "@/types/RecordedGameParser";
 import getMongoClient from "@/db/mongo/mongo-client";
 import RecordedGameModel from "@/db/mongo/model/RecordedGameModel";
 import { uploadRecToS3 } from "../services/aws";
-import { MongooseError } from "mongoose";
 
 export type UploadRecParams = {
   file: File;

@@ -17,7 +17,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <>
       <html lang="en" suppressHydrationWarning className="dark">
         <head />
-        <body className={cn("min-h-screen bg-background antialiased")}>
+        <body className={cn("min-h-screen bg-background antialiased p-4")}>
           <TooltipProvider delayDuration={75}>
             <WindowProvider>
               <ThemeProvider

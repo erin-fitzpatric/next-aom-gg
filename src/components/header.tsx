@@ -1,5 +1,4 @@
 'use client';
-
 import Image from "next/image";
 import {
   NavigationMenu,
@@ -8,13 +7,11 @@ import {
 } from "./ui/navigation-menu";
 import Link from "next/link";
 import dynamic from "next/dynamic";
+import { SignIn } from "./sign-in";
 
-const Countdown = dynamic(() => import('./countdown'), { ssr: false });
+const Countdown = dynamic(() => import("./countdown"), { ssr: false });
 
 export default function Header() {
-  // Get the client's timezone offset in minutes
-  const timezoneOffset = new Date().getTimezoneOffset();
-
   return (
     <header className="flex flex-col sm:flex-row justify-between items-center p-4">
       <div className="flex items-center space-x-4">
@@ -44,11 +41,15 @@ export default function Header() {
         </NavigationMenu>
       </div>
       {/* Launch Countdown */}
-      <div className="flex justify-center sm:justify-end w-full sm:w-auto mt-4 sm:mt-0 sm:pr-6">
+      <div className="flex justify-end sm:justify-end w-full sm:w-auto mt-4 sm:mt-0 sm:pr-6">
         <Countdown
           targetDate={"2024-08-27T04:00:00Z"}
           title={"AoM Retold Launch Date"}
         />
+      </div>
+      {/* auth */}
+      <div>
+        <SignIn />
       </div>
     </header>
   );
