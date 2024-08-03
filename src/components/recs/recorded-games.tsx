@@ -79,7 +79,7 @@ export default function RecordedGames() {
         <h2>Recorded Games</h2>
       </div>
       {/* filters */}
-      <div className="flex flex-row flex-row-reverse">
+      <div className="flex flex-row-reverse">
         <RecFilters
           setRecs={setRecs}
           setIsLoading={setIsLoading}
@@ -122,7 +122,7 @@ export default function RecordedGames() {
           </div>
         </Card>
       )}
-      <div className="fixed bottom-4 right-4">
+      <div className="fixed bottom-4 right-4 mr-2">
         <RecUploadForm setRecs={setRecs} />
       </div>
     </div>

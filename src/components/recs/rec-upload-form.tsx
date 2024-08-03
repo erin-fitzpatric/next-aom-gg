@@ -1,9 +1,8 @@
+"use client";
 import {
   Sheet,
-  SheetClose,
   SheetContent,
   SheetDescription,
-  SheetFooter,
   SheetHeader,
   SheetTitle,
   SheetTrigger,
@@ -13,6 +12,8 @@ import { SpinnerWithText } from "../spinner";
 import { toast } from "../ui/use-toast";
 import { getMythRecs } from "@/server/controllers/mongo-controller";
 import { Dispatch, SetStateAction, useState } from "react";
+import { useSession } from "next-auth/react";
+import { SignIn } from "../sign-in";
 
 export type RecUploadFormProps = {
   setRecs: Dispatch<SetStateAction<any[]>>;
@@ -21,6 +22,7 @@ export default function RecUploadForm({ setRecs }: RecUploadFormProps) {
   const [recFile, setRecFile] = useState(null);
   const [fileName, setFileName] = useState("");
   const [isUploading, setIsUploading] = useState(false);
+  const { data: session } = useSession(); // get the client session
 
   const handleFileChange = (e: any) => {
     const selectedFile = e.target.files[0];
@@ -104,36 +106,45 @@ export default function RecUploadForm({ setRecs }: RecUploadFormProps) {
             <br />
           </SheetDescription>
         </SheetHeader>
-        <form
-          id="recUploadForm"
-          onSubmit={handleUploadFile}
-          className="flex mt-1 flex-col"
-        >
-          <input
-            type="file"
-            onChange={handleFileChange}
-            accept=".mythrec"
-            className="mr-2"
-          />
-          <input
-            type="text"
-            value={fileName}
-            onChange={handleFileNameChange}
-            placeholder="Enter file name"
-            className="border-b border-gray-400 focus:outline-none focus:border-blue-500 px-2 py-1"
-          />
-          {/* add spinner when uploading */}
-          {isUploading ? (
-            <div className="flex justify-center mt-4">
-              <SpinnerWithText text={"Uploading..."} />
+        {!session ? (
+          <SheetDescription className="text-gold">
+            <div className="flex flex-col items-center">
+              <SignIn />
+              <p className="font-semibold mt-2">Sign in to upload recordings!</p>
             </div>
-          ) : (
-            <Button type="submit" className="flex mx-auto mt-2">
-              Upload
-            </Button>
-          )}
-          <p className="mx-auto text-gold">(1vs1 Only for Now)</p>
-        </form>
+          </SheetDescription>
+        ) : (
+          <form
+            id="recUploadForm"
+            onSubmit={handleUploadFile}
+            className="flex mt-1 flex-col"
+          >
+            <input
+              type="file"
+              onChange={handleFileChange}
+              accept=".mythrec"
+              className="mr-2"
+            />
+            <input
+              type="text"
+              value={fileName}
+              onChange={handleFileNameChange}
+              placeholder="Enter file name"
+              className="border-b border-gray-400 focus:outline-none focus:border-blue-500 px-2 py-1"
+            />
+            {/* add spinner when uploading */}
+            {isUploading ? (
+              <div className="flex justify-center mt-4">
+                <SpinnerWithText text={"Uploading..."} />
+              </div>
+            ) : (
+              <Button type="submit" className="flex mx-auto mt-2">
+                Upload
+              </Button>
+            )}
+            <p className="mx-auto text-gold">(1vs1 Only for Now)</p>
+          </form>
+        )}
         {/* <SheetFooter className="pt-2">
           <SheetClose asChild>
             <Button type="submit" className="flex mx-auto">
