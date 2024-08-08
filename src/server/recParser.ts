@@ -278,7 +278,7 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
     {
         throw new Error(Errors.GAME_HAS_AI_PLAYERS);
     }
-
+    
     if (typedOutput.gameNumPlayers > 2)
     {
         throw new Error(Errors.UNSUPPORTED_GAME_SIZE, {cause:`Currently uploads are limited to 1v1s only - this game has ${typedOutput.gameNumPlayers} players!`});
@@ -423,5 +423,11 @@ function parseTeams(output: RecordedGameMetadata, decompressed: Buffer, stringKe
             output.teams[index].push(playerData.id);
         }
     }
+
+    if (output.teams.length < 2)
+    {
+        throw new Error(Errors.UNSUPPORTED_GAME_SIZE, {cause: `The players in this game seem to only be arranged into ${output.teams.length} teams(s).`});
+    }
     
+    output.teamsFormatString = output.teams.map((teamArray) => teamArray.length).join("v");
 }
