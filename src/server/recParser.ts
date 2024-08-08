@@ -288,6 +288,12 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
 
     parseTeams(typedOutput, decompressed, stringKeysToUnsafeStrings);
     typedOutput.version = REC_PARSER_STRUCTURE_VERSION;
+    // Hard to be sure, but the stuff at the end of the file looks like it might be game orders blocks
+    // 5 bytes before the end of the file is the highest indexed one - and from comparing recs to their cast videos
+    // it looks like this number divided by 20 is the game length in seconds
+    const numGameEntriesOffset = decompressed.length - 5;
+    const numGameEntries = view.getUint32(numGameEntriesOffset, true);
+    typedOutput.gameLength = numGameEntries / 20;
     return typedOutput;
 }
 

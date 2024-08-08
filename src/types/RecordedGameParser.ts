@@ -299,4 +299,10 @@ export interface RecordedGameMetadata extends Record<typeof RecordedGameMetadata
      * Undefined = earlier than its existence
      */
     version?: number,
+
+    /**
+     * The game length, in seconds.
+     * This will most likely have a decimal component as well.
+     */
+    gameLength?: number,
 }
