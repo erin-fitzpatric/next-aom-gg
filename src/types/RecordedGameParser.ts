@@ -293,4 +293,10 @@ export interface RecordedGameMetadata extends Record<typeof RecordedGameMetadata
      *  Eg: "1v1", "3v3", "1v2v3"...
      */
     teamsFormatString?: string,
+
+    /**
+     * Version of this structure.
+     * Undefined = earlier than its existence
+     */
+    version?: number,
 }
