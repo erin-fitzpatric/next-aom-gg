@@ -22,6 +22,7 @@ const RecordedGameSchema = new Schema(
     buildString: { type: String, required: true, default: "" },
     teamsFormatString: {type: String, required: false, default:""},
     parsedAt: { type: Date, required: true},
+    version: { type: Number, required: false, default: 0},
     teams: { type: [[Number]]},
     ...recMetadataSchemaHelper(RecordedGameMetadataBooleansRequired, Boolean, false, true),
     ...recMetadataSchemaHelper(RecordedGameMetadataStringsRequired, String, "", true),

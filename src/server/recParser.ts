@@ -4,6 +4,8 @@ import { Errors } from "@/utils/errors";
 import { promisify } from "util";
 import { CompressCallback, inflate, InputType } from "zlib";
 
+const REC_PARSER_STRUCTURE_VERSION = 1;
+
 // The max allowed decomprssed size of files that are passed as "recorded games".
 // This needs to be limited to avoid someone uploading a huge zlib decompression bomb and trying to decompress the entire thing in memory
 const RECORDED_GAME_MAX_BYTES_TO_DECOMPRESS = 500000000; // 50mb
@@ -285,6 +287,7 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
     }
 
     parseTeams(typedOutput, decompressed, stringKeysToUnsafeStrings);
+    typedOutput.version = REC_PARSER_STRUCTURE_VERSION;
     return typedOutput;
 }
 
