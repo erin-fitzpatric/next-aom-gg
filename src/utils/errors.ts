@@ -6,7 +6,7 @@ export enum Errors {
   ERROR_INCREMENTING_DOWNLOAD_COUNT = "ERROR_INCREMENTING_DOWNLOAD_COUNT",
 
   // Rec parser outcomes
-  UNSUPPORTED_GAME_SIZE = "UNSUPPORTED_GAME_SIZE",                // Currently limiting to 1v1
+  UNSUPPORTED_GAME_SIZE = "UNSUPPORTED_GAME_SIZE",                // Currently limiting to 1v1. Also thrown if there seems to be only one team in the data
   GAME_IS_BENCHMARK = "GAME_IS_BENCHMARK",                        // Game looks like a rec of the benchmark
   FILE_IS_NOT_A_RECORDED_GAME = "FILE_IS_NOT_A_RECORDED_GAME",    // Game doesn't look like an AoM file
   GAME_HAS_AI_PLAYERS = "GAME_HAS_AI_PLAYERS",                    // Game has any AI players in it

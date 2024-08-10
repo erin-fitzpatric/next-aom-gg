@@ -4,6 +4,8 @@ import { Errors } from "@/utils/errors";
 import { promisify } from "util";
 import { CompressCallback, inflate, InputType } from "zlib";
 
+const REC_PARSER_STRUCTURE_VERSION = 1;
+
 // The max allowed decomprssed size of files that are passed as "recorded games".
 // This needs to be limited to avoid someone uploading a huge zlib decompression bomb and trying to decompress the entire thing in memory
 const RECORDED_GAME_MAX_BYTES_TO_DECOMPRESS = 500000000; // 50mb
@@ -278,13 +280,20 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
     {
         throw new Error(Errors.GAME_HAS_AI_PLAYERS);
     }
-
+    
     if (typedOutput.gameNumPlayers > 2)
     {
         throw new Error(Errors.UNSUPPORTED_GAME_SIZE, {cause:`Currently uploads are limited to 1v1s only - this game has ${typedOutput.gameNumPlayers} players!`});
     }
 
     parseTeams(typedOutput, decompressed, stringKeysToUnsafeStrings);
+    typedOutput.version = REC_PARSER_STRUCTURE_VERSION;
+    // Hard to be sure, but the stuff at the end of the file looks like it might be game orders blocks
+    // 5 bytes before the end of the file is the highest indexed one - and from comparing recs to their cast videos
+    // it looks like this number divided by 20 is the game length in seconds
+    const numGameEntriesOffset = decompressed.length - 5;
+    const numGameEntries = view.getUint32(numGameEntriesOffset, true);
+    typedOutput.gameLength = numGameEntries / 20;
     return typedOutput;
 }
 
@@ -423,5 +432,11 @@ function parseTeams(output: RecordedGameMetadata, decompressed: Buffer, stringKe
             output.teams[index].push(playerData.id);
         }
     }
+
+    if (output.teams.length < 2)
+    {
+        throw new Error(Errors.UNSUPPORTED_GAME_SIZE, {cause: `The players in this game seem to only be arranged into ${output.teams.length} teams(s).`});
+    }
     
+    output.teamsFormatString = output.teams.map((teamArray) => teamArray.length).join("v");
 }

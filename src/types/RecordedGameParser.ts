@@ -288,4 +288,21 @@ export interface RecordedGameMetadata extends Record<typeof RecordedGameMetadata
      * Eg: a 3v3 with p1/2/3 vs p4/5/6 = [[1, 2, 3], [4, 5, 6]]
      */
     teams: number[][],
+    /**
+     *  A string that lists the sizes of all the teams in the game. 
+     *  Eg: "1v1", "3v3", "1v2v3"...
+     */
+    teamsFormatString?: string,
+
+    /**
+     * Version of this structure.
+     * Undefined = earlier than its existence
+     */
+    version?: number,
+
+    /**
+     * The game length, in seconds.
+     * This will most likely have a decimal component as well.
+     */
+    gameLength?: number,
 }
