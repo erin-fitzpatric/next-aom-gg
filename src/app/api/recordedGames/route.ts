@@ -1,10 +1,13 @@
 import uploadRec from "@/server/controllers/upload-rec-controller";
 import { Errors } from "@/utils/errors";
+import { auth } from "@/auth";
 
-export async function POST(request: Request) {
+export const POST = auth(async function POST(request) {
   try {
+    // TODO - test the auth
+    if (!request.auth?.user?.name) return Response.json({ error: "Not authenticated" }, { status: 401 });
     const formData = await request.formData();
-    const userName = formData.get("userName") as string;
+    const userName = request.auth.user?.name;
     const file = formData.get("file") as File;
     const gameTitle = formData.get("gameTitle") as string;
 
@@ -22,4 +25,4 @@ export async function POST(request: Request) {
       return Response.json({ error: "Error uploading rec" }, { status: 500 });
     }
   }
-}
+})

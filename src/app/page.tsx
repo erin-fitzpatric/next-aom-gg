@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col p-10 space-y-4">
+    <main className="flex min-h-screen flex-col p-4 space-y-4">
       <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0">
         <div className="w-full sm:w-5/6 mb-4 sm:mb-0 sm:mr-4">
           <Leaderboard />

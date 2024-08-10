@@ -19,7 +19,7 @@ export default function RecFilters({
   buildNumbers: number[];
 }) {
   return (
-    <div className="flex space-x-2 justify-end text-primary p-4">
+    <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 justify-end text-primary p-4 w-full">
       <RecSearch
         setRecs={setRecs}
         setIsLoading={setIsLoading}
@@ -43,7 +43,7 @@ export default function RecFilters({
         setIsLoading={setIsLoading}
         filters={filters}
         setFilters={setFilters}
-        buildNumbers={buildNumbers} 
+        buildNumbers={buildNumbers}
       />
     </div>
   );

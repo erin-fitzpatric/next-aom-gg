@@ -50,7 +50,7 @@ export function VersionFilter({
         value={selectedBuild?.toString() || "ALL_BUILDS"}
         onValueChange={(value: string) => handleFilterChange(value)}
       >
-        <SelectTrigger className="w-[180px]">
+        <SelectTrigger className="w-full sm:w-[180px]">
           <SelectValue>
             {selectedBuild !== null ? selectedBuild.toString() : "All Builds"}
           </SelectValue>

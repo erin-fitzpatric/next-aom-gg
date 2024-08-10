@@ -36,14 +36,14 @@ export default function RecSearch({
   }
 
   return (
-    <div className="w-[240px] text-primary ">
-      <Input
-        type="text"
-        placeholder="Search..."
-        value={query}
-        onChange={handleInputChange}
-        className="w-full p-2 border rounded"
-      />
-    </div>
+<div className="w-full sm:w-[240px] text-primary">
+  <Input
+    type="text"
+    placeholder="Search..."
+    value={query}
+    onChange={handleInputChange}
+    className="w-full p-2 border rounded"
+  />
+</div>
   );
 }
