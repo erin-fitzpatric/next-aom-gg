@@ -8,7 +8,7 @@ export const metadata: Metadata = {
 
 export default function Recs() {
   return (
-    <main className="flex min-h-screen flex-col p-10 space-y-4">
+    <main className="flex min-h-screen flex-col space-y-4">
       <div>
         <RecordedGames />
       </div>

@@ -7,6 +7,7 @@ import { Toaster } from "@/components/ui/toaster";
 import Header from "@/components/header";
 import { WindowProvider } from "@/components/provider/window-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { SessionProvider } from "next-auth/react";
 
 type RootLayoutProps = {
   children: ReactNode;
@@ -17,20 +18,22 @@ export default function RootLayout({ children }: RootLayoutProps) {
     <>
       <html lang="en" suppressHydrationWarning className="dark">
         <head />
-        <body className={cn("min-h-screen bg-background antialiased")}>
-          <TooltipProvider delayDuration={75}>
-            <WindowProvider>
-              <ThemeProvider
-                attribute="class"
-                defaultTheme="dark"
-                disableTransitionOnChange
-              >
-                <Header />
-                {children}
-                <Toaster />
-              </ThemeProvider>
-            </WindowProvider>
-          </TooltipProvider>
+        <body className={cn("min-h-screen bg-background antialiased p-4")}>
+          <SessionProvider>
+            <TooltipProvider delayDuration={75}>
+              <WindowProvider>
+                <ThemeProvider
+                  attribute="class"
+                  defaultTheme="dark"
+                  disableTransitionOnChange
+                >
+                  <Header />
+                  {children}
+                  <Toaster />
+                </ThemeProvider>
+              </WindowProvider>
+            </TooltipProvider>
+          </SessionProvider>
         </body>
       </html>
     </>
