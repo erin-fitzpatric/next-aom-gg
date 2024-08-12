@@ -6,7 +6,10 @@ import { toast } from "../ui/use-toast";
 import { IRecordedGame } from "@/types/RecordedGame";
 
 export default function RecFooter({ rec }: { rec: IRecordedGame }) {
-  const { uploadedBy, downloadCount } = rec;
+  const { uploadedBy, downloadCount, createdAt } = rec;
+  const formattedUploadDate = `${createdAt.getMonth() + 1}/${createdAt.getDate()}/${String(
+    createdAt.getFullYear()
+  ).slice(-2)}`;
 
   async function handleRecDownload(rec: IRecordedGame): Promise<void> {
     // TODO - add loading spinner
@@ -26,29 +29,28 @@ export default function RecFooter({ rec }: { rec: IRecordedGame }) {
   }
 
   return (
-<div className="flex flex-row justify-between">
-  <div className="w-48 overflow-hidden">
-    <p className="text-gold">Uploaded By:</p>
-    <p className="truncate">{ uploadedBy}</p>
-  </div>
-
-  <div className="flex flex-col justify-between items-end ml-auto">
-    {/* date */}
-    <div className="mb-1">
-      <p className="text-gold itali">8/4/24</p>
-    </div>
-
-    <div className="flex flex-row items-center">
-      <div className="px-2">
-        <p>{downloadCount}</p>
+    <div className="flex flex-row justify-between">
+      <div className="w-48 overflow-hidden">
+        <p className="text-gold">Uploaded By:</p>
+        <p className="truncate">{uploadedBy}</p>
       </div>
-      <DownloadIcon
-        onClick={() => handleRecDownload(rec)}
-        className="ml-1 cursor-pointer text-primary"
-      />
-    </div>
-  </div>
-</div>
 
+      <div className="flex flex-col justify-between items-end ml-auto">
+        {/* date */}
+        <div className="mb-1">
+          <p className="text-gold">{ formattedUploadDate}</p>
+        </div>
+
+        <div className="flex flex-row items-center">
+          <div className="px-2">
+            <p>{downloadCount}</p>
+          </div>
+          <DownloadIcon
+            onClick={() => handleRecDownload(rec)}
+            className="ml-1 cursor-pointer text-primary"
+          />
+        </div>
+      </div>
+    </div>
   );
 }
