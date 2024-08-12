@@ -6,7 +6,7 @@ import { uploadRecToS3 } from "../services/aws";
 
 export type UploadRecParams = {
   file: File;
-  userName: string;
+  userId: string;
   gameTitle: string;
 };
 
@@ -21,7 +21,7 @@ export function mapRecGameMetadata(data: RecordedGameMetadata) {
 export default async function uploadRec(
   params: UploadRecParams
 ): Promise<void> {
-  const { file, userName, gameTitle } = params;
+  const { file, userId, gameTitle } = params;
 
   // 1) parse file
   const recGameMetadata: RecordedGameMetadata = await parseRecordedGameMetadata(
@@ -35,7 +35,7 @@ export default async function uploadRec(
   try {
     const inserted = await RecordedGameModel.create({
       ...mappedRecGameMetadata,
-      uploadedBy: userName,
+      uploadedByUserId: userId,
       gameTitle,
     });
     result = inserted.toJSON();
@@ -56,7 +56,7 @@ export default async function uploadRec(
       metadata: {
         ...recGameMetadata,
       },
-      userName,
+      userId,
     });
   } catch (error) {
     console.error("Error uploading to s3: ", error);

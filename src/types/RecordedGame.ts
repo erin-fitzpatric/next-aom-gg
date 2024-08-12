@@ -1,10 +1,8 @@
 import { RecordedGameMetadata } from "./RecordedGameParser";
 
-
 export interface IRecordedGame extends RecordedGameMetadata {
-    uploadedBy: string;
-    gameTitle: string;
-    downloadCount: number;
-  }
-
-  
+  uploadedByUserId: string;
+  gameTitle: string;
+  downloadCount: number;
+  uploadedBy?: string; // deprecated
+}
