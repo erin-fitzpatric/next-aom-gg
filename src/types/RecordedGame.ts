@@ -4,5 +4,6 @@ export interface IRecordedGame extends RecordedGameMetadata {
   uploadedByUserId: string;
   gameTitle: string;
   downloadCount: number;
-  uploadedBy?: string; // deprecated
+  uploadedBy: string;
+  createdAt: Date;
 }
