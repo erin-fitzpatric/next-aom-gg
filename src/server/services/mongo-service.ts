@@ -4,7 +4,6 @@ import RecordedGameModel from "@/db/mongo/model/RecordedGameModel";
 import getMongoClient from "@/db/mongo/mongo-client";
 import { Filters } from "@/types/Filters";
 import { IRecordedGame } from "@/types/RecordedGame";
-import { removeMongoObjectID } from "@/utils/utils";
 import { PipelineStage } from "mongoose";
 
 export async function queryMythRecs(
@@ -24,15 +23,44 @@ export async function queryMythRecs(
         .limit(PAGE_SIZE);
     } else {
       const aggregateQuery = buildFilterQuery(offset, PAGE_SIZE, filters);
+      // Match rec with user data
+      aggregateQuery.push({
+        $lookup: {
+          from: "users",
+          let: { uploadedByUserId: { $toObjectId: "$uploadedByUserId" } },
+          pipeline: [
+            {
+              $match: {
+                $expr: {
+                  $eq: ["$_id", "$$uploadedByUserId"]
+                }
+              }
+            }
+          ],
+          as: "userData"
+        }
+      })
+      aggregateQuery.push({
+        $unwind: {
+          path: "$userData",
+          preserveNullAndEmptyArrays: true // Keep original document even if userData is null or empty
+        }
+      })
+      // Remove _id from all data so the frontend doesn't complain...could stringify if needed later
+      aggregateQuery.push({
+        $project: {
+          _id: 0,
+          "userData._id": 0,
+          "playerData._id": 0
+        }
+      })
+          
       result = await RecordedGameModel.aggregate(aggregateQuery).exec();
     }
 
-    // Remove _id from each playerData object and the object as a whole
-    // This is a nonserialisable property which will cause React warnings when passed to client
     result.map((rec) => {
-      removeMongoObjectID(rec.playerData);
+      rec.uploadedBy = rec?.userData?.name ?? rec?.uploadedBy ?? "Unknown"; // Fallback to uploadedBy if userData is null, this really just suppports uploaded recs before auth was implemented
     });
-    removeMongoObjectID(result);
     return result;
   } catch (err) {
     console.error(err);
@@ -48,6 +76,7 @@ function buildFilterQuery(
   const aggregateQuery = <PipelineStage[]>[];
   if (filters) {
     // TODO -we will refactor this later...right???
+    // This could be rewritten to use one $match stage with a single object
     const { godIds, mapNames, searchQueryString, buildNumbers } = filters;
     // search
     if (searchQueryString) {

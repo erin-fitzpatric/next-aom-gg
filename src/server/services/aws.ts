@@ -29,7 +29,7 @@ const { NEXT_PUBLIC_S3_REC_BUCKET_NAME } = process.env;
 type UploadS3RecParams = {
   file: File;
   metadata: RecordedGameMetadata;
-  userName: string; // depprecate this and use login info l8ter
+  userId: string;
 };
 
 type UploadS3RecResponse = {
@@ -40,7 +40,7 @@ type UploadS3RecResponse = {
 export async function uploadRecToS3(
   uploadS3RecParams: UploadS3RecParams
 ): Promise<UploadS3RecResponse> {
-  const { file, metadata, userName } = uploadS3RecParams;
+  const { file, metadata, userId } = uploadS3RecParams;
   const { gameGuid } = metadata;
 
   if (!NEXT_PUBLIC_S3_REC_BUCKET_NAME) {
@@ -62,7 +62,7 @@ export async function uploadRecToS3(
     Key: `${gameGuid}.mythrec`,
     Body: body,
     Metadata: {
-      "uploaded-by": userName,
+      "uploaded-by-user-id": userId,
     },
   };
 

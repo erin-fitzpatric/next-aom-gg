@@ -29,7 +29,7 @@ export default function RecFooter({ rec }: { rec: IRecordedGame }) {
 <div className="flex flex-row justify-between">
   <div className="w-48 overflow-hidden">
     <p className="text-gold">Uploaded By:</p>
-    <p className="truncate">{uploadedBy}</p>
+    <p className="truncate">{ uploadedBy}</p>
   </div>
 
   <div className="flex flex-col justify-between items-end ml-auto">
