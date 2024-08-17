@@ -1,5 +1,5 @@
 "use client";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { Player } from "@/types/Player";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
@@ -14,18 +14,25 @@ export type IGetLeaderboardDataParams = {
 };
 
 export default function Leaderboard() {
-  // TODO - add real pagination and call API on page change
   const [leaderboardData, setLeaderboardData] = useState<Player[]>([]);
+  const [currentPage, setCurrentPage] = useState(1);
+  const [pageSize, setPageSize] = useState(10);
 
-  useEffect(() => {
-    async function getLeaderboardData(params: IGetLeaderboardDataParams) {
-      const {
-        skip = 1,
-        limit = 200,
-        sort = 1,
-        platform,
-        leaderboardId,
-      } = params;
+  async function handlePageChange(page: number) {
+    setCurrentPage(page);
+    const params: IGetLeaderboardDataParams = {
+      leaderboardId: 3,
+      platform: "PC_STEAM",
+      sort: 1,
+      skip: page,
+      limit: pageSize,
+    };
+    getLeaderboardData(params);
+  }
+
+  const getLeaderboardData = useCallback(
+    async (params: IGetLeaderboardDataParams) => {
+      const { skip = currentPage, limit = pageSize, sort = 1, platform, leaderboardId } = params;
       try {
         const response = await fetch(
           "/api/leaderboards?" +
@@ -50,8 +57,13 @@ export default function Leaderboard() {
       } catch (error) {
         console.error("Failed to fetch leaderboard data:", error);
       }
-    }
+    },
+    [currentPage, pageSize]
+  );
+  
 
+
+  useEffect(() => {
     const params: IGetLeaderboardDataParams = {
       leaderboardId: 3,
       platform: "PC_STEAM",
