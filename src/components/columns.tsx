@@ -2,7 +2,7 @@
 
 import { Player } from "@/types/Player";
 import { ColumnDef } from "@tanstack/react-table";
-import { ArrowUpDown } from "lucide-react";
+// import { ArrowUpDown } from "lucide-react";
 
 export const columns: ColumnDef<Player>[] = [
   {
@@ -11,18 +11,22 @@ export const columns: ColumnDef<Player>[] = [
   },
   {
     accessorKey: "rank",
-    header: ({ column }) => {
-      return (
-        <div
-          onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
-          className="flex justify-items-start hover:cursor-pointer hover:opacity-75 hover:underline"
-        >
-          Rank
-          <ArrowUpDown className="ml-2 h-4 w-4" />
-        </div>
-      );
-    },
+    header: "Rank",
   },
+  // {
+  //   accessorKey: "rank",
+  //   header: ({ column }) => {
+  //     return (
+  //       <div
+  //         onClick={() => column.toggleSorting(column.getIsSorted() === "asc")}
+  //         className="flex justify-items-start hover:cursor-pointer hover:opacity-75 hover:underline"
+  //       >
+  //         Rank
+  //         <ArrowUpDown className="ml-2 h-4 w-4" />
+  //       </div>
+  //     );
+  //   },
+  // },
   {
     accessorKey: "winPercent",
     header: "Win %",

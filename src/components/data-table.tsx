@@ -1,5 +1,4 @@
-"use client";
-
+import React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -7,7 +6,6 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
   useReactTable,
-  SortingState,
   getSortedRowModel,
   getPaginationRowModel,
 } from "@tanstack/react-table";
@@ -21,25 +19,31 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import React from "react";
-import { Input } from "./ui/input";
 import { DataTablePagination } from "./data-table-pagination";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
-  sort?: SortingState;
+  onPaginationChange: any;
+  pageCount: number;
+  pagination: PaginationState;
 }
+
+export type PaginationState = {
+  pageIndex: number;
+  pageSize: number;
+};
 
 export function DataTable<TData, TValue>({
   columns,
   data,
-  sort = [],
+  onPaginationChange,
+  pageCount,
+  pagination,
 }: DataTableProps<TData, TValue>) {
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
-  const [sorting, setSorting] = React.useState<SortingState>(sort);
 
   const table = useReactTable({
     data,
@@ -47,27 +51,17 @@ export function DataTable<TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
-    state: {
-      columnFilters,
-      sorting,
-    },
-    onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    manualPagination: true,
+    onPaginationChange,
+    state: { pagination, columnFilters },
+    pageCount,
   });
 
   return (
     <>
       <div className="flex flex-col items-center">
-        <Input
-          placeholder="Filter players..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-        <div className="rounded-md border"></div>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
