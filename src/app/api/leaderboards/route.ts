@@ -1,21 +1,18 @@
-import { getMythLeaderboard, IGetMythLeaderboard, PlatformType } from "./service";
-import { mapLeaderboardData } from "./service-helper";
-
+import { MongoSort } from "@/types/MongoSort";
+import { getMythLeaderboard, IGetMythLeaderboard } from "./service";
 export const GET = async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
 
     const params: IGetMythLeaderboard = {
-      platform: searchParams.get("platform") as PlatformType,
-      leaderboardId: parseInt(searchParams.get("leaderboardId") as string),
+      searchQuery: (searchParams.get("searchQuery") as string) || "",
       skip: parseInt(searchParams.get("skip") as string),
       limit: parseInt(searchParams.get("limit") as string),
-      sort: parseInt(searchParams.get("sort") as string),
-    }
+      sort: JSON.parse(searchParams.get("sort") as string) as MongoSort,
+    };
 
     const leaderboardData = await getMythLeaderboard(params);
-    const players = mapLeaderboardData(leaderboardData);
-    return Response.json(players);
+    return Response.json(leaderboardData);
   } catch (error: any) {
     return Response.json(
       { error: "Error fetching myth data" },
