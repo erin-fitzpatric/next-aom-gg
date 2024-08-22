@@ -31,7 +31,7 @@ export default function Header() {
           href={"/"}
           className="cursor-pointer hover:underline hover:text-primary"
         >
-          <Image src="/aom-gg-logo.png" width={175} height={175} alt="AoM.gg" />
+          <Image src="/aom-gg-logo.png" width={175} height={175} alt="AoM.gg" priority />
         </Link>
         {/* Desktop Nav Menu */}
         <NavigationMenu className="w-full sm:w-auto hidden sm:flex sm:items-center ">

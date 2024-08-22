@@ -51,7 +51,7 @@ export default function RecTile({ rec }: { rec: IRecordedGame }) {
           <div className="flex">
             {leftTeams}
             <div>
-              <RecTitle gameTitle={rec.gameTitle} />
+              <RecTitle gameTitle={rec.gameTitle || ""} />
               <RecMap mapData={mapData} />
             </div>
             {rightTeams}
@@ -63,7 +63,7 @@ export default function RecTile({ rec }: { rec: IRecordedGame }) {
         <div>
           <div className="flex flex-col">
             <div>
-              <RecTitle gameTitle={rec.gameTitle} />
+              <RecTitle gameTitle={rec.gameTitle || ""} />
               <RecMap mapData={mapData} />
  
             </div>

@@ -112,12 +112,21 @@ export async function listS3Recs(
 export async function downloadS3File(
   rec: IRecordedGame
 ): Promise<MythRecDownloadLink> {
-  const { gameTitle, gameGuid } = rec;
+  let { gameTitle, gameGuid } = rec;
+
+  const CURRENT_DATE = Date.now().toString()
+  if (gameTitle === "") {
+    gameTitle = CURRENT_DATE
+  }
+  // URL-encode the gameTitle to handle special characters
+  const encodedGameTitle = encodeURIComponent(gameTitle || CURRENT_DATE);
+
   const params = {
     Bucket: NEXT_PUBLIC_S3_REC_BUCKET_NAME || "",
     Key: gameGuid + ".mythrec",
-    ResponseContentDisposition: `attachment; filename="${gameTitle}.mythrec"`,
+    ResponseContentDisposition: `attachment; filename="${encodedGameTitle}.mythrec"`,
   };
+
   try {
     const command = new GetObjectCommand(params);
     const signedUrl = await getSignedUrl(s3Client, command, {
@@ -126,7 +135,8 @@ export async function downloadS3File(
     return {
       signedUrl,
     };
-  } catch (err) {
-    throw new Error("Error downloading file");
+  } catch (err: any) {
+    throw new Error("Error downloading file", err.message);
   }
 }
+

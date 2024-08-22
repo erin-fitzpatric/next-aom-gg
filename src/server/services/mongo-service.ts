@@ -15,13 +15,6 @@ export async function queryMythRecs(
   await getMongoClient();
   let result;
   try {
-    if (!filters) {
-      result = await RecordedGameModel.find()
-        .lean()
-        .sort({ createdAt: -1 })
-        .skip(offset)
-        .limit(PAGE_SIZE);
-    } else {
       const aggregateQuery = buildFilterQuery(offset, PAGE_SIZE, filters);
       // Match rec with user data
       aggregateQuery.push({
@@ -56,7 +49,7 @@ export async function queryMythRecs(
       })
           
       result = await RecordedGameModel.aggregate(aggregateQuery).exec();
-    }
+    // }
 
     result.map((rec) => {
       rec.uploadedBy = rec?.userData?.name ?? rec?.uploadedBy ?? "Unknown"; // Fallback to uploadedBy if userData is null, this really just suppports uploaded recs before auth was implemented
