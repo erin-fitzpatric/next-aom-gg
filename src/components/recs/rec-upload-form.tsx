@@ -28,7 +28,6 @@ export default function RecUploadForm({ setRecs }: RecUploadFormProps) {
     const selectedFile = e.target.files[0];
     if (!selectedFile?.name) return;
     setRecFile(selectedFile);
-    setFileName(selectedFile.name);
   };
 
   const handleFileNameChange = (e: any) => {
@@ -88,7 +87,7 @@ export default function RecUploadForm({ setRecs }: RecUploadFormProps) {
   }
   return (
     <Sheet>
-      <SheetTrigger className="flex mx-auto">
+      <SheetTrigger className="flex mx-auto" asChild>
         <Button className="flex mx-auto">Upload Recorded Game</Button>
       </SheetTrigger>
       <SheetContent>

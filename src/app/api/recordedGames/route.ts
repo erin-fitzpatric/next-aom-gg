@@ -14,8 +14,8 @@ export const POST = async function POST(request: Request) {
     const gameTitle = formData.get("gameTitle") as string;
 
     console.log("uploading rec");
-    const gameData = await uploadRec({ userId, file, gameTitle });
-    return Response.json({ gameData });
+    await uploadRec({ userId, file, gameTitle });
+    return Response.json({ status: 200 });
   } catch (error: any) {
     if (error.message === Errors.UNIQUE_KEY_VIOLATION) {
       return Response.json({ error: Errors.UNIQUE_KEY_VIOLATION }, { status: 400 });

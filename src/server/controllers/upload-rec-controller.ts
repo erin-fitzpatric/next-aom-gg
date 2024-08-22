@@ -30,15 +30,13 @@ export default async function uploadRec(
   const mappedRecGameMetadata = mapRecGameMetadata(recGameMetadata); //cleanup the data
 
   // 2) save file to mongo, if game guid doesn't already exists
-  let result;
   await getMongoClient();
   try {
-    const inserted = await RecordedGameModel.create({
+    await RecordedGameModel.create({
       ...mappedRecGameMetadata,
       uploadedByUserId: userId,
       gameTitle,
     });
-    result = inserted.toJSON();
   } catch (error: any) {
     if (error.code === 11000) {
       console.warn("Rec already uploaded to Mongo");

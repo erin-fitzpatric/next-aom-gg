@@ -9,6 +9,7 @@ export default function RecMap({ mapData }: { mapData: RandomMapData }) {
         alt={mapData.name}
         width={240}
         height={240}
+        priority
       ></Image>
       <div className="flex justify-center italic">
         <p>{mapData.name}</p>
