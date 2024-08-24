@@ -12,36 +12,57 @@ import RecFilters from "./filters/rec-filters";
 import { Filters } from "@/types/Filters";
 import Loading from "../loading";
 import RecUploadForm from "./rec-upload-form";
+import { useSearchParams } from "next/navigation";
 
 export default function RecordedGames() {
+  // Set state
   const [currentPage, setCurrentPage] = useState<number>(0);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [hasMore, setHasMore] = useState(true);
   const [recs, setRecs] = useState<any[]>([]);
-
+  const [query, setQuery] = useState<string>("");
   const [filters, setFilters] = useState<Filters>({});
   const [buildNumbers, setBuildNumbers] = useState<number[]>([]);
+  const [selectedBuild, setSelectedBuild] = useState<number | null>(null);
+
   const initialFetch = useRef(true);
+  const searchParams = useSearchParams();
 
-  const fetchRecs = useCallback(async (pageNum: number, filters?: Filters) => {
-    let mappedFilters = filters;
-    if (initialFetch.current) {
-      const builds = await getBuildNumbers();
-      setBuildNumbers(builds);
-      mappedFilters = { buildNumbers: [builds[0]] }; // filter by latest build on load
-      setFilters(mappedFilters);
-    }
-    const mythRecs = await getMythRecs(pageNum, mappedFilters);
+  const fetchRecs = useCallback(
+    async (pageNum: number, filters?: Filters) => {
+      let mappedFilters = filters;
+      if (initialFetch.current) {
+        const builds = await getBuildNumbers();
+        setBuildNumbers(builds);
+        
+        // used when copying a link to a specific game
+        const gameId = searchParams.get("gameId");
+        const buildNumber = searchParams.get("build");
+        if (gameId && buildNumber) {
+          mappedFilters = {
+            searchQueryString: gameId,
+            buildNumbers: [parseInt(buildNumber)],
+          };
+          setQuery(gameId);
+          setSelectedBuild(parseInt(buildNumber));
+        } else {
+          mappedFilters = { buildNumbers: [builds[0]] }; // filter by latest build on load
+        }
+        setFilters(mappedFilters);
+      }
+      const mythRecs = await getMythRecs(pageNum, mappedFilters);
 
-    if (mythRecs.length === 0) {
-      setHasMore(false);
+      if (mythRecs.length === 0) {
+        setHasMore(false);
+        setIsLoading(false);
+        return;
+      }
+
+      setRecs((prevRecs) => [...prevRecs, ...mythRecs]);
       setIsLoading(false);
-      return;
-    }
-
-    setRecs((prevRecs) => [...prevRecs, ...mythRecs]);
-    setIsLoading(false);
-  }, []);
+    },
+    []
+  );
 
   const handleScroll = useCallback(() => {
     if (isLoading || !hasMore) return;
@@ -86,6 +107,10 @@ export default function RecordedGames() {
           filters={filters}
           setFilters={setFilters}
           buildNumbers={buildNumbers}
+          query={query}
+          setQuery={setQuery}
+          selectedBuild={selectedBuild}
+          setSelectedBuild={setSelectedBuild}
         />
       </div>
 

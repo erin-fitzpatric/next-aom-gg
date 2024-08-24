@@ -15,41 +15,40 @@ export async function queryMythRecs(
   await getMongoClient();
   let result;
   try {
-      const aggregateQuery = buildFilterQuery(offset, PAGE_SIZE, filters);
-      // Match rec with user data
-      aggregateQuery.push({
-        $lookup: {
-          from: "users",
-          let: { uploadedByUserId: { $toObjectId: "$uploadedByUserId" } },
-          pipeline: [
-            {
-              $match: {
-                $expr: {
-                  $eq: ["$_id", "$$uploadedByUserId"]
-                }
-              }
-            }
-          ],
-          as: "userData"
-        }
-      })
-      aggregateQuery.push({
-        $unwind: {
-          path: "$userData",
-          preserveNullAndEmptyArrays: true // Keep original document even if userData is null or empty
-        }
-      })
-      // Remove _id from all data so the frontend doesn't complain...could stringify if needed later
-      aggregateQuery.push({
-        $project: {
-          _id: 0,
-          "userData._id": 0,
-          "playerData._id": 0
-        }
-      })
-          
-      result = await RecordedGameModel.aggregate(aggregateQuery).exec();
-    // }
+    const aggregateQuery = buildFilterQuery(offset, PAGE_SIZE, filters);
+    // Match rec with user data
+    aggregateQuery.push({
+      $lookup: {
+        from: "users",
+        let: { uploadedByUserId: { $toObjectId: "$uploadedByUserId" } },
+        pipeline: [
+          {
+            $match: {
+              $expr: {
+                $eq: ["$_id", "$$uploadedByUserId"],
+              },
+            },
+          },
+        ],
+        as: "userData",
+      },
+    });
+    aggregateQuery.push({
+      $unwind: {
+        path: "$userData",
+        preserveNullAndEmptyArrays: true, // Keep original document even if userData is null or empty
+      },
+    });
+    // Remove _id from all data so the frontend doesn't complain...could stringify if needed later
+    aggregateQuery.push({
+      $project: {
+        _id: 0,
+        "userData._id": 0,
+        "playerData._id": 0,
+      },
+    });
+
+    result = await RecordedGameModel.aggregate(aggregateQuery).exec();
 
     result.map((rec) => {
       rec.uploadedBy = rec?.userData?.name ?? rec?.uploadedBy ?? "Unknown"; // Fallback to uploadedBy if userData is null, this really just suppports uploaded recs before auth was implemented
@@ -80,6 +79,7 @@ function buildFilterQuery(
             { gameMapName: { $regex: searchQueryString, $options: "i" } },
             { "playerData.name": { $regex: searchQueryString, $options: "i" } },
             { uploadedBy: { $regex: searchQueryString, $options: "i" } },
+            { gameGuid: { $regex: searchQueryString, $options: "i" } },
           ],
         },
       });

@@ -11,7 +11,7 @@ export async function GET(req: NextRequest, { params }:Params):Promise<Response>
 
   const {searchParams} = new URL(req.url);
   searchParams.set('code', '123'); //inject a fake code to make nextauth v5 happy
-  const callbackUrl = `${process.env.BASE_URL}/api/auth/callback/${params.provider}?${searchParams.toString()}`;
+  const callbackUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/api/auth/callback/${params.provider}?${searchParams.toString()}`;
   return Response.redirect(callbackUrl); //this should be your normal nextauth callback url
 }
 
