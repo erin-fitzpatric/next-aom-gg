@@ -10,7 +10,7 @@ import {
 } from "@/components/ui/select";
 import { getMythRecs } from "@/server/controllers/mongo-controller";
 import { FilterProps } from "@/types/Filters";
-import { useEffect, useState } from "react";
+import { useEffect } from "react";
 
 export function VersionFilter({
   setRecs,
@@ -18,14 +18,15 @@ export function VersionFilter({
   setFilters,
   filters,
   buildNumbers,
+  selectedBuild,
+  setSelectedBuild,
 }: FilterProps) {
-  const [selectedBuild, setSelectedBuild] = useState<number | null>(null);
 
   useEffect(() => {
-    if (buildNumbers && buildNumbers.length > 0) {
+    if (buildNumbers && buildNumbers.length > 0 && selectedBuild === null) {
       setSelectedBuild(buildNumbers[0]);
     }
-  }, [buildNumbers]);
+  }, []);
 
   async function handleFilterChange(buildString: string) {
     const isAllBuilds = buildString === "ALL_BUILDS";

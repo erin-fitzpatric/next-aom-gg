@@ -25,7 +25,7 @@ export const {
         ? [
             Steam(req, {
               clientSecret: process.env.AUTH_STEAM_KEY!,
-              callbackUrl: `${process.env.BASE_URL}/api/openid`,
+              callbackUrl: `${process.env.NEXT_PUBLIC_BASE_URL}/api/openid`,
             }),
           ]
         : []),

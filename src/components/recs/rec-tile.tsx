@@ -65,7 +65,6 @@ export default function RecTile({ rec }: { rec: IRecordedGame }) {
             <div>
               <RecTitle gameTitle={rec.gameTitle || ""} />
               <RecMap mapData={mapData} />
- 
             </div>
             <div className="mx-auto pt-2">
               {leftTeams}
