@@ -6,6 +6,9 @@ import { DataTable } from "./data-table";
 import { Card } from "./ui/card";
 import { Input } from "./ui/input";
 import { debounce } from "@/utils/debounce";
+import dynamic from "next/dynamic";
+import { Spinner } from "./spinner";
+const Countdown = dynamic(() => import("./countdown"), { ssr: false });
 
 export function usePagination() {
   const [pagination, setPagination] = useState({
@@ -22,12 +25,10 @@ export function usePagination() {
   };
 }
 
-
-
 export default function Leaderboard() {
   const [leaderboardData, setLeaderboardData] = useState<Player[]>([]);
   const [totalRecords, setTotalRecords] = useState(0);
-  const [loading, setLoading] = useState(false);
+  const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
   const [initialLoad, setInitialLoad] = useState(true);
 
@@ -68,28 +69,36 @@ export default function Leaderboard() {
   );
 
   const debouncedGetLeaderboardData = useMemo(
-    () => debounce((searchQuery: string) => getLeaderboardData(searchQuery), 300),
+    () =>
+      debounce((searchQuery: string) => getLeaderboardData(searchQuery), 300),
     [getLeaderboardData]
   );
 
   function handleSearchQueryChange(event: React.ChangeEvent<HTMLInputElement>) {
     onPaginationChange({ pageIndex: 0, pageSize: pagination.pageSize });
     setSearchQuery(event.target.value);
+    debouncedGetLeaderboardData(event.target.value);
   }
 
   useEffect(() => {
     if (initialLoad) {
+      console.log("Initial load");
       // Fetch data immediately on initial load
       getLeaderboardData(searchQuery);
       setInitialLoad(false);
-    } else {
-      // Use debounced function for subsequent searchQuery changes
-      debouncedGetLeaderboardData(searchQuery);
     }
-  }, [searchQuery, skip, limit, getLeaderboardData, debouncedGetLeaderboardData, initialLoad]);
+  }, [searchQuery, getLeaderboardData, initialLoad]);
 
   return (
     <>
+      {/* Mobile Countdown */}
+      <div className="block sm:hidden mb-2">
+        <Countdown
+          targetDate={"2024-08-28T00:00:00Z"}
+          title={"Retold Premium Early Access"}
+        />
+      </div>
+
       <Card className="p-4 h-full">
         <div className="card-header">
           <p className="text-gold">Coming Soon!</p>
@@ -102,13 +111,17 @@ export default function Leaderboard() {
             onChange={(event) => handleSearchQueryChange(event)} // Update search query
             className="max-w-sm mx-auto"
           />
-          <DataTable
-            columns={columns}
-            data={leaderboardData} // Pass fetched data
-            onPaginationChange={onPaginationChange}
-            pageCount={Math.ceil(totalRecords / limit)}
-            pagination={pagination}
-          />
+          {loading ? (
+            <Spinner size={"large"} className="m-4" />
+          ) : (
+            <DataTable
+              columns={columns}
+              data={leaderboardData} // Pass fetched data
+              onPaginationChange={onPaginationChange}
+              pageCount={Math.ceil(totalRecords / limit)}
+              pagination={pagination}
+            />
+          )}
         </div>
       </Card>
     </>
