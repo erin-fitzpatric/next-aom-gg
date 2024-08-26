@@ -2,13 +2,21 @@ import { Button } from "@/components/ui/button";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
 import { SignInDialog } from "./sign-in-dialog-conent";
+import { Skeleton } from "@/components/ui/skeleton"; // Assuming you have a Skeleton component
 
 export function SignIn() {
-  const { data: session } = useSession(); // get the client session
+  const { data: session, status } = useSession(); // get the client session status
   const userImage = session?.user?.image || undefined;
   const userName = session?.user?.name || undefined;
 
-  // TODO - fix loading so that it doesn't render the signed out component before session loads
+  if (status === "loading") {
+    return (
+      <div className="flex justify-center items-center">
+        <Skeleton className="w-16 h-16 rounded-full" /> {/* Adjust the Skeleton as needed */}
+      </div>
+    );
+  }
+
   return (
     <>
       {userName && userImage ? (

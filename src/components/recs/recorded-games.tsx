@@ -36,14 +36,14 @@ export default function RecordedGames() {
         setBuildNumbers(builds);
         
         // used when copying a link to a specific game
-        const gameId = searchParams.get("gameId");
+        const search = searchParams.get("search");
         const buildNumber = searchParams.get("build");
-        if (gameId && buildNumber) {
+        if (search && buildNumber) {
           mappedFilters = {
-            searchQueryString: gameId,
+            searchQueryString: search,
             buildNumbers: [parseInt(buildNumber)],
           };
-          setQuery(gameId);
+          setQuery(search);
           setSelectedBuild(parseInt(buildNumber));
         } else {
           mappedFilters = { buildNumbers: [builds[0]] }; // filter by latest build on load
