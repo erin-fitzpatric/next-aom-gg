@@ -13,7 +13,7 @@ import {
 import fetchRedditPosts from "@/server/fetchRedditPosts";
 import { RedditPost } from "@/types/RedditPost";
 import Image from "next/image";
-import { Skeleton } from "@/components/ui/skeleton"; // Assuming you have a Skeleton component
+import { Skeleton } from "./ui/skeleton";
 
 export default function RedditFeed() {
   const [redditPosts, setRedditPosts] = useState<RedditPost[]>([]);
@@ -25,14 +25,19 @@ export default function RedditFeed() {
       setRedditPosts(response);
       setLoading(false);
     } catch (error) {
-      console.error("Failed to fetch reddit posts, retry limit reached", error);
-      setLoading(false); // Stop loading even if the fetch fails
+      console.error("Failed to fetch reddit posts", error);
     }
   }
 
   useEffect(() => {
     getRedditPosts();
   }, []);
+
+  // Helper function to extract YouTube video ID from URL
+  function getYouTubeVideoId(url: string): string | null {
+    const match = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|(?:.*[?&]v=)|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    return match ? match[1] : null;
+  }
 
   return (
     <>
@@ -46,42 +51,32 @@ export default function RedditFeed() {
           />
         </div>
         <a href="https://www.reddit.com/r/AgeofMythology/">
-          <div className="flex justify-center text-gold cursor-pointer hover:underline">
-            r/AgeOfMythology
-          </div>
+          <div className="flex justify-center text-gold cursor-pointer hover:underline">r/AgeOfMythology</div>
         </a>
         <h2 className="card-header">Top Reddit Posts</h2>
         <Carousel className="pt-4">
           <CarouselContent className="flex items-center">
-            {/* Skeleton While Loading */}
             {loading
               ? Array.from({ length: 4 }).map((_, index) => (
                   <CarouselItem
                     key={index}
-                    className="bg-secondary h-full rounded-3xl mx-2 sm:basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4"
+                    className="bg-secondary h-full rounded-3xl mx-2 sm:basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4 hover:opacity-75 transition-opacity duration-200 ease-in-out overflow-hidden"
                   >
-                    <div className="flex flex-col justify-between p-4 h-full">
-                      <div className="flex h-32">
-                        <Skeleton className="h-32 w-32 rounded-lg" />{" "}
-                        {/* Thumbnail skeleton */}
-                        <div className="flex-1 ml-4">
-                          <Skeleton className="h-6 w-full mb-2" />{" "}
-                          {/* Title skeleton */}
-                          <Skeleton className="h-4 w-1/2" />{" "}
-                          {/* Author skeleton */}
-                          <div className="flex flex-row space-x-4 justify-start text-center mt-2">
-                            <Skeleton className="h-4 w-4" />{" "}
-                            {/* Upvotes icon skeleton */}
-                            <Skeleton className="h-4 w-4" />{" "}
-                            {/* Comments icon skeleton */}
-                          </div>
+                    <div className="flex h-32">
+                      <div className="m-2">
+                        <div className="h-32 w-32 overflow-hidden rounded-lg">
+                          <Skeleton className="w-full h-full" />
                         </div>
+                      </div>
+                      <div className="flex-1 ml-4">
+                        <Skeleton className="w-full h-6 mb-2" />
+                        <Skeleton className="w-3/4 h-4 mb-2" />
+                        <Skeleton className="w-1/2 h-4" />
                       </div>
                     </div>
                   </CarouselItem>
                 ))
               : redditPosts.map((post: RedditPost) => (
-                // Display Reddit Posts
                   <CarouselItem
                     key={post.id}
                     className="bg-secondary h-full rounded-3xl mx-2 sm:basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4 hover:opacity-75 transition-opacity duration-200 ease-in-out overflow-hidden"
@@ -97,13 +92,25 @@ export default function RedditFeed() {
                           {post.url &&
                             !post.url.startsWith("https://twitter.com") && (
                               <div className="h-32 w-32 overflow-hidden rounded-lg">
-                                <Image
-                                  src={post.url}
-                                  alt={post.title}
-                                  width={128}
-                                  height={128}
-                                  className="object-cover h-16 sm:h-32 w-full"
-                                />
+                                {post.url.includes("youtube.com") ||
+                                post.url.includes("youtu.be") ? (
+                                  // Handle YouTube links
+                                  <Image
+                                    src={`https://img.youtube.com/vi/${getYouTubeVideoId(post.url)}/mqdefault.jpg`}
+                                    alt={post.title}
+                                    width={128}
+                                    height={128}
+                                    className="object-cover w-full h-full"
+                                  />
+                                ) : (
+                                  <Image
+                                    src={post.url}
+                                    alt={post.title}
+                                    width={128}
+                                    height={128}
+                                    className="object-cover w-full h-full"
+                                  />
+                                )}
                               </div>
                             )}
                         </div>
