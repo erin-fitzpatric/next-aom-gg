@@ -74,8 +74,8 @@ export default function Header() {
         {/* Countdown */}
         <div className="flex justify-center sm:justify-end w-full sm:w-auto mt-4 sm:mt-0 sm:pr-6">
           <Countdown
-            targetDate={"2024-08-27T04:00:00Z"}
-            title={"AoM Retold Launch Date"}
+            targetDate={"2024-08-28T00:00:00Z"}
+            title={"Retold Premium Early Access"}
           />
         </div>
         {/* Sign In */}
