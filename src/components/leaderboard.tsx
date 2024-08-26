@@ -68,26 +68,27 @@ export default function Leaderboard() {
     [skip, limit]
   );
 
+  // Memoize the debounced version of getLeaderboardData
   const debouncedGetLeaderboardData = useMemo(
-    () =>
-      debounce((searchQuery: string) => getLeaderboardData(searchQuery), 300),
+    () => debounce((searchQuery: string) => getLeaderboardData(searchQuery), 300),
     [getLeaderboardData]
   );
+
+  useEffect(() => {
+    if (initialLoad) {
+      // Fetch data immediately on initial load
+      getLeaderboardData(searchQuery);
+      setInitialLoad(false);
+    } else {
+      // Debounced search query fetch
+      debouncedGetLeaderboardData(searchQuery);
+    }
+  }, [searchQuery, getLeaderboardData, debouncedGetLeaderboardData, initialLoad]);
 
   function handleSearchQueryChange(event: React.ChangeEvent<HTMLInputElement>) {
     onPaginationChange({ pageIndex: 0, pageSize: pagination.pageSize });
     setSearchQuery(event.target.value);
-    debouncedGetLeaderboardData(event.target.value);
   }
-
-  useEffect(() => {
-    if (initialLoad) {
-      console.log("Initial load");
-      // Fetch data immediately on initial load
-      getLeaderboardData(searchQuery);
-      setInitialLoad(false);
-    }
-  }, [searchQuery, getLeaderboardData, initialLoad]);
 
   return (
     <>
@@ -108,7 +109,7 @@ export default function Leaderboard() {
           <Input
             placeholder="Filter players..."
             value={searchQuery}
-            onChange={(event) => handleSearchQueryChange(event)} // Update search query
+            onChange={handleSearchQueryChange} // Update search query
             className="max-w-sm mx-auto"
           />
           {loading ? (
