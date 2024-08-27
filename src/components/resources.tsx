@@ -1,42 +1,66 @@
 import DownloadFile from "./downloadFile";
 import { Card } from "./ui/card";
+
 export default function ResourcesPage() {
   return (
     <>
-      <Card className="p-4">
+      <Card className="p-4 mx-4 sm:mx-8 md:mx-16 lg:mx-32">
         {/* header */}
         <div className="card-header">
           <h2>Hotkeys</h2>
         </div>
 
         {/* content */}
-        <div className="flex mt-2">
-          <div className="flex flex-col mx-auto">
-            <ul className="list-disc list-inside">
-              <li className="flex">
-                <div>FitzBro&#39;s AoM Retold Hotkeys</div>
-                <DownloadFile fileName={"FitzLocalKeybindings.xml"} />
-              </li>
-              <li className="flex">
-                <div>Boit&#39;s AoM Retold Hotkeys</div>
-                <DownloadFile fileName={"BoitLocalKeybindings.xml"} />
-              </li>
-              <li className="flex">
-                <div>Drongo&#39;s AoM Retold Hotkeys</div>
-                <DownloadFile fileName={"DrongoLocalKeybindings.xml"} />
-              </li>
-            </ul>
+        <div className="mt-2">
+          <div className="overflow-x-auto">
+            <table className="table-auto w-full min-w-full">
+              <tbody>
+                <tr className="bg-muted">
+                  <td className="p-2">
+                    <div className="flex items-center justify-between">
+                      <span>FitzBro&#39;s AoM Retold Hotkeys</span>
+                      <DownloadFile fileName={"FitzLocalKeybindings.xml"} />
+                    </div>
+                  </td>
+                </tr>
+                <tr className="bg-inherit">
+                  <td className="p-2">
+                    <div className="flex items-center justify-between">
+                      <span>Boit&#39;s AoM Retold Hotkeys</span>
+                      <DownloadFile fileName={"BoitLocalKeybindings.xml"} />
+                    </div>
+                  </td>
+                </tr>
+                <tr className="bg-muted">
+                  <td className="p-2">
+                    <div className="flex items-center justify-between">
+                      <span>Drongo&#39;s AoM Retold Hotkeys</span>
+                      <DownloadFile fileName={"DrongoLocalKeybindings.xml"} />
+                    </div>
+                  </td>
+                </tr>
+              </tbody>
+            </table>
           </div>
         </div>
+      </Card>
+      <Card className="p-4 mt-4 mx-4 sm:mx-8 md:mx-16 lg:mx-32">
         {/* instructions */}
-        <div className="flex">
-          <p className="mx-auto text-gold">
-            Where to save the hotkey file:
-            &nbsp;
-            <code>
-            C:\Users\efitz\Games\Age of Mythology Retold\76561198066400845\users
-            </code>
-          </p>
+        <div className="card-header">
+          <h2>Instructions</h2>
+        </div>
+        <div className="mt-2">
+          <ol className="list-decimal pl-4 sm:pl-6">
+            <li className="mb-2">
+              Save the hotkey file to:
+              <code className="block mt-1 whitespace-pre-wrap break-words">
+                C:\Users\yourUserName\Games\Age of Mythology Retold\yourSteamIdHere\users
+              </code>
+            </li>
+            <li>
+              Rename the file to <code>localKeybindings.xml</code> before saving.
+            </li>
+          </ol>
         </div>
       </Card>
     </>
