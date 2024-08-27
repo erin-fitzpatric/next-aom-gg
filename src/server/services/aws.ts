@@ -109,14 +109,14 @@ export async function listS3Recs(
   }
 }
 
-export async function downloadS3File(
+export async function downloadS3RecFile(
   rec: IRecordedGame
 ): Promise<MythRecDownloadLink> {
   let { gameTitle, gameGuid } = rec;
 
-  const CURRENT_DATE = Date.now().toString()
+  const CURRENT_DATE = Date.now().toString();
   if (gameTitle === "") {
-    gameTitle = CURRENT_DATE
+    gameTitle = CURRENT_DATE;
   }
   // URL-encode the gameTitle to handle special characters
   const encodedGameTitle = encodeURIComponent(gameTitle || CURRENT_DATE);
@@ -140,3 +140,39 @@ export async function downloadS3File(
   }
 }
 
+type DownloadS3FileResponse = {
+  signedUrl: string;
+};
+
+type DownloadS3FileParams = {
+  key: string;
+  bucket: string;
+  filename?: string;
+};
+
+export async function downloadS3File(
+  { key, bucket, filename }: DownloadS3FileParams
+): Promise<DownloadS3FileResponse> {
+  const CURRENT_DATE = Date.now().toString();
+
+  // URL-encode the gameTitle to handle special characters
+  const encodedGameTitle = encodeURIComponent(filename || CURRENT_DATE);
+
+  const params = {
+    Bucket: bucket || "",
+    Key: key,
+    ResponseContentDisposition: `attachment; filename="${encodedGameTitle}"`,
+  };
+
+  try {
+    const command = new GetObjectCommand(params);
+    const signedUrl = await getSignedUrl(s3Client, command, {
+      expiresIn: 3600,
+    });
+    return {
+      signedUrl,
+    };
+  } catch (err: any) {
+    throw new Error("Error downloading file", err.message);
+  }
+}
