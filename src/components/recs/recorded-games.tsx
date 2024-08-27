@@ -148,7 +148,7 @@ export default function RecordedGames() {
         </Card>
       )}
       <div className="fixed bottom-4 right-4 mr-2">
-        <RecUploadForm setRecs={setRecs} />
+        <RecUploadForm setRecs={setRecs} filters={filters} />
       </div>
     </div>
   );
