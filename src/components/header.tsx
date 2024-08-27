@@ -36,6 +36,7 @@ export default function Header() {
         {/* Desktop Nav Menu */}
         <NavigationMenu className="w-full sm:w-auto hidden sm:flex sm:items-center ">
           <NavigationMenuList className="flex flex-col sm:flex-row items-center sm:space-x-4">
+            {/* Recs */}
             <NavigationMenuItem className="text-center sm:text-left">
               <Link
                 href={"/recs"}
@@ -43,6 +44,17 @@ export default function Header() {
               >
                 <p>Recorded</p>
                 <p>Games</p>
+              </Link>
+            </NavigationMenuItem>
+            {/* Seperator */}
+            <div className="hidden sm:block h-10 w-0.5 bg-gray-400"></div>
+            {/* Resources */}
+            <NavigationMenuItem className="text-center sm:text-left">
+              <Link
+                href={"/resources"}
+                className="cursor-pointer text-center hover:underline hover:text-primary text-2xl font-medium leading-tight"
+              >
+                <p>Resources</p>
               </Link>
             </NavigationMenuItem>
           </NavigationMenuList>
@@ -132,6 +144,13 @@ export default function Header() {
               onClick={closeMenu}
             >
               Recorded Games
+            </Link>
+            <Link
+              href={"/resources"}
+              className="cursor-pointer hover:underline hover:text-primary text-2xl font-medium leading-tight"
+              onClick={closeMenu}
+            >
+              Resources
             </Link>
           </nav>
         </div>
