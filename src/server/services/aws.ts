@@ -47,8 +47,8 @@ export async function uploadRecToS3(
     throw new Error("S3 bucket not found");
   }
 
-  // verify file size is smaller than 15,000kb
-  if (file.size > 15000000) {
+  // verify file size is smaller than 30,000kb
+  if (file.size > 30000000) {
     console.log(`file ${file.name} size: ${file.size} is too large`);
     throw new Error("File size too large");
   }

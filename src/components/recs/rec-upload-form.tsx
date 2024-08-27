@@ -14,11 +14,13 @@ import { getMythRecs } from "@/server/controllers/mongo-controller";
 import { Dispatch, SetStateAction, useState } from "react";
 import { useSession } from "next-auth/react";
 import { SignIn } from "../sign-in";
+import { Filters } from "@/types/Filters";
 
 export type RecUploadFormProps = {
   setRecs: Dispatch<SetStateAction<any[]>>;
+  filters: Filters;
 };
-export default function RecUploadForm({ setRecs }: RecUploadFormProps) {
+export default function RecUploadForm({ setRecs, filters }: RecUploadFormProps) {
   const [recFile, setRecFile] = useState(null);
   const [fileName, setFileName] = useState("");
   const [isUploading, setIsUploading] = useState(false);
@@ -54,7 +56,8 @@ export default function RecUploadForm({ setRecs }: RecUploadFormProps) {
           title: "Success",
           description: "Rec uploaded successfully",
         });
-        const mythRecs = await getMythRecs(0);
+        // TODO - This needs to be called with filters
+        const mythRecs = await getMythRecs(0, filters);
         setRecs(mythRecs);
         setRecFile(null);
         setFileName("");
@@ -109,7 +112,9 @@ export default function RecUploadForm({ setRecs }: RecUploadFormProps) {
           <SheetDescription className="text-gold">
             <div className="flex flex-col items-center">
               <SignIn />
-              <p className="font-semibold mt-2">Sign in to upload recordings!</p>
+              <p className="font-semibold mt-2">
+                Sign in to upload recordings!
+              </p>
             </div>
           </SheetDescription>
         ) : (
