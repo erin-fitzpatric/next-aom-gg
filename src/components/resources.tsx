@@ -58,7 +58,7 @@ export default function ResourcesPage() {
               </code>
             </li>
             <li>
-              Rename the file to <code>localKeybindings.xml</code> before saving.
+              Rename the file to <code>LocalKeybindings.xml</code> before saving.
             </li>
           </ol>
         </div>
