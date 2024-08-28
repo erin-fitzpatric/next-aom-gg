@@ -12,7 +12,7 @@ const Countdown = dynamic(() => import("./countdown"), { ssr: false });
 
 export function usePagination() {
   const [pagination, setPagination] = useState({
-    pageSize: 10,
+    pageSize: 100,
     pageIndex: 0,
   });
   const { pageSize, pageIndex } = pagination;
@@ -48,9 +48,23 @@ export default function Leaderboard() {
               searchQuery, // Pass search query here
             }).toString(),
           {
-            method: "GET",
+            method: "POST",
           }
         );
+
+        // Lambda function that isn't working yet
+        // const response = await fetch(
+        //   "/api/leaderboards?" +
+        //     new URLSearchParams({
+        //       skip: skip.toString(),
+        //       limit: limit.toString(),
+        //       sort: JSON.stringify(sort),
+        //       searchQuery, // Pass search query here
+        //     }).toString(),
+        //   {
+        //     method: "GET",
+        //   }
+        // );
 
         if (!response.ok) {
           throw new Error(`Error: ${response.statusText}`);
@@ -70,7 +84,8 @@ export default function Leaderboard() {
 
   // Memoize the debounced version of getLeaderboardData
   const debouncedGetLeaderboardData = useMemo(
-    () => debounce((searchQuery: string) => getLeaderboardData(searchQuery), 300),
+    () =>
+      debounce((searchQuery: string) => getLeaderboardData(searchQuery), 300),
     [getLeaderboardData]
   );
 
@@ -83,7 +98,12 @@ export default function Leaderboard() {
       // Debounced search query fetch
       debouncedGetLeaderboardData(searchQuery);
     }
-  }, [searchQuery, getLeaderboardData, debouncedGetLeaderboardData, initialLoad]);
+  }, [
+    searchQuery,
+    getLeaderboardData,
+    debouncedGetLeaderboardData,
+    initialLoad,
+  ]);
 
   function handleSearchQueryChange(event: React.ChangeEvent<HTMLInputElement>) {
     onPaginationChange({ pageIndex: 0, pageSize: pagination.pageSize });
@@ -92,26 +112,23 @@ export default function Leaderboard() {
 
   return (
     <>
-      {/* Mobile Countdown */}
-      <div className="block sm:hidden mb-2">
-        <Countdown
-          targetDate={"2024-08-28T00:00:00Z"}
-          title={"Retold Premium Early Access"}
-        />
-      </div>
-
       <Card className="p-4 h-full">
         <div className="card-header">
-          <p className="text-gold">Coming Soon!</p>
-          <h2>Retold Leaderboard</h2>
+          <p className="text-gold">Age of Mythology Retold</p>
+          <h2>Leaderboard</h2>
         </div>
         <div className="container mx-auto py-4">
-          <Input
-            placeholder="Filter players..."
-            value={searchQuery}
-            onChange={handleSearchQueryChange} // Update search query
-            className="max-w-sm mx-auto"
-          />
+          <div className="flex flex-col">
+            <Input
+              placeholder="Filter players..."
+              value={searchQuery}
+              onChange={handleSearchQueryChange} // Update search query
+              className="max-w-sm mx-auto"
+            />
+            <div className="ml-4 text-gold text-lg font-bold underline">
+              1v1 Ranked
+            </div>
+          </div>
           {loading ? (
             <Spinner size={"large"} className="m-4" />
           ) : (

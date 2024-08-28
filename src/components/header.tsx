@@ -9,6 +9,8 @@ import {
 import Link from "next/link";
 import dynamic from "next/dynamic";
 import { SignIn } from "./sign-in";
+import { DiscordLogoIcon } from "@radix-ui/react-icons";
+import { Twitch } from "lucide-react";
 
 const Countdown = dynamic(() => import("./countdown"), { ssr: false });
 
@@ -31,7 +33,13 @@ export default function Header() {
           href={"/"}
           className="cursor-pointer hover:underline hover:text-primary"
         >
-          <Image src="/aom-gg-logo.png" width={175} height={175} alt="AoM.gg" priority />
+          <Image
+            src="/aom-gg-logo.png"
+            width={175}
+            height={175}
+            alt="AoM.gg"
+            priority
+          />
         </Link>
         {/* Desktop Nav Menu */}
         <NavigationMenu className="w-full sm:w-auto hidden sm:flex sm:items-center ">
@@ -55,6 +63,28 @@ export default function Header() {
                 className="cursor-pointer text-center hover:underline hover:text-primary text-2xl font-medium leading-tight"
               >
                 <p>Resources</p>
+              </Link>
+            </NavigationMenuItem>
+            {/* Seperator */}
+            <div className="hidden sm:block h-10 w-0.5 bg-gray-400"></div>
+            <NavigationMenuItem className="text-center sm:text-left">
+              <Link
+                href="https://discord.gg/Um8MZju4CK"
+                className="flex items-center"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <DiscordLogoIcon className="w-8 h-8 text-blue-600 transition-transform duration-300 ease-in-out transform hover:scale-110 hover:text-blue-800" />
+              </Link>
+            </NavigationMenuItem>
+            <NavigationMenuItem className="text-center sm:text-left">
+              <Link
+                href="https://www.twitch.tv/fitzbro/videos"
+                className="flex items-center"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Twitch className="w-8 h-8 text-purple-500 transition-transform duration-300 ease-in-out transform hover:scale-110 hover:text-purple-700" />
               </Link>
             </NavigationMenuItem>
           </NavigationMenuList>
@@ -86,8 +116,8 @@ export default function Header() {
         {/* Countdown */}
         <div className="flex justify-center sm:justify-end w-full sm:w-auto mt-4 sm:mt-0 sm:pr-6">
           <Countdown
-            targetDate={"2024-08-28T00:00:00Z"}
-            title={"Retold Premium Early Access"}
+            targetDate={"2024-09-04T00:00:00Z"}
+            title={"Retold Official Launch"}
           />
         </div>
         {/* Sign In */}
@@ -143,7 +173,7 @@ export default function Header() {
               className="cursor-pointer hover:underline hover:text-primary text-2xl font-medium leading-tight"
               onClick={closeMenu}
             >
-              Recorded Games
+              Replays
             </Link>
             <Link
               href={"/resources"}
@@ -151,6 +181,22 @@ export default function Header() {
               onClick={closeMenu}
             >
               Resources
+            </Link>
+            <Link
+              href="https://discord.gg/Um8MZju4CK"
+              className="flex items-center"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <DiscordLogoIcon className="w-8 h-8 text-blue-600 transition-transform duration-300 ease-in-out transform hover:scale-110 hover:text-blue-800" />
+            </Link>
+            <Link
+              href="https://www.twitch.tv/fitzbro/videos"
+              className="flex items-center"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Twitch className="w-8 h-8 text-purple-500 transition-transform duration-300 ease-in-out transform hover:scale-110 hover:text-purple-700" />
             </Link>
           </nav>
         </div>
