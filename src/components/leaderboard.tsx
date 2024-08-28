@@ -6,9 +6,8 @@ import { DataTable } from "./data-table";
 import { Card } from "./ui/card";
 import { Input } from "./ui/input";
 import { debounce } from "@/utils/debounce";
-import dynamic from "next/dynamic";
 import { Spinner } from "./spinner";
-const Countdown = dynamic(() => import("./countdown"), { ssr: false });
+import { AoeApiPlayer } from "@/app/api/leaderboards/service";
 
 export function usePagination() {
   const [pagination, setPagination] = useState({
@@ -26,7 +25,7 @@ export function usePagination() {
 }
 
 export default function Leaderboard() {
-  const [leaderboardData, setLeaderboardData] = useState<Player[]>([]);
+  const [leaderboardData, setLeaderboardData] = useState<AoeApiPlayer[]>([]);
   const [totalRecords, setTotalRecords] = useState(0);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
