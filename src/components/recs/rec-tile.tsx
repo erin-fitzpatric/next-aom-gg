@@ -1,7 +1,6 @@
 "use client";
 
 import TeamTile from "./team-tile";
-import { randomMapNameToData } from "@/types/RandomMap";
 import RecTitle from "./rec-title";
 import RecMap from "./rec-map";
 import RecFooter from "./rec-footer";
@@ -14,9 +13,7 @@ export default function RecTile({ rec }: { rec: IRecordedGame }) {
   const windowSize = useContext(WindowContext);
   // TODO - process team data
 
-  const mapData = randomMapNameToData(rec.gameMapName);
   const teamSplit = splitTeams(rec);
-
   let teamCount = 0;
   const leftTeams = teamSplit.left.map(
     (teamIndex) => (
@@ -52,7 +49,7 @@ export default function RecTile({ rec }: { rec: IRecordedGame }) {
             {leftTeams}
             <div>
               <RecTitle gameTitle={rec.gameTitle || ""} />
-              <RecMap mapData={mapData} />
+              <RecMap rec={rec} />
             </div>
             {rightTeams}
           </div>
@@ -62,9 +59,9 @@ export default function RecTile({ rec }: { rec: IRecordedGame }) {
         // mobile layout
         <div>
           <div className="flex flex-col">
-            <div>
+            <div className="flex flex-col items-center">
               <RecTitle gameTitle={rec.gameTitle || ""} />
-              <RecMap mapData={mapData} />
+              <RecMap rec={rec} />
             </div>
             <div className="mx-auto pt-2">
               {leftTeams}
