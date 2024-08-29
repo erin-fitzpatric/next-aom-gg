@@ -23,7 +23,7 @@ export async function fetchNewYoutubeVideos(): Promise<IYoutubeVideo[]> {
   const playlistItemsResponse = await youtubeClient.playlistItems.list({
     playlistId: uploadsPlaylistId,
     part: ["snippet"],
-    maxResults: 10,
+    maxResults: 3,
   });
   if (!playlistItemsResponse.data.items) {
     throw new Error("Unable to fetch new youtube videos");
@@ -72,7 +72,7 @@ export async function getStoredYoutubeVideos(): Promise<IYoutubeVideo[]> {
         $gte: new Date(new Date().setHours(0, 0, 0, 0))
       },
 
-    }).sort('asc').limit(10);
+    }).sort('asc').limit(3);
     todaysVideos = result.map((video) => {
       return {
         videoId: video.videoId,

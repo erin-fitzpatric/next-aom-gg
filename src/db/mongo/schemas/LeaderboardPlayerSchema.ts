@@ -1,15 +1,29 @@
 import { Schema } from 'mongoose';
 
-export const LeaderboardPlayerSchema = new Schema(
-  {
-    id: { type: Number, required: true },
-    name: { type: String, required: true, index: true },
-    profileUrl: { type: String, required: true },
-    country: { type: String, required: true },
-    rank: { type: Number, required: true },
-    wins: { type: Number, required: true },
-    losses: { type: Number, required: true },
-    winPercent: { type: Number, required: true },
-    totalGames: { type: Number, required: true },
-  },
-);
+export const LeaderboardPlayerSchema = new Schema({
+  statgroup_id: { type: Number, required: true, index: true },
+  leaderboard_id: { type: Number, required: true },
+  wins: { type: Number, required: true },
+  losses: { type: Number, required: true },
+  streak: { type: Number, required: true },
+  disputes: { type: Number, required: true },
+  drops: { type: Number, required: true },
+  rank: { type: Number, required: true },
+  ranktotal: { type: Number, required: true },
+  ranklevel: { type: Number, required: true },
+  rating: { type: Number, required: true },
+  regionrank: { type: Number, required: true },
+  regionranktotal: { type: Number, required: true },
+  lastmatchdate: { type: Number, required: true },
+  highestrank: { type: Number, required: true },
+  highestranklevel: { type: Number, required: true },
+  highestrating: { type: Number, required: true },
+  personal_statgroup_id: { type: Number, required: true },
+  profile_id: { type: Number, required: true },
+  level: { type: Number, required: true },
+  name: { type: String, required: true, index: true },
+  profileUrl: { type: String, required: true },
+  country: { type: String, required: true },
+  winPercent: { type: Number, required: true },
+  totalGames: { type: Number, required: true },
+});

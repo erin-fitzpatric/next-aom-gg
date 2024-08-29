@@ -8,10 +8,11 @@ import { Input } from "./ui/input";
 import { debounce } from "@/utils/debounce";
 import { Spinner } from "./spinner";
 import { AoeApiPlayer } from "@/app/api/leaderboards/service";
+import { ILeaderboardPlayer } from "@/types/LeaderboardPlayer";
 
 export function usePagination() {
   const [pagination, setPagination] = useState({
-    pageSize: 100,
+    pageSize: 10,
     pageIndex: 0,
   });
   const { pageSize, pageIndex } = pagination;
@@ -25,7 +26,9 @@ export function usePagination() {
 }
 
 export default function Leaderboard() {
-  const [leaderboardData, setLeaderboardData] = useState<AoeApiPlayer[]>([]);
+  const [leaderboardData, setLeaderboardData] = useState<ILeaderboardPlayer[]>(
+    []
+  );
   const [totalRecords, setTotalRecords] = useState(0);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -38,20 +41,6 @@ export default function Leaderboard() {
       try {
         setLoading(true);
         const sort = { rank: "asc" };
-        const response = await fetch(
-          "/api/leaderboards?" +
-            new URLSearchParams({
-              skip: skip.toString(),
-              limit: limit.toString(),
-              sort: JSON.stringify(sort),
-              searchQuery, // Pass search query here
-            }).toString(),
-          {
-            method: "POST",
-          }
-        );
-
-        // Lambda function that isn't working yet
         // const response = await fetch(
         //   "/api/leaderboards?" +
         //     new URLSearchParams({
@@ -61,9 +50,23 @@ export default function Leaderboard() {
         //       searchQuery, // Pass search query here
         //     }).toString(),
         //   {
-        //     method: "GET",
+        //     method: "POST",
         //   }
         // );
+
+        // Lambda function that isn't working yet
+        const response = await fetch(
+          "/api/leaderboards?" +
+            new URLSearchParams({
+              skip: skip.toString(),
+              limit: limit.toString(),
+              sort: JSON.stringify(sort),
+              searchQuery, // Pass search query here
+            }).toString(),
+          {
+            method: "GET",
+          }
+        );
 
         if (!response.ok) {
           throw new Error(`Error: ${response.statusText}`);
@@ -124,8 +127,10 @@ export default function Leaderboard() {
               onChange={handleSearchQueryChange} // Update search query
               className="max-w-sm mx-auto"
             />
-            <div className="ml-4 text-gold text-lg font-bold underline">
-              1v1 Ranked
+            <div className="flex justify-center sm:justify-start">
+              <div className="ml-4 text-gold text-lg font-bold underline">
+                1v1 Ranked
+              </div>
             </div>
           </div>
           {loading ? (

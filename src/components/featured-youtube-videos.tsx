@@ -36,7 +36,7 @@ export default function FeaturedYoutubeVideos() {
         <h2 className="card-header">Featured Videos</h2>
         <div className="grid grid-cols-1 text-center justify-items-center my-4 gap-4">
           {loading
-            ? Array.from({ length: 10 }).map((_, index) => (
+            ? Array.from({ length: 3 }).map((_, index) => (
                 <div
                   key={index}
                   className="mx-1 border-2 border-amber-400 rounded-lg my-1 flex flex-col p-1 max-w-xs w-full items-center"
