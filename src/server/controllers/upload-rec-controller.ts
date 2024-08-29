@@ -1,5 +1,5 @@
-import { parseRecordedGameMetadata } from "../recParser";
-import { RecordedGameMetadata } from "@/types/RecordedGameParser";
+import { parseRecordedGameMetadata } from "../recParser/recParser";
+import { RecordedGameMetadata } from "@/types/recParser/RecordedGameParser";
 import getMongoClient from "@/db/mongo/mongo-client";
 import RecordedGameModel from "@/db/mongo/model/RecordedGameModel";
 import { uploadRecToS3 } from "../services/aws";
@@ -15,6 +15,9 @@ export function mapRecGameMetadata(data: RecordedGameMetadata) {
   mappedData.playerData = mappedData.playerData.filter(
     (_player, idx) => idx !== 0
   );
+  delete mappedData.commands;
+  // TODO: delete techTimes? Not sure how to make a mongoose schema entry for this
+  //mappedData.playerData.forEach((data)=> delete data.techTimes);
   return mappedData;
 }
 

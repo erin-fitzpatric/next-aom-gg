@@ -1,7 +1,7 @@
 import { teamIndexToPlayerData } from "@/server/teams";
 import { majorGodIndexToData } from "@/types/MajorGods";
 import { IRecordedGame } from "@/types/RecordedGame";
-import { RecordedGamePlayerMetadata } from "@/types/RecordedGameParser";
+import { RecordedGamePlayerMetadata } from "@/types/recParser/RecordedGameParser";
 import Image from "next/image";
 
 function PlayerTile(playerData: RecordedGamePlayerMetadata, gameGuid: string) {
