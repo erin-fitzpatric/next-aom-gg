@@ -8,6 +8,8 @@ import Header from "@/components/header";
 import { WindowProvider } from "@/components/provider/window-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SessionProvider } from "next-auth/react";
+import { Analytics } from "@vercel/analytics/react";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 
 type RootLayoutProps = {
   children: ReactNode;
@@ -34,6 +36,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
               </WindowProvider>
             </TooltipProvider>
           </SessionProvider>
+          <Analytics />
+          <SpeedInsights />
         </body>
       </html>
     </>
