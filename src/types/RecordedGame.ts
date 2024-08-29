@@ -1,4 +1,4 @@
-import { RecordedGameMetadata } from "./RecordedGameParser";
+import { RecordedGameMetadata } from "./recParser/RecordedGameParser";
 
 export interface IRecordedGame extends RecordedGameMetadata {
   uploadedByUserId: string;
