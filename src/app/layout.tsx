@@ -19,7 +19,13 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <>
       <html lang="en" suppressHydrationWarning className="dark">
-        <head />
+        <head>
+          <script
+            async
+            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5753721803474857"
+            crossOrigin="anonymous"
+          ></script>
+        </head>
         <body className={cn("min-h-screen bg-background antialiased p-4")}>
           <SessionProvider>
             <TooltipProvider delayDuration={75}>
