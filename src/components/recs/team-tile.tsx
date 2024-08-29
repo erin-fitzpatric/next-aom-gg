@@ -1,12 +1,15 @@
 import { teamIndexToPlayerData } from "@/server/teams";
-import { majorGodIndexToData } from "@/types/MajorGods";
+import { majorGodIndexToData, majorGodNameToData } from "@/types/MajorGods";
 import { IRecordedGame } from "@/types/RecordedGame";
 import { RecordedGamePlayerMetadata } from "@/types/recParser/RecordedGameParser";
 import Image from "next/image";
 
 function PlayerTile(playerData: RecordedGamePlayerMetadata, gameGuid: string) {
-  const { name, civ, id } = playerData;
-  const godData = majorGodIndexToData(civ);
+  const { name, civ, civName, id } = playerData;
+  let godData = majorGodIndexToData(civ);
+  if (civName)
+    godData = majorGodNameToData(civName);
+    
   return (
     <div
       className="flex flex-col items-center my-auto px-2 w-32"

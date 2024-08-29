@@ -123,6 +123,11 @@ const MajorGodsByIndex = new Map<number, MajorGodData>([
   ],
 ]);
 
+const MajorGodsByName: Map<string, MajorGodData> = new Map(Array.from(MajorGodsByIndex.keys()).map((key)=>
+  {
+    return [(MajorGodsByIndex.get(key)?.name) as string, MajorGodsByIndex.get(key) as MajorGodData];
+  }));
+
 export function listMajorGods(): MajorGodData[] {
   const gods = Array.from(MajorGodsByIndex.values());
   gods.shift(); // remove nature
@@ -135,6 +140,17 @@ export function majorGodIndexToData(index: number): MajorGodData {
   if (data === undefined) {
     return {
       name: `Unknown ${index}`,
+      portraitPath: UNKNOWN_PORTRAIT_PATH,
+    };
+  }
+  return data;
+}
+
+export function majorGodNameToData(name: string): MajorGodData {
+  let data = MajorGodsByName.get(name);
+  if (data === undefined) {
+    return {
+      name: name,
       portraitPath: UNKNOWN_PORTRAIT_PATH,
     };
   }
