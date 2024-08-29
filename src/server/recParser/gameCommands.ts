@@ -127,10 +127,8 @@ const commandRefiners: Record<number, GameCommandRefiner> = {
         type: "marketBuySellResources",
         parseFunctions: [unpackInt32, unpackInt32, unpackInt32, unpackInt32, unpackFloat],
         refinerFunction: (base: any, raw) => {
-            base.sourceUnits = raw.sourceUnits;
-            base.queued = raw.preArgumentBytes[0] & 2;
             base.resourceId = raw.argumentList[2];
-            base.resorceType = "unknown";
+            base.resourceType = "unknown";
             if (base.resourceId == 1) base.resourceType = "wood";
             else if (base.resourceId== 2) base.resourceType = "food";
             else
