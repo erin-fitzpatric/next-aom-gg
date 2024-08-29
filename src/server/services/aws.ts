@@ -2,7 +2,7 @@
 import {
   RecordedGameMetadata,
   RecordedGamePlayerMetadata,
-} from "@/types/RecordedGameParser";
+} from "@/types/recParser/RecordedGameParser";
 import {
   GetObjectCommand,
   ListObjectsV2Command,
