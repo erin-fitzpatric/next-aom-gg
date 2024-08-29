@@ -1,10 +1,9 @@
 "use client";
 
-import { AoeApiPlayer } from "@/app/api/leaderboards/service";
+import { ILeaderboardPlayer } from "@/types/LeaderboardPlayer";
 import { ColumnDef } from "@tanstack/react-table";
-import Image from "next/image";
 
-export const columns: ColumnDef<AoeApiPlayer>[] = [
+export const columns: ColumnDef<ILeaderboardPlayer>[] = [
   {
     accessorKey: "rank",
     header: "Rank",
@@ -24,27 +23,28 @@ export const columns: ColumnDef<AoeApiPlayer>[] = [
   //   },
   // },
   {
-    accessorKey: "userName",
+    accessorKey: "name",
     header: "Name",
     cell: ({ row }: any) => (
       <div className="flex items-center">
-        <Image
-          src={row.original.avatarUrl}
+        {/* TODO - fetch avatar */}
+        {/* <Image
+          src={row.original.avatarUrl} 
           alt={`Rank ${row.original.rank}`}
           width={40}
           height={40}
           className="mr-4 rounded-full"
-        />
-        <span className="text-primary">{row.original.userName}</span>
+        /> */}
+        <span className="text-primary">{row.original.name}</span>
       </div>
     ),
   },
   {
-    accessorKey: "elo",
+    accessorKey: "rating",
     header: "Elo",
   },
   {
-    accessorKey: "eloHighest",
+    accessorKey: "highestrating",
     header: "Highest Elo",
   },
   {
@@ -52,8 +52,8 @@ export const columns: ColumnDef<AoeApiPlayer>[] = [
     header: "Win %",
     cell: (currentRow) => {
       const { row } = currentRow;
-      const value = row.original.winPercent;
-      const percentage = value;
+      const value = Number(row.original.winPercent);
+      const percentage = value * 100;
       return `${percentage.toFixed()}%`;
     },
   },
@@ -62,7 +62,7 @@ export const columns: ColumnDef<AoeApiPlayer>[] = [
     header: "Wins",
     cell: ({ row }) => (
       <div className="flex items-center">
-        <span className="text-primary">{row.original.wins}</span>
+        <span className="text-primary">{String(row.original.wins)}</span>
       </div>
     ),
   },
@@ -71,7 +71,7 @@ export const columns: ColumnDef<AoeApiPlayer>[] = [
     header: "Losses",
     cell: ({ row }) => (
       <div className="flex items-center">
-        <span className="text-red-500">{row.original.losses}</span>
+        <span className="text-red-500">{String(row.original.losses)}</span>
       </div>
     ),
   },
@@ -80,14 +80,14 @@ export const columns: ColumnDef<AoeApiPlayer>[] = [
     header: "Total Games",
   },
   {
-    accessorKey: "winStreak",
+    accessorKey: "streak",
     header: "Current Streak",
     cell: ({ row }) => {
       const streakColor =
-        row.original.winStreak > 0 ? "text-primary" : "text-red-500";
+        Number(row.original.streak) > 0 ? "text-primary" : "text-red-500";
       return (
         <div className="flex items-center">
-          <span className={streakColor}>{row.original.winStreak}</span>
+          <span className={streakColor}>{String(row.original.streak)}</span>
         </div>
       );
     },

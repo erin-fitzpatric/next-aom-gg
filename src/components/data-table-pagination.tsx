@@ -7,13 +7,13 @@ import {
 import { Table } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
-// import {
-//   Select,
-//   SelectContent,
-//   SelectItem,
-//   SelectTrigger,
-//   SelectValue,
-// } from "@/components/ui/select";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
@@ -25,7 +25,7 @@ export function DataTablePagination<TData>({
   return (
     <div className="flex px-2">
       {/* Left-aligned content */}
-      {/* <div className="flex items-center">
+      <div className="flex items-center">
         <p className="text-sm font-medium">Rows per page</p>
         <div className="pl-2">
           <Select
@@ -46,7 +46,7 @@ export function DataTablePagination<TData>({
             </SelectContent>
           </Select>
         </div>
-      </div> */}
+      </div>
 
       {/* Center-aligned content */}
       <div className="flex items-center justify-center text-sm font-medium flex-1">
