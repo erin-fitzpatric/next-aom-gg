@@ -1,5 +1,5 @@
 "use client";
-import { Card } from "@/components/ui/card";
+import { Card, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import {
   MatchHistoryResponse,
@@ -67,10 +67,21 @@ export default function Profile() {
 
   return (
     <div className="w-full">
+      <CardHeader className="text-center">
+        <h1 className="text-4xl font-semibold text-gold">
+          {profiles[Number(playerId)]?.alias}
+        </h1>
+        <h2 className="mt-2">Match History (Beta)</h2>
+      </CardHeader>
       <Card className="w-full">
         {/* Display the match history */}
         {matchHistoryStats.map((match) => (
-          <Match key={match.id} match={match} profiles={profiles} playerId={Number(playerId)} />
+          <Match
+            key={match.id}
+            match={match}
+            profiles={profiles}
+            playerId={Number(playerId)}
+          />
         ))}
       </Card>
     </div>
