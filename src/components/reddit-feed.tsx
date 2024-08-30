@@ -18,25 +18,63 @@ import { Skeleton } from "./ui/skeleton";
 export default function RedditFeed() {
   const [redditPosts, setRedditPosts] = useState<RedditPost[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [galleryImages, setGalleryImages] = useState<{ [key: string]: string[] }>({});
 
-  async function getRedditPosts() {
-    try {
-      const response = await fetchRedditPosts();
-      setRedditPosts(response);
-      setLoading(false);
-    } catch (error) {
-      console.error("Failed to fetch reddit posts", error);
-    }
+  function getRedditPosts() {
+    fetchRedditPosts()
+      .then((response) => {
+        setRedditPosts(response);
+        setLoading(false);
+      })
+      .catch((error) => {
+        console.error("Failed to fetch reddit posts", error);
+      });
   }
 
   useEffect(() => {
     getRedditPosts();
   }, []);
 
-  // Helper function to extract YouTube video ID from URL
+  useEffect(() => {
+    redditPosts.forEach((post) => {
+      if (post.url && isRedditGalleryUrl(post.url) && !galleryImages[post.id]) {
+        fetchGalleryItems(post.permalink, post.id);
+      }
+    });
+  }, [redditPosts]);
+
   function getYouTubeVideoId(url: string): string | null {
-    const match = url.match(/(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|(?:.*[?&]v=)|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/);
+    const match = url.match(
+      /(?:https?:\/\/)?(?:www\.)?(?:youtube\.com\/(?:[^\/\n\s]+\/\S+\/|(?:v|e(?:mbed)?)\/|(?:.*[?&]v=)|.*[?&]v=)|youtu\.be\/)([a-zA-Z0-9_-]{11})/
+    );
     return match ? match[1] : null;
+  }
+
+  function isValidImageUrl(url: string): boolean {
+    return /\.(jpg|jpeg|png|gif|bmp|webp)$/i.test(url);
+  }
+
+  function isRedditGalleryUrl(url: string): boolean {
+    return url.includes("/gallery/");
+  }
+
+  function fetchGalleryItems(permalink: string, postId: string) {
+    fetch(`https://www.reddit.com${permalink}.json`)
+      .then((response) => response.json())
+      .then((json) => {
+        const items = json[0]?.data?.children[0]?.data?.media_metadata;
+        if (items) {
+          const images = Object.keys(items).map((key) => {
+            const media = items[key];
+            const ext = media?.m?.split('/').pop();
+            return `https://i.redd.it/${key}.${ext}`;
+          });
+          setGalleryImages((prev) => ({ ...prev, [postId]: images }));
+        }
+      })
+      .catch((error) => {
+        console.error("Failed to fetch gallery items", error);
+      });
   }
 
   return (
@@ -51,7 +89,9 @@ export default function RedditFeed() {
           />
         </div>
         <a href="https://www.reddit.com/r/AgeofMythology/">
-          <div className="flex justify-center text-gold cursor-pointer hover:underline">r/AgeOfMythology</div>
+          <div className="flex justify-center text-gold cursor-pointer hover:underline">
+            r/AgeOfMythology
+          </div>
         </a>
         <h2 className="card-header">Top Reddit Posts</h2>
         <Carousel className="pt-4">
@@ -92,17 +132,29 @@ export default function RedditFeed() {
                           {post.url &&
                             !post.url.startsWith("https://twitter.com") && (
                               <div className="h-32 w-32 overflow-hidden rounded-lg">
-                                {post.url.includes("youtube.com") ||
-                                post.url.includes("youtu.be") ? (
-                                  // Handle YouTube links
+                                {galleryImages[post.id] ? (
+                                  galleryImages[post.id].map((imgUrl, index) => (
+                                    <Image
+                                      key={index}
+                                      src={imgUrl}
+                                      alt={post.title}
+                                      width={128}
+                                      height={128}
+                                      className="object-cover w-full h-full"
+                                    />
+                                  ))
+                                ) : post.url.includes("youtube.com") ||
+                                  post.url.includes("youtu.be") ? (
                                   <Image
-                                    src={`https://img.youtube.com/vi/${getYouTubeVideoId(post.url)}/mqdefault.jpg`}
+                                    src={`https://img.youtube.com/vi/${getYouTubeVideoId(
+                                      post.url
+                                    )}/mqdefault.jpg`}
                                     alt={post.title}
                                     width={128}
                                     height={128}
                                     className="object-cover w-full h-full"
                                   />
-                                ) : (
+                                ) : isValidImageUrl(post.url) ? (
                                   <Image
                                     src={post.url}
                                     alt={post.title}
@@ -110,6 +162,10 @@ export default function RedditFeed() {
                                     height={128}
                                     className="object-cover w-full h-full"
                                   />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500">
+                                    No image available
+                                  </div>
                                 )}
                               </div>
                             )}
