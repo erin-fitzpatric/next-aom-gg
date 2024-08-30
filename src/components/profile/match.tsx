@@ -9,6 +9,7 @@ import {
   createMatchHistoryMap,
   formatTime,
 } from "./matchHelpers";
+import { useRouter } from "next/navigation";
 
 type IProps = {
   match: MatchHistoryStat;
@@ -17,6 +18,8 @@ type IProps = {
 };
 
 export default function Match({ match, profiles, playerId }: IProps) {
+  const router = useRouter();
+
   const {
     mapname,
     matchtype_id,
@@ -32,6 +35,11 @@ export default function Match({ match, profiles, playerId }: IProps) {
   const matchDate = startgametime * 1000;
   const teams = mapToTeams(matchhistoryreportresults, playerId);
   const matchHistoryMap = createMatchHistoryMap(matchhistorymember);
+
+  const handleNameClick = (row: number) => {
+    const route = `/profile/${row}`;
+    router.push(route);
+  };
 
   return (
     <div className="p-4 border rounded-md shadow-lg flex flex-col md:flex-row items-start">
@@ -98,8 +106,9 @@ export default function Match({ match, profiles, playerId }: IProps) {
                         {ratingChange}
                       </div>
                       <div
-                        className={`flex-1 ${textColor} text-right`}
+                        className={`flex-1 ${textColor} text-right cursor-pointer`}
                         style={{ minWidth: "80px" }}
+                        onClick={() => handleNameClick(player.profile_id)}
                       >
                         {alias}
                       </div>
