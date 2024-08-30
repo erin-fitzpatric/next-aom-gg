@@ -117,13 +117,13 @@ export default function Leaderboard() {
 
         <div className="container mx-auto py-4">
           {/* Filters Row */}
-          <div className="flex items-center space-x-4">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-4 sm:space-y-0">
             {/* Leaderboard Type Dropdown */}
-            <div className="flex-shrink-0">
+            <div className="flex-shrink-0 w-full sm:w-auto">
               <select
                 value={leaderboardType}
                 onChange={handleLeaderboardTypeChange}
-                className="p-2 border border-gray-300 rounded"
+                className="p-2 border border-gray-300 rounded w-full"
               >
                 <option value={LeaderboardTypeValues["1v1Supremacy"]}>
                   1v1 Supremacy
@@ -140,8 +140,8 @@ export default function Leaderboard() {
               </select>
             </div>
 
-            {/* Centered Search Bar */}
-            <div className="flex-grow flex justify-end">
+            {/* Search Bar */}
+            <div className="flex-grow flex justify-center sm:justify-end w-full sm:w-auto">
               <div className="w-full max-w-sm">
                 <Input
                   placeholder="Search players..."
