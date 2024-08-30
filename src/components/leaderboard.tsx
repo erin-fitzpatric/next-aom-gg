@@ -7,6 +7,7 @@ import { Input } from "./ui/input";
 import { debounce } from "@/utils/debounce";
 import { Spinner } from "./spinner";
 import { ILeaderboardPlayer } from "@/types/LeaderboardPlayer";
+import { LeaderboardType, LeaderboardTypeValues } from "@/types/LeaderBoard";
 
 export function usePagination() {
   const [pagination, setPagination] = useState({
@@ -27,6 +28,9 @@ export default function Leaderboard() {
   const [leaderboardData, setLeaderboardData] = useState<ILeaderboardPlayer[]>(
     []
   );
+  const [leaderboardType, setLeaderboardType] = useState<number>(
+    LeaderboardTypeValues["1v1Supremacy"]
+  );
   const [totalRecords, setTotalRecords] = useState(0);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -40,14 +44,14 @@ export default function Leaderboard() {
         setLoading(true);
         const sort = { rank: "asc" };
 
-        // Lambda function that isn't working yet
         const response = await fetch(
           "/api/leaderboards?" +
             new URLSearchParams({
               skip: skip.toString(),
               limit: limit.toString(),
               sort: JSON.stringify(sort),
-              searchQuery, // Pass search query here
+              searchQuery,
+              leaderboardType: leaderboardType.toString(),
             }).toString(),
           {
             method: "GET",
@@ -67,10 +71,9 @@ export default function Leaderboard() {
         setLoading(false);
       }
     },
-    [skip, limit]
+    [skip, limit, leaderboardType]
   );
 
-  // Memoize the debounced version of getLeaderboardData
   const debouncedGetLeaderboardData = useMemo(
     () =>
       debounce((searchQuery: string) => getLeaderboardData(searchQuery), 300),
@@ -79,11 +82,9 @@ export default function Leaderboard() {
 
   useEffect(() => {
     if (initialLoad) {
-      // Fetch data immediately on initial load
       getLeaderboardData(searchQuery);
       setInitialLoad(false);
     } else {
-      // Debounced search query fetch
       debouncedGetLeaderboardData(searchQuery);
     }
   }, [
@@ -91,12 +92,20 @@ export default function Leaderboard() {
     getLeaderboardData,
     debouncedGetLeaderboardData,
     initialLoad,
+    leaderboardType,
   ]);
 
   function handleSearchQueryChange(event: React.ChangeEvent<HTMLInputElement>) {
     onPaginationChange({ pageIndex: 0, pageSize: pagination.pageSize });
     setSearchQuery(event.target.value);
   }
+
+  const handleLeaderboardTypeChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const selectedType = parseInt(event.target.value);
+    setLeaderboardType(selectedType);
+  };
 
   return (
     <>
@@ -105,26 +114,52 @@ export default function Leaderboard() {
           <p className="text-gold">Age of Mythology Retold</p>
           <h2>Leaderboard</h2>
         </div>
+
         <div className="container mx-auto py-4">
-          <div className="flex flex-col">
-            <Input
-              placeholder="Filter players..."
-              value={searchQuery}
-              onChange={handleSearchQueryChange} // Update search query
-              className="max-w-sm mx-auto"
-            />
-            <div className="flex justify-center sm:justify-start">
-              <div className="ml-4 text-gold text-lg font-bold underline">
-                1v1 Ranked
+          {/* Filters Row */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-4 sm:space-y-0">
+            {/* Leaderboard Type Dropdown */}
+            <div className="flex-shrink-0 w-full sm:w-auto">
+              <select
+                value={leaderboardType}
+                onChange={handleLeaderboardTypeChange}
+                className="p-2 border border-gray-300 rounded w-full"
+              >
+                <option value={LeaderboardTypeValues["1v1Supremacy"]}>
+                  1v1 Supremacy
+                </option>
+                <option value={LeaderboardTypeValues.TeamSupremacy}>
+                  Team Supremacy
+                </option>
+                <option value={LeaderboardTypeValues.Deathmatch}>
+                  Deathmatch
+                </option>
+                <option value={LeaderboardTypeValues.TeamDeathmatch}>
+                  Team Deathmatch
+                </option>
+              </select>
+            </div>
+
+            {/* Search Bar */}
+            <div className="flex-grow flex justify-center sm:justify-end w-full sm:w-auto">
+              <div className="w-full max-w-sm">
+                <Input
+                  placeholder="Search players..."
+                  value={searchQuery}
+                  onChange={handleSearchQueryChange}
+                  className="w-full"
+                />
               </div>
             </div>
           </div>
+
+          {/* Table Data */}
           {loading ? (
             <Spinner size={"large"} className="m-4" />
           ) : (
             <DataTable
               columns={columns}
-              data={leaderboardData} // Pass fetched data
+              data={leaderboardData}
               onPaginationChange={onPaginationChange}
               pageCount={Math.ceil(totalRecords / limit)}
               pagination={pagination}

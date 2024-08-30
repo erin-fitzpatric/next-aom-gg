@@ -1,5 +1,9 @@
 import { MongoSort } from "@/types/MongoSort";
-import { getAgeOfEmpiresMythLeaderboard, getMythLeaderboard, IGetMythLeaderboard } from "./service";
+import {
+  getAgeOfEmpiresMythLeaderboard,
+  getMythLeaderboard,
+  IGetMythLeaderboard,
+} from "./service";
 export const GET = async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
@@ -9,6 +13,7 @@ export const GET = async function GET(req: Request) {
       skip: parseInt(searchParams.get("skip") as string),
       limit: parseInt(searchParams.get("limit") as string),
       sort: JSON.parse(searchParams.get("sort") as string) as MongoSort,
+      leaderboardId: searchParams.get("leaderboardType") as string,
     };
 
     const leaderboardData = await getMythLeaderboard(params);
@@ -30,6 +35,7 @@ export const POST = async function GET(req: Request) {
       skip: parseInt(searchParams.get("skip") as string),
       limit: parseInt(searchParams.get("limit") as string),
       sort: JSON.parse(searchParams.get("sort") as string) as MongoSort,
+      leaderboardId: searchParams.get("leaderboardType") as string,
     };
 
     const leaderboardData = await getAgeOfEmpiresMythLeaderboard(params);

@@ -23,6 +23,7 @@ import {
 } from "@/components/ui/table";
 import { DataTablePagination } from "./data-table-pagination";
 import { useRouter } from "next/navigation";
+import { LeaderboardType } from "@/types/LeaderBoard";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -64,7 +65,7 @@ export function DataTable<TData, TValue>({
   });
 
   const handleRowClick = (row: any) => {
-    const route = `/profile/${row.original.profile_id}`; 
+    const route = `/profile/${row.original.profile_id}`;
     router.push(route);
   };
 
