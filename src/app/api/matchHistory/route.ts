@@ -24,7 +24,13 @@ export const GET = async function GET(req: Request) {
     }
 
     const data = await response.json();
+
     if (data && data.matchHistoryStats) {
+      // sort the match history stats by timestamp becuase its in random fucking order
+      const sortedMatchHistoryStats = data.matchHistoryStats.sort(
+        (a: any, b: any) => b.completiontime - a.completiontime
+      );
+      data.matchHistoryStats = sortedMatchHistoryStats;
       return new Response(JSON.stringify(data), {
         headers: { "Content-Type": "application/json" },
       });
