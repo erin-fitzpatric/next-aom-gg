@@ -74,7 +74,9 @@ export function getRecXMB(data: RecordedGameXMBData, name: string): XMBNode | un
     if (saved == undefined) return undefined;
     if (isXMBNode(saved))
         return saved;
-    return parseXMBFromDataView(saved);
+    const node = parseXMBFromDataView(saved);
+    data[name] = node;
+    return node;
 }
 
 /**
