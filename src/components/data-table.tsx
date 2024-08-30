@@ -31,8 +31,6 @@ interface DataTableProps<TData, TValue> {
   onPaginationChange: any;
   pageCount: number;
   pagination: PaginationState;
-  leaderboardType: string;
-  onLeaderboardTypeChange: (event: React.ChangeEvent<HTMLSelectElement>) => void;
 }
 
 export type PaginationState = {
@@ -46,8 +44,6 @@ export function DataTable<TData, TValue>({
   onPaginationChange,
   pageCount,
   pagination,
-  leaderboardType,
-  onLeaderboardTypeChange,
 }: DataTableProps<TData, TValue>) {
   const router = useRouter();
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
@@ -76,18 +72,6 @@ export function DataTable<TData, TValue>({
   return (
     <>
       <div className="flex flex-col items-center">
-        <div className="mb-4">
-          <select
-            value={leaderboardType}
-            onChange={onLeaderboardTypeChange}
-            className="p-2 border border-gray-300 rounded"
-          >
-            <option value={LeaderboardType["1v1Supremacy"]}>1v1 Supremacy</option>
-            <option value={LeaderboardType.TeamSupremacy}>Team Supremacy</option>
-            <option value={LeaderboardType.Deathmatch}>Deathmath</option>
-            <option value={LeaderboardType.TeamDeathmatch}>Team Deathmatch</option>
-          </select>
-        </div>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
