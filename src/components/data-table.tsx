@@ -1,3 +1,5 @@
+"use client";
+
 import React from "react";
 import {
   ColumnDef,
@@ -20,6 +22,7 @@ import {
   TableRow,
 } from "@/components/ui/table";
 import { DataTablePagination } from "./data-table-pagination";
+import { useRouter } from "next/navigation";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -41,6 +44,7 @@ export function DataTable<TData, TValue>({
   pageCount,
   pagination,
 }: DataTableProps<TData, TValue>) {
+  const router = useRouter();
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
@@ -58,6 +62,11 @@ export function DataTable<TData, TValue>({
     state: { pagination, columnFilters },
     pageCount,
   });
+
+  const handleRowClick = (row: any) => {
+    const route = `/profile/${row.original.profile_id}`; 
+    router.push(route);
+  };
 
   return (
     <>
@@ -87,6 +96,8 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  onClick={() => handleRowClick(row)}
+                  className="cursor-pointer"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

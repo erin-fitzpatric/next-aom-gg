@@ -1,13 +1,11 @@
 "use client";
 import { useCallback, useEffect, useState, useMemo } from "react";
-import { Player } from "@/types/Player";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import { Card } from "./ui/card";
 import { Input } from "./ui/input";
 import { debounce } from "@/utils/debounce";
 import { Spinner } from "./spinner";
-import { AoeApiPlayer } from "@/app/api/leaderboards/service";
 import { ILeaderboardPlayer } from "@/types/LeaderboardPlayer";
 
 export function usePagination() {
@@ -41,18 +39,6 @@ export default function Leaderboard() {
       try {
         setLoading(true);
         const sort = { rank: "asc" };
-        // const response = await fetch(
-        //   "/api/leaderboards?" +
-        //     new URLSearchParams({
-        //       skip: skip.toString(),
-        //       limit: limit.toString(),
-        //       sort: JSON.stringify(sort),
-        //       searchQuery, // Pass search query here
-        //     }).toString(),
-        //   {
-        //     method: "POST",
-        //   }
-        // );
 
         // Lambda function that isn't working yet
         const response = await fetch(

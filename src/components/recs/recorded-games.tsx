@@ -96,9 +96,6 @@ export default function RecordedGames() {
     <Loading />
   ) : (
     <div className="relative">
-      <div className="card-header">
-        <h2>Recorded Games</h2>
-      </div>
       {/* filters */}
       <div className="flex flex-row-reverse">
         <RecFilters
