@@ -8,6 +8,7 @@ export interface IGetMythLeaderboard {
   limit: number;
   sort: MongoSort;
   searchQuery: string;
+  leaderboardId: string;
 }
 
 export interface IGetMythLeaderboardResponse {
@@ -24,6 +25,7 @@ export async function getMythLeaderboard(
   try {
     const result: ILeaderboardPlayer[] = await LeaderboardPlayerModel.find({
       name: { $regex: searchQuery, $options: "i" },
+      leaderboard_id: req.leaderboardId,
     })
       .lean()
       .sort(sort)
@@ -33,6 +35,7 @@ export async function getMythLeaderboard(
       leaderboardPlayers: result,
       totalRecords: await LeaderboardPlayerModel.countDocuments({
         name: { $regex: searchQuery, $options: "i" },
+        leaderboard_id: req.leaderboardId,
       }),
     };
   } catch (error: any) {
@@ -70,6 +73,11 @@ export interface OfficialApiResponse {
 }
 
 // ageofempires.com
+/**
+ * @deprecated This function is deprecated and will be removed in future releases.
+ * Use `getMythLeaderboard` instead.
+ */
+
 export async function getAgeOfEmpiresMythLeaderboard(
   req: IGetMythLeaderboard
 ): Promise<OfficialApiResponse> {

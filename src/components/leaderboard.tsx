@@ -27,6 +27,7 @@ export default function Leaderboard() {
   const [leaderboardData, setLeaderboardData] = useState<ILeaderboardPlayer[]>(
     []
   );
+  const [leaderboardType, setLeaderboardType] = useState<string>("1v1 Ranked");
   const [totalRecords, setTotalRecords] = useState(0);
   const [loading, setLoading] = useState(true);
   const [searchQuery, setSearchQuery] = useState("");
@@ -47,7 +48,8 @@ export default function Leaderboard() {
               skip: skip.toString(),
               limit: limit.toString(),
               sort: JSON.stringify(sort),
-              searchQuery, // Pass search query here
+              searchQuery, 
+              leaderboardType,
             }).toString(),
           {
             method: "GET",
@@ -67,7 +69,7 @@ export default function Leaderboard() {
         setLoading(false);
       }
     },
-    [skip, limit]
+    [skip, limit, leaderboardType] // Include leaderboardType in the dependency array
   );
 
   // Memoize the debounced version of getLeaderboardData
@@ -91,12 +93,20 @@ export default function Leaderboard() {
     getLeaderboardData,
     debouncedGetLeaderboardData,
     initialLoad,
+    leaderboardType, // Add leaderboardType to the useEffect dependency array
   ]);
 
   function handleSearchQueryChange(event: React.ChangeEvent<HTMLInputElement>) {
     onPaginationChange({ pageIndex: 0, pageSize: pagination.pageSize });
     setSearchQuery(event.target.value);
   }
+
+  const handleLeaderboardTypeChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const selectedType = event.target.value;
+    setLeaderboardType(selectedType);
+  };
 
   return (
     <>
@@ -113,11 +123,6 @@ export default function Leaderboard() {
               onChange={handleSearchQueryChange} // Update search query
               className="max-w-sm mx-auto"
             />
-            <div className="flex justify-center sm:justify-start">
-              <div className="ml-4 text-gold text-lg font-bold underline">
-                1v1 Ranked
-              </div>
-            </div>
           </div>
           {loading ? (
             <Spinner size={"large"} className="m-4" />
@@ -128,6 +133,8 @@ export default function Leaderboard() {
               onPaginationChange={onPaginationChange}
               pageCount={Math.ceil(totalRecords / limit)}
               pagination={pagination}
+              leaderboardType={leaderboardType}
+              onLeaderboardTypeChange={handleLeaderboardTypeChange}
             />
           )}
         </div>

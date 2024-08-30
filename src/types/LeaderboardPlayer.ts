@@ -1,6 +1,6 @@
 export interface ILeaderboardPlayer {
   statgroup_id: { type: Number; index: true };
-  leaderboard_id: Number;
+  leaderboard_id: { type: Number; index: true };
   wins: Number;
   losses: Number;
   streak: Number;
