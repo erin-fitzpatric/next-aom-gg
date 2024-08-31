@@ -12,4 +12,7 @@ export enum Errors {
   GAME_HAS_AI_PLAYERS = "GAME_HAS_AI_PLAYERS",                    // Game has any AI players in it
   NOT_A_MULTIPLAYER_GAME = "NOT_A_MULTIPLAYER_GAME",              // Rec doesn't have metadata and doesn't look like a benchmark
   PARSER_INTERNAL_ERROR = "PARSER_INTERNAL_ERROR",                // Thrown by other (technical) parser errors
+
+  // Athens API errors
+  PLAYER_NOT_FOUND = "PLAYER_NOT_FOUND",
 }

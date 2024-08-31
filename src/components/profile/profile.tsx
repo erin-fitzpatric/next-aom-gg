@@ -1,23 +1,23 @@
 "use client";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  MatchHistoryResponse,
-  MatchHistoryStat,
-  Profile as ProfileType,
-} from "@/types/MatchHistory";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { createContext, useEffect, useState } from "react";
 import Match from "./match";
+import { MatchHistory } from "@/types/MatchHistory";
 
 export default function Profile() {
   const [matchHistoryStats, setMatchHistoryStats] = useState<
-    MatchHistoryStat[]
+    MatchHistory["mappedMatchHistoryData"]
   >([]);
-  const [profiles, setProfiles] = useState<Record<number, ProfileType>>({});
+  const [playerName, setPlayerName] = useState<string>("");
   const params = useParams();
-  const { id: playerId } = params;
+  const { id } = params;
+  const playerId = String(id);
+
+  // create a playerid context
+  const PlayerIdContext = createContext(playerId);
 
   const { status } = useSession(); // get the client session status
 
@@ -26,35 +26,21 @@ export default function Profile() {
     const params = new URLSearchParams({
       playerId,
     });
-
     const url = `${baseUrl}?${params.toString()}`;
 
     try {
       const response = await fetch(url);
-
-      if (!response.ok) {
-        throw new Error("Failed to fetch profile data");
-      }
-      const data: MatchHistoryResponse = await response.json();
-      if (data.matchHistoryStats && data.profiles) {
-        setMatchHistoryStats(data.matchHistoryStats);
-
-        // create a profile map for easy lookup
-        const profileMap = data.profiles.reduce((acc, profile) => {
-          acc[profile.profile_id] = profile;
-          return acc;
-        }, {} as Record<number, ProfileType>);
-        setProfiles(profileMap);
-      }
-    } catch (error) {
+      const data: MatchHistory = await response.json();
+      setMatchHistoryStats(data.mappedMatchHistoryData);
+      setPlayerName(data.playerName);
+    } catch (error: any) {
       console.error("Error fetching profile data:", error);
       setMatchHistoryStats([]);
-      setProfiles([]);
     }
   };
 
   useEffect(() => {
-    fetchProfileData(playerId as string);
+    fetchProfileData(playerId);
   }, [playerId]);
 
   if (status === "loading") {
@@ -68,20 +54,12 @@ export default function Profile() {
   return (
     <div className="w-full">
       <CardHeader className="text-center">
-        <h1 className="text-4xl font-semibold text-gold">
-          {profiles[Number(playerId)]?.alias}
-        </h1>
-        <h2 className="mt-2">Match History (Beta)</h2>
+        <h1 className="text-4xl font-semibold text-gold">{playerName}</h1>
+        <h2 className="mt-2 font-semibold">Match History</h2>
       </CardHeader>
       <Card className="w-full">
-        {/* Display the match history */}
         {matchHistoryStats.map((match) => (
-          <Match
-            key={match.id}
-            match={match}
-            profiles={profiles}
-            playerId={Number(playerId)}
-          />
+          <Match key={match.matchId} match={match} />
         ))}
       </Card>
     </div>
