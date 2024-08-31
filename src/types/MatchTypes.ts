@@ -84,6 +84,6 @@ const MatchTypeNames: { [key: number]: string } = {
 };
 
 // Function to get name by id
-export function getMatchTypeNameById(id: number): string | undefined {
+export function getGameModeByMatchTypeId(id: number): string | undefined {
   return MatchTypeNames[id];
 }
