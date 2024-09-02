@@ -43,6 +43,27 @@ export async function getMythLeaderboard(
   }
 }
 
+export interface IGetPlayerStats {
+  playerId: number;
+  leaderboardId: number;
+}
+
+export async function getPlayerStats({
+  playerId,
+  leaderboardId,
+}: IGetPlayerStats): Promise<ILeaderboardPlayer | null> {
+  await getMongoClient();
+  try {
+    const result = await LeaderboardPlayerModel.findOne({
+      profile_id: playerId,
+      leaderboard_id: leaderboardId,
+    }).lean();
+    return result;
+  } catch (error: any) {
+    throw new Error("Error fetching player stats", error);
+  }
+}
+
 export type AoeApiPlayer = {
   gameId: string;
   userId: string | null;
