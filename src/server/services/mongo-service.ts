@@ -6,19 +6,30 @@ import { Filters } from "@/types/Filters";
 import { IRecordedGame } from "@/types/RecordedGame";
 import { PipelineStage } from "mongoose";
 
+export interface QueryOptions {
+  sort?: { [key: string]: 1 | -1 };
+  limit?: number;
+}
+
 export async function queryMythRecs(
   pageIndex: number,
   filters?: Filters,
-  sort?: { [key: string]: 1 | -1 }, // Adding sort parameter
+  queryOptions?: QueryOptions,
 ): Promise<IRecordedGame[]> {
-  const PAGE_SIZE = 16;
+  // Set a default page size or use limit from queryOptions if provided
+  const PAGE_SIZE = queryOptions?.limit ?? 16;
   const offset = pageIndex * PAGE_SIZE;
   await getMongoClient();
   let result;
+
   try {
     const aggregateQuery = buildFilterQuery(offset, PAGE_SIZE, filters);
-    const sortQuery = buildSortQuery(sort);
-    sortQuery && aggregateQuery.push(sortQuery);
+
+    if (queryOptions?.sort) {
+      const sortQuery = buildSortQuery(queryOptions.sort);
+      sortQuery && aggregateQuery.push(sortQuery);
+    }
+
     // Match rec with user data
     aggregateQuery.push({
       $lookup: {
@@ -36,12 +47,14 @@ export async function queryMythRecs(
         as: "userData",
       },
     });
+
     aggregateQuery.push({
       $unwind: {
         path: "$userData",
-        preserveNullAndEmptyArrays: true, // Keep original document even if userData is null or empty
+        preserveNullAndEmptyArrays: true,
       },
     });
+
     // Remove _id from all data so the frontend doesn't complain...could stringify if needed later
     aggregateQuery.push({
       $project: {
@@ -54,15 +67,15 @@ export async function queryMythRecs(
     result = await RecordedGameModel.aggregate(aggregateQuery).exec();
 
     result.map((rec) => {
-      rec.uploadedBy = rec?.userData?.name ?? rec?.uploadedBy ?? "Unknown"; // Fallback to uploadedBy if userData is null, this really just supports uploaded recs before auth was implemented
+      rec.uploadedBy = rec?.userData?.name ?? rec?.uploadedBy ?? "Unknown";
     });
+
     return result;
   } catch (err) {
     console.error(err);
     throw new Error("Failed to fetch Myth recordings: " + err);
   }
 }
-
 function buildFilterQuery(
   offset: number,
   PAGE_SIZE: number,

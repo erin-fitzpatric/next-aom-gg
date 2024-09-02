@@ -1,14 +1,18 @@
 "use server";
 import { Filters } from "@/types/Filters";
-import { listBuildNumbers, queryMythRecs } from "../services/mongo-service";
+import {
+  listBuildNumbers,
+  queryMythRecs,
+  QueryOptions,
+} from "../services/mongo-service";
 import { IRecordedGame } from "@/types/RecordedGame";
 
 export async function getMythRecs(
   page: number,
   filters?: Filters,
-  sort?: {},
+  queryOptions?: QueryOptions,
 ): Promise<IRecordedGame[]> {
-  const result = await queryMythRecs(page, filters, sort);
+  const result = await queryMythRecs(page, filters, queryOptions);
   return result;
 }
 

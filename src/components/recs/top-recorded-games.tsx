@@ -10,7 +10,7 @@ import RecTileCondensed from "@/components/recs/rec-tile-condensed";
 
 export default function TopRecordedGames() {
   const getMythRecsCallback = useCallback(
-    () => getMythRecs(0, {}, { downloadCount: -1 }),
+    () => getMythRecs(0, {}, { sort: { downloadCount: -1 }, limit: 4 }),
     [],
   );
   const [{ data: recs, loading: isLoading }, isInitialFetch] = useQuery(
