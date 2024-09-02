@@ -2,11 +2,11 @@
 
 import { SpinnerWithText } from "../spinner";
 import { Card } from "../ui/card";
-import RecTile from "./rec-tile";
 import { getMythRecs } from "@/server/controllers/mongo-controller";
 import Loading from "../loading";
 import { useQuery } from "@/utils/useQuery";
 import { useCallback } from "react";
+import RecTileCondensed from "@/components/recs/rec-tile-condensed";
 
 export default function TopRecordedGames() {
   // Set state
@@ -40,10 +40,10 @@ export default function TopRecordedGames() {
                   className="bg-secondary rounded-lg m-1 p-2 flex w-fit"
                 >
                   <div>
-                    <RecTile
+                    <RecTileCondensed
                       key={`rec-tile-${rec.gameGuid}`}
                       rec={rec}
-                    ></RecTile>
+                    ></RecTileCondensed>
                   </div>
                 </Card>
               ))}
