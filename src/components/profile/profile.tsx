@@ -3,21 +3,27 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
-import { createContext, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import Match from "./match";
 import { MatchHistory } from "@/types/MatchHistory";
+import { LeaderboardTypeValues } from "@/types/LeaderBoard";
+import { ILeaderboardPlayer } from "@/types/LeaderboardPlayer";
+import { SteamProfile } from "@/types/Steam";
+import Image from "next/image";
 
 export default function Profile() {
   const [matchHistoryStats, setMatchHistoryStats] = useState<
     MatchHistory["mappedMatchHistoryData"]
   >([]);
+  const [playerStats, setPlayerStats] = useState<ILeaderboardPlayer>();
   const [playerName, setPlayerName] = useState<string>("");
+  const [steamProfile, setSteamProfile] = useState<SteamProfile>();
+  const [leaderboardId, setLeaderboardId] = useState<number>(
+    LeaderboardTypeValues["1v1Supremacy"]
+  );
   const params = useParams();
   const { id } = params;
   const playerId = String(id);
-
-  // create a playerid context
-  const PlayerIdContext = createContext(playerId);
 
   const { status } = useSession(); // get the client session status
 
@@ -39,8 +45,34 @@ export default function Profile() {
     }
   };
 
+  const fetchPlayerStats = async (playerId: string) => {
+    const baseUrl = `/api/leaderboards/[${playerId}]`;
+    const params = new URLSearchParams({
+      leaderboardId: leaderboardId.toString(),
+      playerId,
+    });
+    const url = `${baseUrl}?${params.toString()}`;
+    const response = await fetch(url);
+    const data: ILeaderboardPlayer = await response.json();
+    setPlayerStats(data);
+    if (data.profileUrl) {
+      const steamId = data.profileUrl.split("/").pop();
+      if (steamId) {
+        fetchSteamProfile(steamId);
+      }
+    }
+  };
+
+  const fetchSteamProfile = async (steamId: string) => {
+    const url = `/api/steam/${steamId}`;
+    const response = await fetch(url);
+    const data: SteamProfile = await response.json();
+    setSteamProfile(data);
+  };
+
   useEffect(() => {
     fetchProfileData(playerId);
+    fetchPlayerStats(playerId);
   }, [playerId]);
 
   if (status === "loading") {
@@ -54,8 +86,28 @@ export default function Profile() {
   return (
     <div className="w-full">
       <CardHeader className="text-center">
-        <h1 className="text-4xl font-semibold text-gold">{playerName}</h1>
-        <h2 className="mt-2 font-semibold">Match History</h2>
+        {steamProfile && (
+          <Image
+            src={steamProfile.avatarfull}
+            alt="Profile Picture"
+            width={84}
+            height={84}
+            className="rounded-full mx-auto"
+          />
+        )}
+        <div className="flex mx-auto items-center space-x-4">
+          <div>
+            <h1 className="text-4xl font-semibold text-gold">{playerName}</h1>
+            {playerStats?.rank && (
+              <Card className="w-fit mx-auto p-2 mt-1">
+                <p className="text-lg font-semibold text-primary">
+                  1v1 Supremacy Rank: {String(playerStats.rank)} | Rating:{" "}
+                  {String(playerStats.rating)}
+                </p>
+              </Card>
+            )}
+          </div>
+        </div>
       </CardHeader>
       <Card className="w-full">
         {matchHistoryStats.map((match) => (
