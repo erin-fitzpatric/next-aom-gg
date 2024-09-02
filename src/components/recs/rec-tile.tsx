@@ -9,7 +9,12 @@ import { WindowContext } from "../provider/window-provider";
 import { IRecordedGame } from "@/types/RecordedGame";
 import { splitTeams } from "@/server/teams";
 
-export default function RecTile({ rec }: { rec: IRecordedGame }) {
+interface RecTileProps {
+  rec: IRecordedGame;
+  showMap?: boolean;
+}
+
+export default function RecTile({ rec, showMap = true }: RecTileProps) {
   const windowSize = useContext(WindowContext);
   // TODO - process team data
 
@@ -25,7 +30,7 @@ export default function RecTile({ rec }: { rec: IRecordedGame }) {
           teamIndex={teamIndex}
         />
       )
-    )
+    ),
   );
   const rightTeams = teamSplit.right.map(
     (teamIndex) => (
@@ -37,7 +42,7 @@ export default function RecTile({ rec }: { rec: IRecordedGame }) {
           teamIndex={teamIndex}
         />
       )
-    )
+    ),
   );
 
   return (
@@ -49,7 +54,7 @@ export default function RecTile({ rec }: { rec: IRecordedGame }) {
             {leftTeams}
             <div>
               <RecTitle gameTitle={rec.gameTitle || ""} />
-              <RecMap rec={rec} />
+              {showMap && <RecMap rec={rec} />}
             </div>
             {rightTeams}
           </div>
@@ -61,7 +66,7 @@ export default function RecTile({ rec }: { rec: IRecordedGame }) {
           <div className="flex flex-col">
             <div className="flex flex-col items-center">
               <RecTitle gameTitle={rec.gameTitle || ""} />
-              <RecMap rec={rec} />
+              {showMap && <RecMap rec={rec} />}
             </div>
             <div className="mx-auto pt-2">
               {leftTeams}
