@@ -2,6 +2,7 @@ import FeaturedYoutubeVideos from "@/components/featured-youtube-videos";
 import Leaderboard from "@/components/leaderboard";
 import RedditFeed from "@/components/reddit-feed";
 import { Metadata } from "next";
+import TopRecordedGames from "@/components/recs/top-recorded-games";
 
 export const metadata: Metadata = {
   title: "Home - AoM.gg",
@@ -16,9 +17,12 @@ export default function Home() {
       <div>
         <RedditFeed />
       </div>
-      <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0">
+      <div className="flex space-y-4 sm:space-y-0 gap-5">
+        <div className="flex-1">
+          <TopRecordedGames />
+        </div>
         {/* Ageofempires.com API */}
-        <div className="w-full sm:w-5/6 mb-4 sm:mb-0 sm:mr-4">
+        <div className="w-full sm:w-5/6 mb-4 sm:mb-0">
           <Leaderboard />
         </div>
         {/* Google API */}

@@ -10,15 +10,12 @@ interface RecTileProps {
   showMap?: boolean;
 }
 
-export default function RecTileCondensed({
-  rec,
-  showMap = true,
-}: RecTileProps) {
+export default function RecTileCondensed({ rec }: RecTileProps) {
   const { leftTeams, rightTeams } = useTeams(rec);
   console.log(rec.gameTitle);
   return (
-    <div className="flex flex-col gap-2">
-      <RecTitle gameTitle={rec.gameTitle || ""} className="self-center" />
+    <div className="flex flex-col gap-5">
+      <RecTitle gameTitle={rec.gameTitle} className="self-center" />
       <div className="flex">
         {leftTeams}
         <div className="self-center">VS</div>
