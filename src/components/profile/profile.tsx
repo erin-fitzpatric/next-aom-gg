@@ -64,11 +64,7 @@ export default function Profile() {
   };
 
   const fetchSteamProfile = async (steamId: string) => {
-    const baseUrl = `/api/steam/[${steamId}]`;
-    const params = new URLSearchParams({
-      id: steamId,
-    });
-    const url = `${baseUrl}?${params.toString()}`;
+    const url = `/api/steam/${steamId}`;
     const response = await fetch(url);
     const data: SteamProfile = await response.json();
     setSteamProfile(data);

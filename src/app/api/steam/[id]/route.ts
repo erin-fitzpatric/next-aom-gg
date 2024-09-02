@@ -2,16 +2,24 @@ import { fetchSteamProfile } from "./service";
 
 export const GET = async function GET(req: Request) {
   try {
-    const { searchParams } = new URL(req.url);
+    // Extract the `id` from the URL path
+    const url = new URL(req.url);
+    const id = url.pathname.split("/").pop();
 
-    const steamId = searchParams.get("id") as string;
-
-    const leaderboardData = await fetchSteamProfile(steamId);
-    return Response.json(leaderboardData);
+    // Fetch the Steam profile using the `id`
+    const leaderboardData = await fetchSteamProfile(id as string);
+    
+    // Return the fetched data
+    return new Response(JSON.stringify(leaderboardData), {
+      status: 200,
+      headers: {
+        'Content-Type': 'application/json',
+      },
+    });
   } catch (error: any) {
-    return Response.json(
-      { error: "Error fetching steam profile" },
-      { status: 500 }
+    return new Response(
+      JSON.stringify({ error: "Error fetching steam profile" }),
+      { status: 500, headers: { 'Content-Type': 'application/json' } }
     );
   }
 };
