@@ -41,7 +41,6 @@ export default function TopRecordedGames() {
                 >
                   <div>
                     <RecTile
-                      showMap={false}
                       key={`rec-tile-${rec.gameGuid}`}
                       rec={rec}
                     ></RecTile>

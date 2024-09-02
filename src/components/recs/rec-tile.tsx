@@ -1,13 +1,12 @@
 "use client";
 
-import TeamTile from "./team-tile";
 import RecTitle from "./rec-title";
 import RecMap from "./rec-map";
 import RecFooter from "./rec-footer";
 import { useContext } from "react";
 import { WindowContext } from "../provider/window-provider";
 import { IRecordedGame } from "@/types/RecordedGame";
-import { splitTeams } from "@/server/teams";
+import { useTeams } from "@/hooks/useTeams";
 
 interface RecTileProps {
   rec: IRecordedGame;
@@ -16,34 +15,7 @@ interface RecTileProps {
 
 export default function RecTile({ rec, showMap = true }: RecTileProps) {
   const windowSize = useContext(WindowContext);
-  // TODO - process team data
-
-  const teamSplit = splitTeams(rec);
-  let teamCount = 0;
-  const leftTeams = teamSplit.left.map(
-    (teamIndex) => (
-      teamCount++,
-      (
-        <TeamTile
-          key={`${rec.gameGuid}-${teamCount}`}
-          recData={rec}
-          teamIndex={teamIndex}
-        />
-      )
-    ),
-  );
-  const rightTeams = teamSplit.right.map(
-    (teamIndex) => (
-      teamCount++,
-      (
-        <TeamTile
-          key={`${rec.gameGuid}-${teamCount}`}
-          recData={rec}
-          teamIndex={teamIndex}
-        />
-      )
-    ),
-  );
+  const { leftTeams, rightTeams } = useTeams(rec);
 
   return (
     <div>
