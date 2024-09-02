@@ -8,7 +8,8 @@ import { PipelineStage } from "mongoose";
 
 export async function queryMythRecs(
   pageIndex: number,
-  filters?: Filters
+  filters?: Filters,
+  sort?: { [key: string]: 1 | -1 }, // Adding sort parameter
 ): Promise<IRecordedGame[]> {
   const PAGE_SIZE = 16;
   const offset = pageIndex * PAGE_SIZE;
@@ -16,6 +17,8 @@ export async function queryMythRecs(
   let result;
   try {
     const aggregateQuery = buildFilterQuery(offset, PAGE_SIZE, filters);
+    const sortQuery = buildSortQuery(sort);
+    sortQuery && aggregateQuery.push(sortQuery);
     // Match rec with user data
     aggregateQuery.push({
       $lookup: {
@@ -51,7 +54,7 @@ export async function queryMythRecs(
     result = await RecordedGameModel.aggregate(aggregateQuery).exec();
 
     result.map((rec) => {
-      rec.uploadedBy = rec?.userData?.name ?? rec?.uploadedBy ?? "Unknown"; // Fallback to uploadedBy if userData is null, this really just suppports uploaded recs before auth was implemented
+      rec.uploadedBy = rec?.userData?.name ?? rec?.uploadedBy ?? "Unknown"; // Fallback to uploadedBy if userData is null, this really just supports uploaded recs before auth was implemented
     });
     return result;
   } catch (err) {
@@ -63,7 +66,7 @@ export async function queryMythRecs(
 function buildFilterQuery(
   offset: number,
   PAGE_SIZE: number,
-  filters?: Filters
+  filters?: Filters,
 ): PipelineStage[] {
   const aggregateQuery = <PipelineStage[]>[];
   if (filters) {
@@ -108,9 +111,24 @@ function buildFilterQuery(
   aggregateQuery.push(
     { $sort: { createdAt: -1 } },
     { $skip: offset },
-    { $limit: PAGE_SIZE }
+    { $limit: PAGE_SIZE },
   );
   return aggregateQuery;
+}
+
+function buildSortQuery(sort?: {
+  [key: string]: 1 | -1;
+}): PipelineStage | undefined {
+  if (!sort) {
+    return undefined; // Return nothing if there is no sort params
+  }
+
+  const formattedSort: { [key: string]: 1 | -1 } = {};
+  Object.keys(sort).forEach((key) => {
+    formattedSort[key] = sort[key];
+  });
+
+  return { $sort: formattedSort };
 }
 
 export async function listBuildNumbers(): Promise<number[]> {
@@ -131,7 +149,7 @@ export async function incrementDownloadCount(gameGuid: string): Promise<void> {
   try {
     await RecordedGameModel.updateOne(
       { gameGuid },
-      { $inc: { downloadCount: 1 } }
+      { $inc: { downloadCount: 1 } },
     );
   } catch (err) {
     console.error(err);
