@@ -18,7 +18,7 @@ export default function Home() {
         <RedditFeed />
       </div>
       <div className="flex space-y-4 sm:space-y-0 gap-5">
-        <div className="flex-1">
+        <div className="w-[400px]">
           <TopRecordedGames />
         </div>
         {/* Ageofempires.com API */}
@@ -26,7 +26,7 @@ export default function Home() {
           <Leaderboard />
         </div>
         {/* Google API */}
-        <div className="flex-1">
+        <div className="w-[400px]">
           <FeaturedYoutubeVideos />
         </div>
       </div>

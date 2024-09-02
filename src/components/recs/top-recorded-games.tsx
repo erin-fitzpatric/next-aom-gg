@@ -33,12 +33,12 @@ export default function TopRecordedGames() {
   }
 
   return (
-    <Card className="p-4">
+    <Card className="py-4">
       <h2 className="card-header mb-5">Top Recorded Games</h2>
 
       {/* Replay Gallery */}
       <div>
-        <div className="flex flex-row flex-wrap justify-center gap-2">
+        <div className="flex flex-row flex-wrap justify-center gap-4">
           {recs?.map((rec) => (
             <Card
               key={rec.gameGuid}
