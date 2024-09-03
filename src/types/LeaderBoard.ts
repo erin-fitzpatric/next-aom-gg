@@ -8,3 +8,10 @@ export const LeaderboardTypeValues: Record<LeaderboardType, number> = {
   'Deathmatch': 3,
   'TeamDeathmatch': 4,
 };
+
+export const LeaderboardTypeNames: Record<number, string> = {
+  1: '1v1 Supremacy',
+  2: 'Team Supremacy',
+  3: 'Deathmatch',
+  4: 'Team Deathmatch',
+};

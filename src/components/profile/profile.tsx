@@ -7,15 +7,16 @@ import { useEffect, useState } from "react";
 import Match from "./match";
 import { MatchHistory } from "@/types/MatchHistory";
 import { LeaderboardTypeValues } from "@/types/LeaderBoard";
-import { ILeaderboardPlayer } from "@/types/LeaderboardPlayer";
 import { SteamProfile } from "@/types/Steam";
 import Image from "next/image";
+import StatCard from "./statCard";
+import { ILeaderboardPlayer } from "@/types/LeaderboardPlayer";
 
 export default function Profile() {
   const [matchHistoryStats, setMatchHistoryStats] = useState<
     MatchHistory["mappedMatchHistoryData"]
   >([]);
-  const [playerStats, setPlayerStats] = useState<ILeaderboardPlayer>();
+  const [playerStats, setPlayerStats] = useState<ILeaderboardPlayer[]>([]);
   const [playerName, setPlayerName] = useState<string>("");
   const [steamProfile, setSteamProfile] = useState<SteamProfile>();
   const [leaderboardId, setLeaderboardId] = useState<number>(
@@ -53,10 +54,10 @@ export default function Profile() {
     });
     const url = `${baseUrl}?${params.toString()}`;
     const response = await fetch(url);
-    const data: ILeaderboardPlayer = await response.json();
+    const data: ILeaderboardPlayer[] = await response.json();
     setPlayerStats(data);
-    if (data.profileUrl) {
-      const steamId = data.profileUrl.split("/").pop();
+    if (data.length > 0) {
+      const steamId = data[0].profileUrl.split("/").pop();
       if (steamId) {
         fetchSteamProfile(steamId);
       }
@@ -85,7 +86,7 @@ export default function Profile() {
 
   return (
     <div className="w-full">
-      <CardHeader className="text-center">
+      <CardHeader className="w-full text-center">
         {steamProfile && (
           <Image
             src={steamProfile.avatarfull}
@@ -95,20 +96,19 @@ export default function Profile() {
             className="rounded-full mx-auto"
           />
         )}
-        <div className="flex mx-auto items-center space-x-4">
-          <div>
-            <h1 className="text-4xl font-semibold text-gold">{playerName}</h1>
-            {playerStats?.rank && (
-              <Card className="w-fit mx-auto p-2 mt-1">
-                <p className="text-lg font-semibold text-primary">
-                  1v1 Supremacy Rank: {String(playerStats.rank)} | Rating:{" "}
-                  {String(playerStats.rating)}
-                </p>
-              </Card>
-            )}
-          </div>
-        </div>
       </CardHeader>
+      <div className="w-full flex flex-col items-center">
+        <h1 className="text-4xl font-semibold text-gold">{playerName}</h1>
+        <div className="w-full my-4">
+          {playerStats &&
+            playerStats.map((stat) => (
+              <div key={Number(stat.leaderboard_id)} className="w-full">
+                <StatCard playerStats={stat} />
+              </div>
+            ))}
+        </div>
+      </div>
+
       <Card className="w-full">
         {matchHistoryStats.map((match) => (
           <Match key={match.matchId} match={match} />
