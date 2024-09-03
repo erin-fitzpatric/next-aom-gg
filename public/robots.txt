@@ -1,0 +1,10 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /admin
+
+# Host
+Host: https://www.aom.gg
+
+# Sitemaps
+Sitemap: https://www.aom.gg/sitemap.xml

@@ -23,22 +23,6 @@ export default function ResourcesPage() {
                     </div>
                   </td>
                 </tr>
-                <tr className="bg-inherit">
-                  <td className="p-2">
-                    <div className="flex items-center justify-between">
-                      <span>Boit&#39;s AoM Retold Hotkeys</span>
-                      <DownloadFile fileName={"BoitLocalKeybindings.xml"} />
-                    </div>
-                  </td>
-                </tr>
-                <tr className="bg-muted">
-                  <td className="p-2">
-                    <div className="flex items-center justify-between">
-                      <span>Drongo&#39;s AoM Retold Hotkeys</span>
-                      <DownloadFile fileName={"DrongoLocalKeybindings.xml"} />
-                    </div>
-                  </td>
-                </tr>
               </tbody>
             </table>
           </div>
