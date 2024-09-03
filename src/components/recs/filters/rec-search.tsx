@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { getMythRecs } from "@/server/controllers/mongo-controller";
-import React, { useState } from "react";
+import React, { useEffect, useRef, useState } from "react";
 import { FilterProps } from "@/types/Filters";
 import { debounce } from "lodash";
 
@@ -9,23 +9,29 @@ export default function RecSearch({
   setIsLoading,
   filters,
   setFilters,
+  query,
+  setQuery,
 }: FilterProps) {
-  const [query, setQuery] = useState("");
+  // Create a ref to store the debounced function
+  const debouncedHandleInputChange = useRef(
+    debounce((searchQueryString: string) => {
+      setFilters(prevFilters => ({ ...prevFilters, searchQueryString }));
+    }, 500) // Debounce delay
+  ).current;
 
-  // Debounced version of the handleInputChange function
-  const debouncedHandleInputChange = debounce(
-    async (searchQueryString: string) => {
+  // Effect to handle API call when filters change
+  useEffect(() => {
+    const fetchRecs = async () => {
       setIsLoading(true);
-      const updatedFilters = { ...filters, searchQueryString };
-      setFilters(updatedFilters);
-      const recs = await getMythRecs(0, updatedFilters);
+      const recs = await getMythRecs(0, filters);
       if (recs) {
         setRecs(recs);
       }
       setIsLoading(false);
-    },
-    300
-  ); // Adjust the debounce delay as needed
+    };
+
+    fetchRecs();
+  }, [filters, setRecs, setIsLoading]); // Run effect when filters change
 
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
     const searchQueryString = e.target.value;
@@ -36,7 +42,7 @@ export default function RecSearch({
   }
 
   return (
-    <div className="w-[240px] text-primary ">
+    <div className="w-full sm:w-[240px] text-primary">
       <Input
         type="text"
         placeholder="Search..."

@@ -19,6 +19,7 @@ export enum MajorGods {
   Kronos = 10,
   Oranos = 11,
   Gaia = 12,
+  Freyr = 13
 }
 
 const MajorGodsByIndex = new Map<number, MajorGodData>([
@@ -111,6 +112,13 @@ const MajorGodsByIndex = new Map<number, MajorGodData>([
     {
       name: "Gaia",
       portraitPath: "/gods/atlantean/major-gods/gaia_icon.png",
+    },
+  ],
+  [
+    13,
+    {
+      name: "Freyr",
+      portraitPath: "/gods/norse/major-gods/freyr_icon.png",
     },
   ],
 ]);

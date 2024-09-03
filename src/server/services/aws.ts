@@ -29,7 +29,7 @@ const { NEXT_PUBLIC_S3_REC_BUCKET_NAME } = process.env;
 type UploadS3RecParams = {
   file: File;
   metadata: RecordedGameMetadata;
-  userName: string; // depprecate this and use login info l8ter
+  userId: string;
 };
 
 type UploadS3RecResponse = {
@@ -40,15 +40,15 @@ type UploadS3RecResponse = {
 export async function uploadRecToS3(
   uploadS3RecParams: UploadS3RecParams
 ): Promise<UploadS3RecResponse> {
-  const { file, metadata, userName } = uploadS3RecParams;
+  const { file, metadata, userId } = uploadS3RecParams;
   const { gameGuid } = metadata;
 
   if (!NEXT_PUBLIC_S3_REC_BUCKET_NAME) {
     throw new Error("S3 bucket not found");
   }
 
-  // verify file size is smaller than 15,000kb
-  if (file.size > 15000000) {
+  // verify file size is smaller than 30,000kb
+  if (file.size > 30000000) {
     console.log(`file ${file.name} size: ${file.size} is too large`);
     throw new Error("File size too large");
   }
@@ -62,7 +62,7 @@ export async function uploadRecToS3(
     Key: `${gameGuid}.mythrec`,
     Body: body,
     Metadata: {
-      "uploaded-by": userName,
+      "uploaded-by-user-id": userId,
     },
   };
 
@@ -109,15 +109,24 @@ export async function listS3Recs(
   }
 }
 
-export async function downloadS3File(
+export async function downloadS3RecFile(
   rec: IRecordedGame
 ): Promise<MythRecDownloadLink> {
-  const { gameTitle, gameGuid } = rec;
+  let { gameTitle, gameGuid } = rec;
+
+  const CURRENT_DATE = Date.now().toString();
+  if (gameTitle === "") {
+    gameTitle = CURRENT_DATE;
+  }
+  // URL-encode the gameTitle to handle special characters
+  const encodedGameTitle = encodeURIComponent(gameTitle || CURRENT_DATE);
+
   const params = {
     Bucket: NEXT_PUBLIC_S3_REC_BUCKET_NAME || "",
     Key: gameGuid + ".mythrec",
-    ResponseContentDisposition: `attachment; filename="${gameTitle}.mythrec"`,
+    ResponseContentDisposition: `attachment; filename="${encodedGameTitle}.mythrec"`,
   };
+
   try {
     const command = new GetObjectCommand(params);
     const signedUrl = await getSignedUrl(s3Client, command, {
@@ -126,7 +135,44 @@ export async function downloadS3File(
     return {
       signedUrl,
     };
-  } catch (err) {
-    throw new Error("Error downloading file");
+  } catch (err: any) {
+    throw new Error("Error downloading file", err.message);
+  }
+}
+
+type DownloadS3FileResponse = {
+  signedUrl: string;
+};
+
+type DownloadS3FileParams = {
+  key: string;
+  bucket: string;
+  filename?: string;
+};
+
+export async function downloadS3File(
+  { key, bucket, filename }: DownloadS3FileParams
+): Promise<DownloadS3FileResponse> {
+  const CURRENT_DATE = Date.now().toString();
+
+  // URL-encode the gameTitle to handle special characters
+  const encodedGameTitle = encodeURIComponent(filename || CURRENT_DATE);
+
+  const params = {
+    Bucket: bucket || "",
+    Key: key,
+    ResponseContentDisposition: `attachment; filename="${encodedGameTitle}"`,
+  };
+
+  try {
+    const command = new GetObjectCommand(params);
+    const signedUrl = await getSignedUrl(s3Client, command, {
+      expiresIn: 3600,
+    });
+    return {
+      signedUrl,
+    };
+  } catch (err: any) {
+    throw new Error("Error downloading file", err.message);
   }
 }

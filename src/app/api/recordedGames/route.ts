@@ -1,20 +1,25 @@
 import uploadRec from "@/server/controllers/upload-rec-controller";
 import { Errors } from "@/utils/errors";
+import { auth } from "@/auth";
 
-export async function POST(request: Request) {
+export const POST = async function POST(request: Request) {
   try {
+    // Check if user is authenticated - move this to middleware later
+    const sesssion = await auth();
+    if (!sesssion?.user?.id) return Response.json({ error: "Not authenticated" }, { status: 401 });
+
     const formData = await request.formData();
-    const userName = formData.get("userName") as string;
+    const userId = sesssion.user.id;
     const file = formData.get("file") as File;
     const gameTitle = formData.get("gameTitle") as string;
 
     console.log("uploading rec");
-    const gameData = await uploadRec({ userName, file, gameTitle });
-    return Response.json({ gameData });
+    await uploadRec({ userId, file, gameTitle });
+    return Response.json({ status: 200 });
   } catch (error: any) {
     if (error.message === Errors.UNIQUE_KEY_VIOLATION) {
       return Response.json({ error: Errors.UNIQUE_KEY_VIOLATION }, { status: 400 });
-    } else if (error.message = Errors.UNSUPPORTED_GAME_SIZE) {
+    } else if (error.message === Errors.UNSUPPORTED_GAME_SIZE) {
       return Response.json({ error: Errors.UNSUPPORTED_GAME_SIZE }, { status: 400 });
     }
     else {
@@ -22,4 +27,4 @@ export async function POST(request: Request) {
       return Response.json({ error: "Error uploading rec" }, { status: 500 });
     }
   }
-}
+};

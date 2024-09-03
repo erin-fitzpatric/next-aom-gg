@@ -22,11 +22,3 @@ export function recMetadataSchemaHelper<T extends (...args: any) => any>(
   }
   return obj;
 }
-
-export function removeMongoObjectID<T>(records: Array<T & {_id?: mongoose.Types.ObjectId}>): void
-{
-  for (const obj of records)
-  {
-    delete obj._id;
-  }
-}

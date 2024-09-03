@@ -51,7 +51,7 @@ export function DataTablePagination<TData>({
       {/* Center-aligned content */}
       <div className="flex items-center justify-center text-sm font-medium flex-1">
         Page {table.getState().pagination.pageIndex + 1} of{" "}
-        {table.getPageCount()}
+        {table.getPageCount() || 1}
       </div>
 
       {/* Right-aligned content */}

@@ -3,11 +3,10 @@ import { RecordedGameMetadata } from "@/types/RecordedGameParser";
 import getMongoClient from "@/db/mongo/mongo-client";
 import RecordedGameModel from "@/db/mongo/model/RecordedGameModel";
 import { uploadRecToS3 } from "../services/aws";
-import { MongooseError } from "mongoose";
 
 export type UploadRecParams = {
   file: File;
-  userName: string;
+  userId: string;
   gameTitle: string;
 };
 
@@ -22,27 +21,22 @@ export function mapRecGameMetadata(data: RecordedGameMetadata) {
 export default async function uploadRec(
   params: UploadRecParams
 ): Promise<void> {
-  const { file, userName, gameTitle } = params;
+  const { file, userId, gameTitle } = params;
 
   // 1) parse file
   const recGameMetadata: RecordedGameMetadata = await parseRecordedGameMetadata(
     file
   );
-  if (recGameMetadata.gameNumPlayers > 2) {
-    throw new Error("Only 2 player games are supported");
-  }
   const mappedRecGameMetadata = mapRecGameMetadata(recGameMetadata); //cleanup the data
 
   // 2) save file to mongo, if game guid doesn't already exists
-  let result;
   await getMongoClient();
   try {
-    const inserted = await RecordedGameModel.create({
+    await RecordedGameModel.create({
       ...mappedRecGameMetadata,
-      uploadedBy: userName,
+      uploadedByUserId: userId,
       gameTitle,
     });
-    result = inserted.toJSON();
   } catch (error: any) {
     if (error.code === 11000) {
       console.warn("Rec already uploaded to Mongo");
@@ -60,7 +54,7 @@ export default async function uploadRec(
       metadata: {
         ...recGameMetadata,
       },
-      userName,
+      userId,
     });
   } catch (error) {
     console.error("Error uploading to s3: ", error);

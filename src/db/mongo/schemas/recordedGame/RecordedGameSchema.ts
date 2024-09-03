@@ -15,12 +15,16 @@ const Schema = mongoose.Schema;
 const RecordedGameSchema = new Schema(
   {
     downloadCount: { type: Number, required: true, default: 0 },
-    uploadedBy: { type: String, required: true },
-    gameTitle: { type: String, required: true },
+    uploadedBy: { type: String, required: false }, // deprecated by uploadedByUserId
+    uploadedByUserId: { type: String, required: true },
+    gameTitle: { type: String, required: false },
     playerData: { type: [PlayerDataSchema], required: true },
     buildNumber: { type: Number, required: true, default: 0 },
     buildString: { type: String, required: true, default: "" },
+    teamsFormatString: {type: String, required: false, default:""},
     parsedAt: { type: Date, required: true},
+    version: { type: Number, required: false, default: 0},
+    gameLength: {type: Number, required: false, default: 0},
     teams: { type: [[Number]]},
     ...recMetadataSchemaHelper(RecordedGameMetadataBooleansRequired, Boolean, false, true),
     ...recMetadataSchemaHelper(RecordedGameMetadataStringsRequired, String, "", true),

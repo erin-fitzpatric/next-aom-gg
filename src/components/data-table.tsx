@@ -1,5 +1,6 @@
 "use client";
 
+import React from "react";
 import {
   ColumnDef,
   ColumnFiltersState,
@@ -7,7 +8,6 @@ import {
   getCoreRowModel,
   getFilteredRowModel,
   useReactTable,
-  SortingState,
   getSortedRowModel,
   getPaginationRowModel,
 } from "@tanstack/react-table";
@@ -21,23 +21,34 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import React from "react";
-import { Input } from "./ui/input";
 import { DataTablePagination } from "./data-table-pagination";
+import { useRouter } from "next/navigation";
+import { LeaderboardType } from "@/types/LeaderBoard";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
   data: TData[];
+  onPaginationChange: any;
+  pageCount: number;
+  pagination: PaginationState;
 }
+
+export type PaginationState = {
+  pageIndex: number;
+  pageSize: number;
+};
 
 export function DataTable<TData, TValue>({
   columns,
   data,
+  onPaginationChange,
+  pageCount,
+  pagination,
 }: DataTableProps<TData, TValue>) {
+  const router = useRouter();
   const [columnFilters, setColumnFilters] = React.useState<ColumnFiltersState>(
     []
   );
-  const [sorting, setSorting] = React.useState<SortingState>([]);
 
   const table = useReactTable({
     data,
@@ -45,27 +56,22 @@ export function DataTable<TData, TValue>({
     getCoreRowModel: getCoreRowModel(),
     onColumnFiltersChange: setColumnFilters,
     getFilteredRowModel: getFilteredRowModel(),
-    state: {
-      columnFilters,
-      sorting,
-    },
-    onSortingChange: setSorting,
     getSortedRowModel: getSortedRowModel(),
     getPaginationRowModel: getPaginationRowModel(),
+    manualPagination: true,
+    onPaginationChange,
+    state: { pagination, columnFilters },
+    pageCount,
   });
+
+  const handleRowClick = (row: any) => {
+    const route = `/profile/${row.original.profile_id}`;
+    router.push(route);
+  };
 
   return (
     <>
       <div className="flex flex-col items-center">
-        <Input
-          placeholder="Filter players..."
-          value={(table.getColumn("name")?.getFilterValue() as string) ?? ""}
-          onChange={(event) =>
-            table.getColumn("name")?.setFilterValue(event.target.value)
-          }
-          className="max-w-sm"
-        />
-        <div className="rounded-md border"></div>
         <Table>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
@@ -91,6 +97,8 @@ export function DataTable<TData, TValue>({
                 <TableRow
                   key={row.id}
                   data-state={row.getIsSelected() && "selected"}
+                  onClick={() => handleRowClick(row)}
+                  className="cursor-pointer"
                 >
                   {row.getVisibleCells().map((cell) => (
                     <TableCell key={cell.id}>

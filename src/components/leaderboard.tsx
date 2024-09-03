@@ -1,1083 +1,170 @@
-import { Player } from "@/types/Player";
+"use client";
+import { useCallback, useEffect, useState, useMemo } from "react";
 import { columns } from "./columns";
 import { DataTable } from "./data-table";
 import { Card } from "./ui/card";
+import { Input } from "./ui/input";
+import { debounce } from "@/utils/debounce";
+import { Spinner } from "./spinner";
+import { ILeaderboardPlayer } from "@/types/LeaderboardPlayer";
+import { LeaderboardType, LeaderboardTypeValues } from "@/types/LeaderBoard";
 
-async function getData(): Promise<Player[]> {
-  // Fetch data from your API here.
-  return [
-    {
-      id: "1",
-      name: "FitzBro",
-      rank: 1,
-      winPercent: 0.8,
-      totalGames: 132,
-    },
-    {
-      id: "2",
-      name: "Drongo",
-      rank: 2,
-      winPercent: 0.75,
-      totalGames: 100,
-    },
-    {
-      id: "3",
-      name: "IamMagic_",
-      rank: 3,
-      winPercent: 1.0,
-      totalGames: 7,
-    },
-    {
-      id: "4",
-      name: "Mista",
-      rank: 4,
-      winPercent: 0.65,
-      totalGames: 80,
-    },
-    {
-      id: "5",
-      name: "Nomad",
-      rank: 5,
-      winPercent: 0.6,
-      totalGames: 70,
-    },
-    {
-      id: "6",
-      name: "gks_aoe",
-      rank: 6,
-      winPercent: 0.55,
-      totalGames: 60,
-    },
-    {
-      id: "7",
-      name: "Nicov",
-      rank: 7,
-      winPercent: 0.5,
-      totalGames: 50,
-    },
-    {
-      id: "8",
-      name: "Liereyy",
-      rank: 8,
-      winPercent: 0.45,
-      totalGames: 40,
-    },
-    {
-      id: "9",
-      name: "Tatoh",
-      rank: 9,
-      winPercent: 0.4,
-      totalGames: 30,
-    },
-    {
-      id: "10",
-      name: "Hera",
-      rank: 10,
-      winPercent: 0.35,
-      totalGames: 20,
-    },
-    {
-      id: "11",
-      name: "Aussie_Drongo",
-      rank: 11,
-      winPercent: 0.3,
-      totalGames: 10,
-    },
-    {
-      id: "1",
-      name: "FitzBro",
-      rank: 1,
-      winPercent: 0.8,
-      totalGames: 132,
-    },
-    {
-      id: "2",
-      name: "joeybadz",
-      rank: 2,
-      winPercent: 0.75,
-      totalGames: 100,
-    },
-    {
-      id: "3",
-      name: "WeakGameHiders",
-      rank: 3,
-      winPercent: 0.7,
-      totalGames: 90,
-    },
-    {
-      id: "4",
-      name: "Viper",
-      rank: 4,
-      winPercent: 0.65,
-      totalGames: 80,
-    },
-    {
-      id: "5",
-      name: "Hera",
-      rank: 5,
-      winPercent: 0.6,
-      totalGames: 70,
-    },
-    {
-      id: "6",
-      name: "MbL",
-      rank: 6,
-      winPercent: 0.55,
-      totalGames: 60,
-    },
-    {
-      id: "7",
-      name: "Nicov",
-      rank: 7,
-      winPercent: 0.5,
-      totalGames: 50,
-    },
-    {
-      id: "8",
-      name: "Liereyy",
-      rank: 8,
-      winPercent: 0.45,
-      totalGames: 40,
-    },
-    {
-      id: "9",
-      name: "Tatoh",
-      rank: 9,
-      winPercent: 0.4,
-      totalGames: 30,
-    },
-    {
-      id: "10",
-      name: "Hera",
-      rank: 10,
-      winPercent: 0.35,
-      totalGames: 20,
-    },
-    {
-      id: "1",
-      name: "FitzBro",
-      rank: 1,
-      winPercent: 0.8,
-      totalGames: 132,
-    },
-    {
-      id: "2",
-      name: "joeybadz",
-      rank: 2,
-      winPercent: 0.75,
-      totalGames: 100,
-    },
-    {
-      id: "3",
-      name: "WeakGameHiders",
-      rank: 3,
-      winPercent: 0.7,
-      totalGames: 90,
-    },
-    {
-      id: "4",
-      name: "Viper",
-      rank: 4,
-      winPercent: 0.65,
-      totalGames: 80,
-    },
-    {
-      id: "5",
-      name: "Hera",
-      rank: 5,
-      winPercent: 0.6,
-      totalGames: 70,
-    },
-    {
-      id: "6",
-      name: "MbL",
-      rank: 6,
-      winPercent: 0.55,
-      totalGames: 60,
-    },
-    {
-      id: "7",
-      name: "Nicov",
-      rank: 7,
-      winPercent: 0.5,
-      totalGames: 50,
-    },
-    {
-      id: "8",
-      name: "Liereyy",
-      rank: 8,
-      winPercent: 0.45,
-      totalGames: 40,
-    },
-    {
-      id: "9",
-      name: "Tatoh",
-      rank: 9,
-      winPercent: 0.4,
-      totalGames: 30,
-    },
-    {
-      id: "10",
-      name: "Hera",
-      rank: 10,
-      winPercent: 0.35,
-      totalGames: 20,
-    },
-    {
-      id: "1",
-      name: "FitzBro",
-      rank: 1,
-      winPercent: 0.8,
-      totalGames: 132,
-    },
-    {
-      id: "2",
-      name: "joeybadz",
-      rank: 2,
-      winPercent: 0.75,
-      totalGames: 100,
-    },
-    {
-      id: "3",
-      name: "WeakGameHiders",
-      rank: 3,
-      winPercent: 0.7,
-      totalGames: 90,
-    },
-    {
-      id: "4",
-      name: "Viper",
-      rank: 4,
-      winPercent: 0.65,
-      totalGames: 80,
-    },
-    {
-      id: "5",
-      name: "Hera",
-      rank: 5,
-      winPercent: 0.6,
-      totalGames: 70,
-    },
-    {
-      id: "6",
-      name: "MbL",
-      rank: 6,
-      winPercent: 0.55,
-      totalGames: 60,
-    },
-    {
-      id: "7",
-      name: "Nicov",
-      rank: 7,
-      winPercent: 0.5,
-      totalGames: 50,
-    },
-    {
-      id: "8",
-      name: "Liereyy",
-      rank: 8,
-      winPercent: 0.45,
-      totalGames: 40,
-    },
-    {
-      id: "9",
-      name: "Tatoh",
-      rank: 9,
-      winPercent: 0.4,
-      totalGames: 30,
-    },
-    {
-      id: "10",
-      name: "Hera",
-      rank: 10,
-      winPercent: 0.35,
-      totalGames: 20,
-    },
-    {
-      id: "1",
-      name: "FitzBro",
-      rank: 1,
-      winPercent: 0.8,
-      totalGames: 132,
-    },
-    {
-      id: "2",
-      name: "joeybadz",
-      rank: 2,
-      winPercent: 0.75,
-      totalGames: 100,
-    },
-    {
-      id: "3",
-      name: "WeakGameHiders",
-      rank: 3,
-      winPercent: 0.7,
-      totalGames: 90,
-    },
-    {
-      id: "4",
-      name: "Viper",
-      rank: 4,
-      winPercent: 0.65,
-      totalGames: 80,
-    },
-    {
-      id: "5",
-      name: "Hera",
-      rank: 5,
-      winPercent: 0.6,
-      totalGames: 70,
-    },
-    {
-      id: "6",
-      name: "MbL",
-      rank: 6,
-      winPercent: 0.55,
-      totalGames: 60,
-    },
-    {
-      id: "7",
-      name: "Nicov",
-      rank: 7,
-      winPercent: 0.5,
-      totalGames: 50,
-    },
-    {
-      id: "8",
-      name: "Liereyy",
-      rank: 8,
-      winPercent: 0.45,
-      totalGames: 40,
-    },
-    {
-      id: "9",
-      name: "Tatoh",
-      rank: 9,
-      winPercent: 0.4,
-      totalGames: 30,
-    },
-    {
-      id: "10",
-      name: "Hera",
-      rank: 10,
-      winPercent: 0.35,
-      totalGames: 20,
-    },
-    {
-      id: "1",
-      name: "FitzBro",
-      rank: 1,
-      winPercent: 0.8,
-      totalGames: 132,
-    },
-    {
-      id: "2",
-      name: "joeybadz",
-      rank: 2,
-      winPercent: 0.75,
-      totalGames: 100,
-    },
-    {
-      id: "3",
-      name: "WeakGameHiders",
-      rank: 3,
-      winPercent: 0.7,
-      totalGames: 90,
-    },
-    {
-      id: "4",
-      name: "Viper",
-      rank: 4,
-      winPercent: 0.65,
-      totalGames: 80,
-    },
-    {
-      id: "5",
-      name: "Hera",
-      rank: 5,
-      winPercent: 0.6,
-      totalGames: 70,
-    },
-    {
-      id: "6",
-      name: "MbL",
-      rank: 6,
-      winPercent: 0.55,
-      totalGames: 60,
-    },
-    {
-      id: "7",
-      name: "Nicov",
-      rank: 7,
-      winPercent: 0.5,
-      totalGames: 50,
-    },
-    {
-      id: "8",
-      name: "Liereyy",
-      rank: 8,
-      winPercent: 0.45,
-      totalGames: 40,
-    },
-    {
-      id: "9",
-      name: "Tatoh",
-      rank: 9,
-      winPercent: 0.4,
-      totalGames: 30,
-    },
-    {
-      id: "10",
-      name: "Hera",
-      rank: 10,
-      winPercent: 0.35,
-      totalGames: 20,
-    },
-    {
-      id: "1",
-      name: "FitzBro",
-      rank: 1,
-      winPercent: 0.8,
-      totalGames: 132,
-    },
-    {
-      id: "2",
-      name: "joeybadz",
-      rank: 2,
-      winPercent: 0.75,
-      totalGames: 100,
-    },
-    {
-      id: "3",
-      name: "WeakGameHiders",
-      rank: 3,
-      winPercent: 0.7,
-      totalGames: 90,
-    },
-    {
-      id: "4",
-      name: "Viper",
-      rank: 4,
-      winPercent: 0.65,
-      totalGames: 80,
-    },
-    {
-      id: "5",
-      name: "Hera",
-      rank: 5,
-      winPercent: 0.6,
-      totalGames: 70,
-    },
-    {
-      id: "6",
-      name: "MbL",
-      rank: 6,
-      winPercent: 0.55,
-      totalGames: 60,
-    },
-    {
-      id: "7",
-      name: "Nicov",
-      rank: 7,
-      winPercent: 0.5,
-      totalGames: 50,
-    },
-    {
-      id: "8",
-      name: "Liereyy",
-      rank: 8,
-      winPercent: 0.45,
-      totalGames: 40,
-    },
-    {
-      id: "9",
-      name: "Tatoh",
-      rank: 9,
-      winPercent: 0.4,
-      totalGames: 30,
-    },
-    {
-      id: "10",
-      name: "Hera",
-      rank: 10,
-      winPercent: 0.35,
-      totalGames: 20,
-    },
-    {
-      id: "1",
-      name: "FitzBro",
-      rank: 1,
-      winPercent: 0.8,
-      totalGames: 132,
-    },
-    {
-      id: "2",
-      name: "joeybadz",
-      rank: 2,
-      winPercent: 0.75,
-      totalGames: 100,
-    },
-    {
-      id: "3",
-      name: "WeakGameHiders",
-      rank: 3,
-      winPercent: 0.7,
-      totalGames: 90,
-    },
-    {
-      id: "4",
-      name: "Viper",
-      rank: 4,
-      winPercent: 0.65,
-      totalGames: 80,
-    },
-    {
-      id: "5",
-      name: "Hera",
-      rank: 5,
-      winPercent: 0.6,
-      totalGames: 70,
-    },
-    {
-      id: "6",
-      name: "MbL",
-      rank: 6,
-      winPercent: 0.55,
-      totalGames: 60,
-    },
-    {
-      id: "7",
-      name: "Nicov",
-      rank: 7,
-      winPercent: 0.5,
-      totalGames: 50,
-    },
-    {
-      id: "8",
-      name: "Liereyy",
-      rank: 8,
-      winPercent: 0.45,
-      totalGames: 40,
-    },
-    {
-      id: "9",
-      name: "Tatoh",
-      rank: 9,
-      winPercent: 0.4,
-      totalGames: 30,
-    },
-    {
-      id: "10",
-      name: "Hera",
-      rank: 10,
-      winPercent: 0.35,
-      totalGames: 20,
-    },
-    {
-      id: "1",
-      name: "FitzBro",
-      rank: 1,
-      winPercent: 0.8,
-      totalGames: 132,
-    },
-    {
-      id: "2",
-      name: "joeybadz",
-      rank: 2,
-      winPercent: 0.75,
-      totalGames: 100,
-    },
-    {
-      id: "3",
-      name: "WeakGameHiders",
-      rank: 3,
-      winPercent: 0.7,
-      totalGames: 90,
-    },
-    {
-      id: "4",
-      name: "Viper",
-      rank: 4,
-      winPercent: 0.65,
-      totalGames: 80,
-    },
-    {
-      id: "5",
-      name: "Hera",
-      rank: 5,
-      winPercent: 0.6,
-      totalGames: 70,
-    },
-    {
-      id: "6",
-      name: "MbL",
-      rank: 6,
-      winPercent: 0.55,
-      totalGames: 60,
-    },
-    {
-      id: "7",
-      name: "Nicov",
-      rank: 7,
-      winPercent: 0.5,
-      totalGames: 50,
-    },
-    {
-      id: "8",
-      name: "Liereyy",
-      rank: 8,
-      winPercent: 0.45,
-      totalGames: 40,
-    },
-    {
-      id: "9",
-      name: "Tatoh",
-      rank: 9,
-      winPercent: 0.4,
-      totalGames: 30,
-    },
-    {
-      id: "10",
-      name: "Hera",
-      rank: 10,
-      winPercent: 0.35,
-      totalGames: 20,
-    },
-    {
-      id: "1",
-      name: "FitzBro",
-      rank: 1,
-      winPercent: 0.8,
-      totalGames: 132,
-    },
-    {
-      id: "2",
-      name: "joeybadz",
-      rank: 2,
-      winPercent: 0.75,
-      totalGames: 100,
-    },
-    {
-      id: "3",
-      name: "WeakGameHiders",
-      rank: 3,
-      winPercent: 0.7,
-      totalGames: 90,
-    },
-    {
-      id: "4",
-      name: "Viper",
-      rank: 4,
-      winPercent: 0.65,
-      totalGames: 80,
-    },
-    {
-      id: "5",
-      name: "Hera",
-      rank: 5,
-      winPercent: 0.6,
-      totalGames: 70,
-    },
-    {
-      id: "6",
-      name: "MbL",
-      rank: 6,
-      winPercent: 0.55,
-      totalGames: 60,
-    },
-    {
-      id: "7",
-      name: "Nicov",
-      rank: 7,
-      winPercent: 0.5,
-      totalGames: 50,
-    },
-    {
-      id: "8",
-      name: "Liereyy",
-      rank: 8,
-      winPercent: 0.45,
-      totalGames: 40,
-    },
-    {
-      id: "9",
-      name: "Tatoh",
-      rank: 9,
-      winPercent: 0.4,
-      totalGames: 30,
-    },
-    {
-      id: "10",
-      name: "Hera",
-      rank: 10,
-      winPercent: 0.35,
-      totalGames: 20,
-    },
-    {
-      id: "1",
-      name: "FitzBro",
-      rank: 1,
-      winPercent: 0.8,
-      totalGames: 132,
-    },
-    {
-      id: "2",
-      name: "joeybadz",
-      rank: 2,
-      winPercent: 0.75,
-      totalGames: 100,
-    },
-    {
-      id: "3",
-      name: "WeakGameHiders",
-      rank: 3,
-      winPercent: 0.7,
-      totalGames: 90,
-    },
-    {
-      id: "4",
-      name: "Viper",
-      rank: 4,
-      winPercent: 0.65,
-      totalGames: 80,
-    },
-    {
-      id: "5",
-      name: "Hera",
-      rank: 5,
-      winPercent: 0.6,
-      totalGames: 70,
-    },
-    {
-      id: "6",
-      name: "MbL",
-      rank: 6,
-      winPercent: 0.55,
-      totalGames: 60,
-    },
-    {
-      id: "7",
-      name: "Nicov",
-      rank: 7,
-      winPercent: 0.5,
-      totalGames: 50,
-    },
-    {
-      id: "8",
-      name: "Liereyy",
-      rank: 8,
-      winPercent: 0.45,
-      totalGames: 40,
-    },
-    {
-      id: "9",
-      name: "Tatoh",
-      rank: 9,
-      winPercent: 0.4,
-      totalGames: 30,
-    },
-    {
-      id: "10",
-      name: "Hera",
-      rank: 10,
-      winPercent: 0.35,
-      totalGames: 20,
-    },
-    {
-      id: "1",
-      name: "FitzBro",
-      rank: 1,
-      winPercent: 0.8,
-      totalGames: 132,
-    },
-    {
-      id: "2",
-      name: "joeybadz",
-      rank: 2,
-      winPercent: 0.75,
-      totalGames: 100,
-    },
-    {
-      id: "3",
-      name: "WeakGameHiders",
-      rank: 3,
-      winPercent: 0.7,
-      totalGames: 90,
-    },
-    {
-      id: "4",
-      name: "Viper",
-      rank: 4,
-      winPercent: 0.65,
-      totalGames: 80,
-    },
-    {
-      id: "5",
-      name: "Hera",
-      rank: 5,
-      winPercent: 0.6,
-      totalGames: 70,
-    },
-    {
-      id: "6",
-      name: "MbL",
-      rank: 6,
-      winPercent: 0.55,
-      totalGames: 60,
-    },
-    {
-      id: "7",
-      name: "Nicov",
-      rank: 7,
-      winPercent: 0.5,
-      totalGames: 50,
-    },
-    {
-      id: "8",
-      name: "Liereyy",
-      rank: 8,
-      winPercent: 0.45,
-      totalGames: 40,
-    },
-    {
-      id: "9",
-      name: "Tatoh",
-      rank: 9,
-      winPercent: 0.4,
-      totalGames: 30,
-    },
-    {
-      id: "10",
-      name: "Hera",
-      rank: 10,
-      winPercent: 0.35,
-      totalGames: 20,
-    },
-    {
-      id: "1",
-      name: "FitzBro",
-      rank: 1,
-      winPercent: 0.8,
-      totalGames: 132,
-    },
-    {
-      id: "2",
-      name: "joeybadz",
-      rank: 2,
-      winPercent: 0.75,
-      totalGames: 100,
-    },
-    {
-      id: "3",
-      name: "WeakGameHiders",
-      rank: 3,
-      winPercent: 0.7,
-      totalGames: 90,
-    },
-    {
-      id: "4",
-      name: "Viper",
-      rank: 4,
-      winPercent: 0.65,
-      totalGames: 80,
-    },
-    {
-      id: "5",
-      name: "Hera",
-      rank: 5,
-      winPercent: 0.6,
-      totalGames: 70,
-    },
-    {
-      id: "6",
-      name: "MbL",
-      rank: 6,
-      winPercent: 0.55,
-      totalGames: 60,
-    },
-    {
-      id: "7",
-      name: "Nicov",
-      rank: 7,
-      winPercent: 0.5,
-      totalGames: 50,
-    },
-    {
-      id: "8",
-      name: "Liereyy",
-      rank: 8,
-      winPercent: 0.45,
-      totalGames: 40,
-    },
-    {
-      id: "9",
-      name: "Tatoh",
-      rank: 9,
-      winPercent: 0.4,
-      totalGames: 30,
-    },
-    {
-      id: "10",
-      name: "Hera",
-      rank: 10,
-      winPercent: 0.35,
-      totalGames: 20,
-    },
-    {
-      id: "1",
-      name: "FitzBro",
-      rank: 1,
-      winPercent: 0.8,
-      totalGames: 132,
-    },
-    {
-      id: "2",
-      name: "joeybadz",
-      rank: 2,
-      winPercent: 0.75,
-      totalGames: 100,
-    },
-    {
-      id: "3",
-      name: "WeakGameHiders",
-      rank: 3,
-      winPercent: 0.7,
-      totalGames: 90,
-    },
-    {
-      id: "4",
-      name: "Viper",
-      rank: 4,
-      winPercent: 0.65,
-      totalGames: 80,
-    },
-    {
-      id: "5",
-      name: "Hera",
-      rank: 5,
-      winPercent: 0.6,
-      totalGames: 70,
-    },
-    {
-      id: "6",
-      name: "MbL",
-      rank: 6,
-      winPercent: 0.55,
-      totalGames: 60,
-    },
-    {
-      id: "7",
-      name: "Nicov",
-      rank: 7,
-      winPercent: 0.5,
-      totalGames: 50,
-    },
-    {
-      id: "8",
-      name: "Liereyy",
-      rank: 8,
-      winPercent: 0.45,
-      totalGames: 40,
-    },
-    {
-      id: "9",
-      name: "Tatoh",
-      rank: 9,
-      winPercent: 0.4,
-      totalGames: 30,
-    },
-    {
-      id: "10",
-      name: "Hera",
-      rank: 10,
-      winPercent: 0.35,
-      totalGames: 20,
-    },
-    {
-      id: "1",
-      name: "FitzBro",
-      rank: 1,
-      winPercent: 0.8,
-      totalGames: 132,
-    },
-    {
-      id: "2",
-      name: "joeybadz",
-      rank: 2,
-      winPercent: 0.75,
-      totalGames: 100,
-    },
-    {
-      id: "3",
-      name: "WeakGameHiders",
-      rank: 3,
-      winPercent: 0.7,
-      totalGames: 90,
-    },
-    {
-      id: "4",
-      name: "Viper",
-      rank: 4,
-      winPercent: 0.65,
-      totalGames: 80,
-    },
-    {
-      id: "5",
-      name: "Hera",
-      rank: 5,
-      winPercent: 0.6,
-      totalGames: 70,
-    },
-    {
-      id: "6",
-      name: "MbL",
-      rank: 6,
-      winPercent: 0.55,
-      totalGames: 60,
-    },
-    {
-      id: "7",
-      name: "Nicov",
-      rank: 7,
-      winPercent: 0.5,
-      totalGames: 50,
-    },
-    {
-      id: "8",
-      name: "Liereyy",
-      rank: 8,
-      winPercent: 0.45,
-      totalGames: 40,
-    },
-    {
-      id: "9",
-      name: "Tatoh",
-      rank: 9,
-      winPercent: 0.4,
-      totalGames: 30,
-    },
-    {
-      id: "10",
-      name: "Hera",
-      rank: 10,
-      winPercent: 0.35,
-      totalGames: 20,
-    },
-  ];
+export function usePagination() {
+  const [pagination, setPagination] = useState({
+    pageSize: 10,
+    pageIndex: 0,
+  });
+  const { pageSize, pageIndex } = pagination;
+
+  return {
+    limit: pageSize,
+    onPaginationChange: setPagination,
+    pagination,
+    skip: pageSize * pageIndex,
+  };
 }
 
-export default async function Leaderboard() {
-  const data = await getData();
+export default function Leaderboard() {
+  const [leaderboardData, setLeaderboardData] = useState<ILeaderboardPlayer[]>(
+    []
+  );
+  const [leaderboardType, setLeaderboardType] = useState<number>(
+    LeaderboardTypeValues["1v1Supremacy"]
+  );
+  const [totalRecords, setTotalRecords] = useState(0);
+  const [loading, setLoading] = useState(true);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [initialLoad, setInitialLoad] = useState(true);
+
+  const { limit, onPaginationChange, skip, pagination } = usePagination();
+
+  const getLeaderboardData = useCallback(
+    async (searchQuery: string) => {
+      try {
+        setLoading(true);
+        const sort = { rank: "asc" };
+
+        const response = await fetch(
+          "/api/leaderboards?" +
+            new URLSearchParams({
+              skip: skip.toString(),
+              limit: limit.toString(),
+              sort: JSON.stringify(sort),
+              searchQuery,
+              leaderboardType: leaderboardType.toString(),
+            }).toString(),
+          {
+            method: "GET",
+          }
+        );
+
+        if (!response.ok) {
+          throw new Error(`Error: ${response.statusText}`);
+        }
+
+        const { leaderboardPlayers, totalRecords } = await response.json();
+        setLeaderboardData(leaderboardPlayers);
+        setTotalRecords(totalRecords);
+      } catch (error) {
+        console.error("Failed to fetch leaderboard data:", error);
+      } finally {
+        setLoading(false);
+      }
+    },
+    [skip, limit, leaderboardType]
+  );
+
+  const debouncedGetLeaderboardData = useMemo(
+    () =>
+      debounce((searchQuery: string) => getLeaderboardData(searchQuery), 300),
+    [getLeaderboardData]
+  );
+
+  useEffect(() => {
+    if (initialLoad) {
+      getLeaderboardData(searchQuery);
+      setInitialLoad(false);
+    } else {
+      debouncedGetLeaderboardData(searchQuery);
+    }
+  }, [
+    searchQuery,
+    getLeaderboardData,
+    debouncedGetLeaderboardData,
+    initialLoad,
+    leaderboardType,
+  ]);
+
+  function handleSearchQueryChange(event: React.ChangeEvent<HTMLInputElement>) {
+    onPaginationChange({ pageIndex: 0, pageSize: pagination.pageSize });
+    setSearchQuery(event.target.value);
+  }
+
+  const handleLeaderboardTypeChange = (
+    event: React.ChangeEvent<HTMLSelectElement>
+  ) => {
+    const selectedType = parseInt(event.target.value);
+    setLeaderboardType(selectedType);
+  };
 
   return (
     <>
       <Card className="p-4 h-full">
         <div className="card-header">
-          <h2>Retold Leaderboard</h2>
-          <p>Coming Soon...</p>
+          <p className="text-gold">Age of Mythology Retold</p>
+          <h2>Leaderboard</h2>
         </div>
+
         <div className="container mx-auto py-4">
-          <DataTable columns={columns} data={data} />
+          {/* Filters Row */}
+          <div className="flex flex-col sm:flex-row sm:items-center sm:space-x-4 space-y-4 sm:space-y-0">
+            {/* Leaderboard Type Dropdown */}
+            <div className="flex-shrink-0 w-full sm:w-auto">
+              <select
+                value={leaderboardType}
+                onChange={handleLeaderboardTypeChange}
+                className="p-2 border border-gray-300 rounded w-full"
+              >
+                <option value={LeaderboardTypeValues["1v1Supremacy"]}>
+                  1v1 Supremacy
+                </option>
+                <option value={LeaderboardTypeValues.TeamSupremacy}>
+                  Team Supremacy
+                </option>
+                <option value={LeaderboardTypeValues.Deathmatch}>
+                  Deathmatch
+                </option>
+                <option value={LeaderboardTypeValues.TeamDeathmatch}>
+                  Team Deathmatch
+                </option>
+              </select>
+            </div>
+
+            {/* Search Bar */}
+            <div className="flex-grow flex justify-center sm:justify-end w-full sm:w-auto">
+              <div className="w-full max-w-sm">
+                <Input
+                  placeholder="Search players..."
+                  value={searchQuery}
+                  onChange={handleSearchQueryChange}
+                  className="w-full"
+                />
+              </div>
+            </div>
+          </div>
+
+          {/* Table Data */}
+          {loading ? (
+            <Spinner size={"large"} className="m-4" />
+          ) : (
+            <DataTable
+              columns={columns}
+              data={leaderboardData}
+              onPaginationChange={onPaginationChange}
+              pageCount={Math.ceil(totalRecords / limit)}
+              pagination={pagination}
+            />
+          )}
         </div>
       </Card>
     </>

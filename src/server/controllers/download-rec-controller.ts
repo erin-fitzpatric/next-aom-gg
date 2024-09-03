@@ -1,5 +1,5 @@
 import { IRecordedGame } from "@/types/RecordedGame";
-import { downloadS3File } from "../services/aws";
+import { downloadS3RecFile } from "../services/aws";
 import { incrementDownloadCount } from "../services/mongo-service";
 
 export interface MythRecDownloadLink {
@@ -11,7 +11,7 @@ export default async function downloadMythRec(
 ): Promise<MythRecDownloadLink> {
   const key = rec.gameGuid
   try {
-    const downloadUrl = await downloadS3File(rec);
+    const downloadUrl = await downloadS3RecFile(rec);
     await incrementDownloadCount(key);
     return downloadUrl;
   } catch (err) {
