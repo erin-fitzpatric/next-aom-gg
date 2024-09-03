@@ -45,18 +45,15 @@ export async function getMythLeaderboard(
 
 export interface IGetPlayerStats {
   playerId: number;
-  leaderboardId: number;
 }
 
 export async function getPlayerStats({
-  playerId,
-  leaderboardId,
-}: IGetPlayerStats): Promise<ILeaderboardPlayer | null> {
+  playerId
+}: IGetPlayerStats): Promise<ILeaderboardPlayer[] | null> {
   await getMongoClient();
   try {
-    const result = await LeaderboardPlayerModel.findOne({
-      profile_id: playerId,
-      leaderboard_id: leaderboardId,
+    const result = await LeaderboardPlayerModel.find({
+      profile_id: playerId
     }).lean();
     return result;
   } catch (error: any) {
