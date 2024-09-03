@@ -87,6 +87,23 @@ export default function Header() {
                 <Twitch className="w-8 h-8 text-purple-500 transition-transform duration-300 ease-in-out transform hover:scale-110 hover:text-purple-700" />
               </Link>
             </NavigationMenuItem>
+            <NavigationMenuItem className="text-center sm:text-left">
+              <Link
+                href="https://ko-fi.com/fitzbro"
+                className="flex items-center"
+                target="_blank"
+                rel="noopener noreferrer"
+              >
+                <Image
+                  src="/kofi_button_blue.png"
+                  width={200}
+                  height={200}
+                  alt="Ko-fi"
+                  priority
+                  className=""
+                />
+              </Link>
+            </NavigationMenuItem>
           </NavigationMenuList>
         </NavigationMenu>
       </div>
@@ -116,7 +133,7 @@ export default function Header() {
         {/* Countdown */}
         <div className="flex justify-center sm:justify-end w-full sm:w-auto mt-4 sm:mt-0 sm:pr-6">
           <Countdown
-            targetDate={"2024-09-04T00:00:00Z"}
+            targetDate={"2024-09-04T17:00:00Z"}
             title={"Retold Official Launch"}
           />
         </div>
@@ -197,6 +214,21 @@ export default function Header() {
               rel="noopener noreferrer"
             >
               <Twitch className="w-8 h-8 text-purple-500 transition-transform duration-300 ease-in-out transform hover:scale-110 hover:text-purple-700" />
+            </Link>
+            <Link
+              href="https://ko-fi.com/fitzbro"
+              className="flex items-center"
+              target="_blank"
+              rel="noopener noreferrer"
+            >
+              <Image
+                src="/kofi_bg_tag_dark.png"
+                width={100}
+                height={100}
+                alt="Ko-fi"
+                priority
+                className=""
+              />
             </Link>
           </nav>
         </div>

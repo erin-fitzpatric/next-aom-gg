@@ -1,17 +1,17 @@
 "use client";
 import { useCallback, useEffect, useState, useMemo } from "react";
-import { columns } from "./columns";
+import { columns } from "./leaderboardColumns";
 import { DataTable } from "./data-table";
 import { Card } from "./ui/card";
 import { Input } from "./ui/input";
 import { debounce } from "@/utils/debounce";
 import { Spinner } from "./spinner";
 import { ILeaderboardPlayer } from "@/types/LeaderboardPlayer";
-import { LeaderboardType, LeaderboardTypeValues } from "@/types/LeaderBoard";
+import { LeaderboardTypeValues } from "@/types/LeaderBoard";
 
 export function usePagination() {
   const [pagination, setPagination] = useState({
-    pageSize: 10,
+    pageSize: 50,
     pageIndex: 0,
   });
   const { pageSize, pageIndex } = pagination;
