@@ -5,7 +5,6 @@ import {
   mapMatchHistoryData,
 } from "./service";
 import { MatchHistory } from "@/types/MatchHistory";
-import { getCivWinRates } from "./civWinRates";
 
 export const GET = async function GET(req: Request) {
   try {
