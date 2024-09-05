@@ -131,12 +131,12 @@ export default function Header() {
       </div>
       <div className="hidden sm:flex sm:items-center w-full sm:w-auto">
         {/* Countdown */}
-        <div className="flex justify-center sm:justify-end w-full sm:w-auto mt-4 sm:mt-0 sm:pr-6">
+        {/* <div className="flex justify-center sm:justify-end w-full sm:w-auto mt-4 sm:mt-0 sm:pr-6">
           <Countdown
             targetDate={"2024-09-04T17:00:00Z"}
             title={"Retold Official Launch"}
           />
-        </div>
+        </div> */}
         {/* Sign In */}
         <div className="mt-4 sm:mt-0 flex justify-center sm:justify-end w-full sm:w-auto">
           <SignIn />
