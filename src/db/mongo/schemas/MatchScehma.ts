@@ -1,0 +1,71 @@
+import { Schema } from "mongoose";
+
+export const matchSchema = new Schema({
+  gameMode: String,
+  matchType: String,
+  matchId: Number,
+  mapData: {
+    name: String,
+    imagePath: String,
+    isWater: Boolean,
+  },
+  matchDate: Number,
+  matchDuration: Number,
+  teams: [
+    {
+      teamid: Number,
+      results: [
+        {
+          civilization_id: Number,
+          matchhistory_id: Number,
+          matchstartdate: Number,
+          profile_id: Number,
+          race_id: Number,
+          resulttype: Number,
+          teamid: Number,
+          xpgained: Number,
+          postgameStats: {
+            mapID: Number,
+            postGameAward_HighestScore: Number,
+            postGameAward_MostDeaths: Number,
+            postGameAward_MostImprovements: Number,
+            postGameAward_MostKills: Number,
+            postGameAward_MostResources: Number,
+            postGameAward_MostTitanKills: Number,
+            postGameAward_largestArmy: Number,
+            rankedMatch: Number,
+            score_Economic: Number,
+            score_Military: Number,
+            score_Technology: Number,
+            score_Total: Number,
+            stat_BuildingsRazed: Number,
+            stat_UnitsKilled: Number,
+            stat_UnitsLost: Number,
+          },
+          playerName: String,
+        },
+      ],
+    },
+  ],
+  matchHistoryMap: {
+    type: Map,
+    of: [
+      {
+        matchhistory_id: Number,
+        profile_id: Number,
+        race_id: Number,
+        statgroup_id: Number,
+        teamid: Number,
+        wins: Number,
+        losses: Number,
+        streak: Number,
+        arbitration: Number,
+        outcome: Number,
+        oldrating: Number,
+        newrating: Number,
+        reporttype: Number,
+        civilization_id: Number,
+      },
+    ],
+  },
+});
