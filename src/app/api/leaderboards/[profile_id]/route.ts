@@ -1,5 +1,4 @@
 import { getPlayerStats, IGetPlayerStats } from "../service";
-// import { mapLeaderboardStats } from "./service";
 
 export const GET = async function GET(req: Request) {
   try {
@@ -13,7 +12,6 @@ export const GET = async function GET(req: Request) {
     if (!leaderboardData) {
       return Response.json({ error: "Player not found" }, { status: 404 });
     }
-    // const mappedLeaderboardData = mapLeaderboardStats(leaderboardData);
     return Response.json(leaderboardData);
   } catch (error: any) {
     return Response.json(

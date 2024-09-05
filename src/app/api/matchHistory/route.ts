@@ -5,7 +5,6 @@ import {
   mapMatchHistoryData,
 } from "./service";
 import { MatchHistory } from "@/types/MatchHistory";
-import { getCivWinRates } from "./civWinRates";
 
 export const GET = async function GET(req: Request) {
   try {
@@ -19,8 +18,6 @@ export const GET = async function GET(req: Request) {
         headers: { "Content-Type": "application/json" },
       });
     }
-    const civWinRates = await getCivWinRates();
-    console.log(civWinRates);
 
     const data: FetchMatchHistoryResponse = await fetchMatchHistory(playerId);
     const mappedMatchHistoryData: MatchHistory = mapMatchHistoryData({
