@@ -12,19 +12,19 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <main className="flex min-h-screen flex-col p-4 space-y-4">
+    <main className="min-h-screen p-4 space-y-4">
       {/* Reddit API */}
       <div>
         <RedditFeed />
       </div>
-      <div className="flex flex-col sm:flex-row space-y-4 sm:space-y-0 gap-5">
-        <div className="w-full sm:w-[400px] order-2 sm:order-none">
+      <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-5 gap-5">
+        <div className="md:col-span-1 lg:col-span-1 order-2 sm:order-2 lg:order-2 xl:order-1">
           <TopRecordedGames />
         </div>
-        <div className="w-full sm:w-5/6 order-1 sm:order-none">
+        <div className="md:col-span-2 lg:col-span-3 order-1 sm:order-1 lg:order-1 xl:order-2">
           <Leaderboard />
         </div>
-        <div className="w-full sm:w-[400px] order-3 sm:order-none">
+        <div className="md:col-span-1 lg:col-span-1 order-3 sm:order-3 lg:order-3 xl:order-3">
           <FeaturedYoutubeVideos />
         </div>
       </div>

@@ -23,7 +23,7 @@ export default function FeaturedYoutubeVideos() {
 
   return (
     <>
-      <Card className="h-full py-4">
+      <Card className="py-4">
         <div>
           <Image
             src="/youtube-logo.png"
@@ -38,11 +38,13 @@ export default function FeaturedYoutubeVideos() {
           {loading
             ? Array.from({ length: 5 }).map((_, index) => (
                 <div
-                  key={index }
+                  key={index}
                   className="mx-1 border-2 border-amber-400 rounded-lg my-1 flex flex-col p-1 max-w-xs w-full items-center"
                 >
-                  <Skeleton className="w-full h-44 mb-2" /> {/* Thumbnail skeleton */}
-                  <Skeleton className="w-full h-6 mb-2" /> {/* Title skeleton */}
+                  <Skeleton className="w-full h-44 mb-2" />{" "}
+                  {/* Thumbnail skeleton */}
+                  <Skeleton className="w-full h-6 mb-2" />{" "}
+                  {/* Title skeleton */}
                 </div>
               ))
             : videos?.map((video: IYoutubeVideo) => (
@@ -67,7 +69,7 @@ export default function FeaturedYoutubeVideos() {
                       {
                         new DOMParser().parseFromString(
                           video.snippet.title,
-                          "text/html"
+                          "text/html",
                         ).documentElement.textContent
                       }
                     </h3>
