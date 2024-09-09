@@ -50,7 +50,7 @@ export const columns: ColumnDef<ILeaderboardPlayer>[] = [
     header: "Elo",
   },
   {
-    accessorKey: "highestrating",
+    accessorKey: "redBullRating",
     header: () => <span className="flex">Red Bull Elo</span>,
     cell: ({ row }) => {
       console.log(row.original.highestrating);
