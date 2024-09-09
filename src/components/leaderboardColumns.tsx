@@ -51,6 +51,17 @@ export const columns: ColumnDef<ILeaderboardPlayer>[] = [
   },
   {
     accessorKey: "highestrating",
+    header: () => <span className="hidden lg:flex">Red Bull Elo</span>,
+    cell: ({ row }) => {
+      console.log(row.original.highestrating);
+      console.log(row.original.rating);
+      const redBullElo =
+        (Number(row.original.highestrating) + Number(row.original.rating)) / 2;
+      return <span className="hidden lg:flex">{redBullElo}</span>;
+    },
+  },
+  {
+    accessorKey: "highestrating",
     header: () => <span className="hidden lg:flex">Highest Elo</span>,
     cell: ({ row }) => (
       <span className="hidden lg:flex">
@@ -113,16 +124,12 @@ export const columns: ColumnDef<ILeaderboardPlayer>[] = [
           {isWinningStreak ? (
             <>
               <ArrowUp className={streakColor} />
-              <span className={streakColor}>
-                {Number(streak)}
-              </span>
+              <span className={streakColor}>{Number(streak)}</span>
             </>
           ) : (
             <>
               <ArrowDown className={streakColor} />
-              <span className={streakColor}>
-                {Number(streak)}
-              </span>
+              <span className={streakColor}>{Number(streak)}</span>
             </>
           )}
         </div>
