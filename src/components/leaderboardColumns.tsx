@@ -2,11 +2,17 @@
 
 import { ILeaderboardPlayer } from "@/types/LeaderboardPlayer";
 import { ColumnDef } from "@tanstack/react-table";
+import { ArrowDown, ArrowUp } from "lucide-react";
 
 export const columns: ColumnDef<ILeaderboardPlayer>[] = [
   {
     accessorKey: "rank",
     header: "Rank",
+    cell: ({ row }) => (
+      <div className="flex items-center">
+        <span>{String(row.original.rank)}.</span>
+      </div>
+    ),
   },
   // {
   //   accessorKey: "rank",
@@ -45,7 +51,12 @@ export const columns: ColumnDef<ILeaderboardPlayer>[] = [
   },
   {
     accessorKey: "highestrating",
-    header: "Highest Elo",
+    header: () => <span className="hidden lg:flex">Highest Elo</span>,
+    cell: ({ row }) => (
+      <span className="hidden lg:flex">
+        {Number(row.original.highestrating)}
+      </span>
+    ),
   },
   {
     accessorKey: "winPercent",
@@ -59,35 +70,61 @@ export const columns: ColumnDef<ILeaderboardPlayer>[] = [
   },
   {
     accessorKey: "wins",
-    header: "Wins",
+    header: () => <span className="hidden lg:flex">Wins</span>,
     cell: ({ row }) => (
-      <div className="flex items-center">
-        <span className="text-primary">{String(row.original.wins)}</span>
+      <div className="items-center hidden lg:flex">
+        <span className="text-primary hidden lg:flex">
+          {String(row.original.wins)}
+        </span>
       </div>
     ),
   },
   {
     accessorKey: "losses",
-    header: "Losses",
+    header: () => <span className="hidden lg:flex">Losses</span>,
     cell: ({ row }) => (
-      <div className="flex items-center">
-        <span className="text-red-500">{String(row.original.losses)}</span>
+      <div className="items-center hidden lg:flex">
+        <span className="text-red-500 hidden lg:flex">
+          {String(row.original.losses)}
+        </span>
       </div>
     ),
   },
   {
     accessorKey: "totalGames",
-    header: "Total Games",
+    header: () => <span className="hidden lg:flex">Total Games</span>,
+    cell: ({ row }) => (
+      <div className="hidden lg:flex">
+        <span className="hidden lg:flex">
+          {String(row.original.totalGames)}
+        </span>
+      </div>
+    ),
   },
   {
     accessorKey: "streak",
-    header: "Current Streak",
+    header: "Streak",
     cell: ({ row }) => {
-      const streakColor =
-        Number(row.original.streak) > 0 ? "text-primary" : "text-red-500";
+      const isWinningStreak = Number(row.original.streak) > 0;
+      const streakColor = isWinningStreak ? "text-primary" : "text-red-500";
+      const streak = Math.abs(Number(row.original.streak));
       return (
         <div className="flex items-center">
-          <span className={streakColor}>{String(row.original.streak)}</span>
+          {isWinningStreak ? (
+            <>
+              <ArrowUp className={streakColor} />
+              <span className={streakColor}>
+                {Number(streak)}
+              </span>
+            </>
+          ) : (
+            <>
+              <ArrowDown className={streakColor} />
+              <span className={streakColor}>
+                {Number(streak)}
+              </span>
+            </>
+          )}
         </div>
       );
     },

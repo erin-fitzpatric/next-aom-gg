@@ -23,7 +23,6 @@ import {
 } from "@/components/ui/table";
 import { DataTablePagination } from "./data-table-pagination";
 import { useRouter } from "next/navigation";
-import { LeaderboardType } from "@/types/LeaderBoard";
 
 interface DataTableProps<TData, TValue> {
   columns: ColumnDef<TData, TValue>[];
@@ -73,6 +72,13 @@ export function DataTable<TData, TValue>({
     <>
       <div className="flex flex-col items-center">
         <Table>
+          <TableHeader>
+            <TableRow>
+              <TableCell colSpan={columns.length}>
+                <DataTablePagination table={table} />
+              </TableCell>
+            </TableRow>
+          </TableHeader>
           <TableHeader>
             {table.getHeaderGroups().map((headerGroup) => (
               <TableRow key={headerGroup.id}>

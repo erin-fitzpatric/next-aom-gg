@@ -10,22 +10,22 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { SessionProvider } from "next-auth/react";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
+import GoogleAdsense from "@/components/googleAdsense";
 
 type RootLayoutProps = {
   children: ReactNode;
+};
+
+export const metadata = {
+  title: "Home - AoM.gg",
+  description:
+    "AoM.gg is your home for Age of Mythology Retold leaderboards, stats, recorded games, and more. Built by FitzBro for the AoM Retold community.",
 };
 
 export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <>
       <html lang="en" suppressHydrationWarning className="dark">
-        <head>
-          <script
-            async
-            src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5753721803474857"
-            crossOrigin="anonymous"
-          ></script>
-        </head>
         <body className={cn("min-h-screen bg-background antialiased p-4")}>
           <SessionProvider>
             <TooltipProvider delayDuration={75}>
@@ -45,6 +45,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           <Analytics />
           <SpeedInsights />
         </body>
+        <GoogleAdsense/>
       </html>
     </>
   );
