@@ -5,14 +5,14 @@ interface IProps {
   teams: TeamResult[];
   matchHistoryMap: MatchHistoryMap;
   handleNameClick: (row: number) => void;
-  ratingChange: number;
+  gameMode:string;
 }
 
 export default function Team({
   teams,
   matchHistoryMap,
   handleNameClick,
-  ratingChange,
+  gameMode
 }: IProps) {
   return (
     <div className="flex items-center">
@@ -29,7 +29,7 @@ export default function Team({
             team={team}
             matchHistoryMap={matchHistoryMap}
             handleNameClick={handleNameClick}
-            ratingChange={ratingChange}
+            gameMode={gameMode}
           />
         </div>
       ))}

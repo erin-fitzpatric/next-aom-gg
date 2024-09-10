@@ -57,13 +57,13 @@ export default function Match({ match }: IProps) {
 
       <div className="flex flex-col items-center md:items-end flex-shrink space-y-4">
         {/* Rating Change */}
-        <RatingChange ratingChange={ratingChange} />
+        <RatingChange ratingChange={ratingChange} gameMode={gameMode} />
         {/* Teams */}
         <Team
           teams={teams}
           matchHistoryMap={matchHistoryMap}
           handleNameClick={handleNameClick}
-          ratingChange={ratingChange}
+          gameMode={gameMode}
         />
       </div>
     </div>
