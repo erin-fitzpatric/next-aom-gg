@@ -7,15 +7,16 @@ interface Iprops {
   team: TeamResult;
   matchHistoryMap: MatchHistoryMap;
   handleNameClick: (row: number) => void;
-  ratingChange: number;
+  gameMode: string;
 }
 
 export default function Player({
   team,
   matchHistoryMap,
   handleNameClick,
-  ratingChange,
+  gameMode,
 }: Iprops) {
+  const isCustom = gameMode === "CUSTOM";
   return (
     <>
       {team.results.map((player: MappedTeam) => {
@@ -50,9 +51,11 @@ export default function Player({
             </div>
 
             {/* Rating */}
-            <div className="text-right">
-              {matchHistoryMap[player.profile_id]?.[0]?.newrating}
-            </div>
+            {!isCustom && (
+              <div className="text-right">
+                {matchHistoryMap[player.profile_id]?.[0]?.newrating}
+              </div>
+            )}
           </div>
         );
       })}
