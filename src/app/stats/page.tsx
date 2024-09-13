@@ -1,13 +1,9 @@
-"use client";
-import { BarChartHorizontal } from "@/components/bar-chart-horizontal";
-import { useState } from "react";
+import Statistics from "@/components/statistics/statistics";
 
-export default function Statistics() {
-  const [statisticsData, setStatisticsData] = useState<any[]>([]);
-
+export default function StatisticsPage() {
   return (
     <>
-      <BarChartHorizontal />
+      <Statistics />
     </>
   );
 }
