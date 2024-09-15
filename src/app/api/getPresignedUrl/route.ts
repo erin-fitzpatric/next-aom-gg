@@ -11,7 +11,7 @@ const s3Client = new S3Client({
   },
 });
 
-export const GET = async function GET(req: Request, res: Response) {
+export const GET = async function GET(req: Request) {
   if (req.method !== "GET") {
     return Response.json({ status: 405, error: "Method not allowed" });
   }
