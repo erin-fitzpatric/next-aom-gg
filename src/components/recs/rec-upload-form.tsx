@@ -26,6 +26,7 @@ export default function RecUploadForm({
 }: RecUploadFormProps) {
   const [recFile, setRecFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState("");
+  const [fileType, setFileType] = useState("");
   const [isUploading, setIsUploading] = useState(false);
   const { data: session } = useSession();
 
@@ -33,6 +34,12 @@ export default function RecUploadForm({
     const selectedFile = e.target.files?.[0];
     if (selectedFile) {
       setRecFile(selectedFile);
+      // Check if the file has a .mythrec extension
+      if (selectedFile.name.toLowerCase().endsWith(".mythrec")) {
+        setFileType("application/x-mythrec");
+      } else {
+        setFileType(selectedFile.type || "application/octet-stream");
+      }
     }
   };
 
@@ -50,7 +57,7 @@ export default function RecUploadForm({
     try {
       // Step 1: Get the pre-signed URL
       const presignedUrlResponse = await fetch(
-        `/api/getPresignedUrl?fileName=${encodeURIComponent(recFile.name)}&fileType=${encodeURIComponent(recFile.type)}`,
+        `/api/getPresignedUrl?fileName=${encodeURIComponent(recFile.name)}&fileType=${encodeURIComponent(fileType)}`,
       );
       if (!presignedUrlResponse.ok) {
         throw new Error("Failed to get pre-signed URL");
@@ -62,8 +69,9 @@ export default function RecUploadForm({
         method: "PUT",
         body: recFile,
         headers: {
-          "Content-Type": recFile.type,
+          "Content-Type": fileType,
         },
+        mode: "cors",
       });
 
       if (!uploadResponse.ok) {
@@ -91,6 +99,7 @@ export default function RecUploadForm({
         setRecs(mythRecs);
         setRecFile(null);
         setFileName("");
+        setFileType("");
         // reset recUploadForm
         const form = document.getElementById(
           "recUploadForm",
