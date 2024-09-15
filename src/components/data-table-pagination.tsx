@@ -7,13 +7,6 @@ import {
 import { Table } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
@@ -29,14 +22,18 @@ export function DataTablePagination<TData>({
         <p className="text-sm font-medium">Rows per page</p>
         <div className="pl-2">
           <select
-            className="h-8 w-[70px] border border-gray-300 rounded-md"
+            className="p-1 text-base border border-gray-300 rounded w-full"
             value={table.getState().pagination.pageSize}
             onChange={(e) => {
-              table.setPageSize(Number(e.target.value)); // Set page size
+              table.setPageSize(Number(e.target.value));
             }}
           >
             {[50, 100, 200].map((pageSize) => (
-              <option key={pageSize} value={pageSize}>
+              <option
+                className="text-base font-normal"
+                key={pageSize}
+                value={pageSize}
+              >
                 {pageSize}
               </option>
             ))}
