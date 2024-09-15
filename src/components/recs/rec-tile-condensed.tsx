@@ -12,7 +12,6 @@ interface RecTileProps {
 
 export default function RecTileCondensed({ rec }: RecTileProps) {
   const { leftTeams, rightTeams } = useTeams(rec);
-  console.log(rec.gameTitle);
   return (
     <div className="flex flex-col gap-5">
       <RecTitle gameTitle={rec.gameTitle} className="self-center" />
