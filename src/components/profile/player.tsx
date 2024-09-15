@@ -17,14 +17,17 @@ export default function Player({
   gameMode,
 }: Iprops) {
   const isCustom = gameMode === "CUSTOM";
+
   return (
     <>
       {team.results.map((player: MappedTeam) => {
         const { portraitPath, name: civName } = majorGodIndexToData(
           Number(player.civilization_id)
         );
-        // const ratingChangeColor =
-        //   ratingChange > 0 ? "text-primary" : "text-red-500";
+        const isWinner = player.resulttype === 1;
+        const ratingChangeColor = isWinner
+          ? "border-primary"
+          : "border-red-500";
 
         return (
           <div
@@ -36,16 +39,16 @@ export default function Player({
               <Image
                 src={portraitPath}
                 alt={civName}
-                width={54}
-                height={54}
-                className="rounded-full border-2 border-yellow-500"
+                width={72}
+                height={72}
+                className={`rounded-full border-4 ${ratingChangeColor}`}
               />
             </div>
-
             {/* Player Name */}
             <div
-              className={`text-left cursor-pointer flex-1 mb-2 md:mb-0`}
+              className="text-left cursor-pointer flex-1 mb-2 md:mb-0 overflow-hidden truncate mr-2"
               onClick={() => handleNameClick(player.profile_id)}
+              title={player.playerName}
             >
               {player.playerName}
             </div>
