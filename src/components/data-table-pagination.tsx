@@ -22,7 +22,7 @@ export function DataTablePagination<TData>({
         <p className="text-sm font-medium">Rows per page</p>
         <div className="pl-2">
           <select
-            className="p-1 text-base border border-gray-300 rounded w-full"
+            className="text-base p-1 border border-gray-300 rounded w-full"
             value={table.getState().pagination.pageSize}
             onChange={(e) => {
               table.setPageSize(Number(e.target.value));
@@ -30,7 +30,7 @@ export function DataTablePagination<TData>({
           >
             {[50, 100, 200].map((pageSize) => (
               <option
-                className="text-base font-normal"
+                className="font-normal text-base"
                 key={pageSize}
                 value={pageSize}
               >
