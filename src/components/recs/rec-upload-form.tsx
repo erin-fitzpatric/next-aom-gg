@@ -1,4 +1,3 @@
-"use client";
 import {
   Sheet,
   SheetContent,
@@ -11,7 +10,7 @@ import { Button } from "../ui/button";
 import { SpinnerWithText } from "../spinner";
 import { toast } from "../ui/use-toast";
 import { getMythRecs } from "@/server/controllers/mongo-controller";
-import { Dispatch, SetStateAction, useState } from "react";
+import React, { Dispatch, SetStateAction, useState } from "react";
 import { useSession } from "next-auth/react";
 import { SignIn } from "../sign-in";
 import { Filters } from "@/types/Filters";
@@ -20,53 +19,84 @@ export type RecUploadFormProps = {
   setRecs: Dispatch<SetStateAction<any[]>>;
   filters: Filters;
 };
-export default function RecUploadForm({ setRecs, filters }: RecUploadFormProps) {
-  const [recFile, setRecFile] = useState(null);
+
+export default function RecUploadForm({
+  setRecs,
+  filters,
+}: RecUploadFormProps) {
+  const [recFile, setRecFile] = useState<File | null>(null);
   const [fileName, setFileName] = useState("");
   const [isUploading, setIsUploading] = useState(false);
-  const { data: session } = useSession(); // get the client session
+  const { data: session } = useSession();
 
-  const handleFileChange = (e: any) => {
-    const selectedFile = e.target.files[0];
-    if (!selectedFile?.name) return;
-    setRecFile(selectedFile);
+  const handleFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const selectedFile = e.target.files?.[0];
+    if (selectedFile) {
+      setRecFile(selectedFile);
+    }
   };
 
-  const handleFileNameChange = (e: any) => {
+  const handleFileNameChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFileName(e.target.value);
   };
 
-  async function handleUploadFile(e: any): Promise<void> {
+  async function handleUploadFile(
+    e: React.FormEvent<HTMLFormElement>,
+  ): Promise<void> {
     e.preventDefault();
     if (!recFile) return;
     setIsUploading(true);
 
     try {
-      const formData = new FormData();
-      formData.append("file", recFile);
-      formData.append("gameTitle", fileName);
+      // Step 1: Get the pre-signed URL
+      const presignedUrlResponse = await fetch(
+        `/api/getPresignedUrl?fileName=${encodeURIComponent(recFile.name)}&fileType=${encodeURIComponent(recFile.type)}`,
+      );
+      if (!presignedUrlResponse.ok) {
+        throw new Error("Failed to get pre-signed URL");
+      }
+      const { signedUrl, key } = await presignedUrlResponse.json();
 
-      const response = await fetch("/api/recordedGames", {
-        method: "POST",
-        body: formData,
+      // Step 2: Upload the file to S3
+      const uploadResponse = await fetch(signedUrl, {
+        method: "PUT",
+        body: recFile,
+        headers: {
+          "Content-Type": recFile.type,
+        },
       });
 
-      if (response.ok) {
+      if (!uploadResponse.ok) {
+        throw new Error("Failed to upload file to S3");
+      }
+
+      // Step 3: Save metadata to your database
+      const metadataResponse = await fetch("/api/recordedGames", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          gameTitle: fileName,
+          s3Key: key,
+        }),
+      });
+
+      if (metadataResponse.ok) {
         toast({
           title: "Success",
           description: "Rec uploaded successfully",
         });
-        // TODO - This needs to be called with filters
         const mythRecs = await getMythRecs(0, filters);
         setRecs(mythRecs);
         setRecFile(null);
         setFileName("");
         // reset recUploadForm
         const form = document.getElementById(
-          "recUploadForm"
+          "recUploadForm",
         ) as HTMLFormElement;
         form.reset();
-      } else if (response.status === 400) {
+      } else if (metadataResponse.status === 400) {
         toast({
           title: "Rec Already Uploaded",
           description:
@@ -78,16 +108,17 @@ export default function RecUploadForm({ setRecs, filters }: RecUploadFormProps) 
           description: "Try again later",
         });
       }
-      setIsUploading(false);
     } catch (err) {
       console.error("Error uploading rec", err);
       toast({
         title: "Error Uploading Rec",
         description: "Try again later",
       });
+    } finally {
       setIsUploading(false);
     }
   }
+
   return (
     <Sheet>
       <SheetTrigger className="flex mx-auto" asChild>
@@ -100,7 +131,7 @@ export default function RecUploadForm({ setRecs, filters }: RecUploadFormProps) 
             Upload an AoM Retold recorded game to aom.gg! You can find recorded
             games in the following directory:
             <br />
-            <code> 
+            <code>
               C:\Users\FitzBro\Games\Age of Mythology Retold\yourSteamId\replays
             </code>
             <br />
@@ -135,7 +166,6 @@ export default function RecUploadForm({ setRecs, filters }: RecUploadFormProps) 
               placeholder="Enter file name"
               className="border-b border-gray-400 focus:outline-none focus:border-blue-500 px-2 py-1"
             />
-            {/* add spinner when uploading */}
             {isUploading ? (
               <div className="flex justify-center mt-4">
                 <SpinnerWithText text={"Uploading..."} />
@@ -148,13 +178,6 @@ export default function RecUploadForm({ setRecs, filters }: RecUploadFormProps) 
             <p className="mx-auto text-gold">(1vs1 Only for Now)</p>
           </form>
         )}
-        {/* <SheetFooter className="pt-2">
-          <SheetClose asChild>
-            <Button type="submit" className="flex mx-auto">
-              Upload
-            </Button>
-          </SheetClose>
-        </SheetFooter> */}
       </SheetContent>
     </Sheet>
   );
