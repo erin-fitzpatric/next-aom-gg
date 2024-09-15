@@ -28,6 +28,7 @@ export default function Match({ match }: IProps) {
     router.push(route);
   };
 
+
   return (
     <div className="p-4 border rounded-md shadow-lg flex flex-col md:flex-row md:space-x-4">
       <div className="flex flex-col items-center md:items-start justify-center flex-shrink-0 h-full">
