@@ -1,5 +1,6 @@
 "use server";
 
+import { BuildModel } from "@/db/mongo/model/BuildNumber";
 import RecordedGameModel from "@/db/mongo/model/RecordedGameModel";
 import getMongoClient from "@/db/mongo/mongo-client";
 import { Filters } from "@/types/Filters";
@@ -9,18 +10,29 @@ import { PipelineStage } from "mongoose";
 export interface QueryOptions {
   sort?: { [key: string]: 1 | -1 };
   limit?: number;
+  isCurrentBuild?: boolean;
 }
 
 export async function queryMythRecs(
   pageIndex: number,
   filters?: Filters,
-  queryOptions?: QueryOptions,
+  queryOptions?: QueryOptions
 ): Promise<IRecordedGame[]> {
   // Set a default page size or use limit from queryOptions if provided
   const PAGE_SIZE = queryOptions?.limit ?? 16;
   const offset = pageIndex * PAGE_SIZE;
   await getMongoClient();
   let result;
+
+  // get current build number
+  if (queryOptions?.isCurrentBuild) {
+    const latestBuild = await BuildModel.findOne({}).limit(1).sort({ buildNumber: -1 }).lean();
+
+    // If a latest build exists, use its buildNumber
+    if (latestBuild) {
+      filters = { ...filters, buildNumbers: [latestBuild.buildNumber] };
+    }
+  }
 
   try {
     const aggregateQuery = buildFilterQuery(offset, PAGE_SIZE, filters);
@@ -79,7 +91,7 @@ export async function queryMythRecs(
 function buildFilterQuery(
   offset: number,
   PAGE_SIZE: number,
-  filters?: Filters,
+  filters?: Filters
 ): PipelineStage[] {
   const aggregateQuery = <PipelineStage[]>[];
   if (filters) {
@@ -124,7 +136,7 @@ function buildFilterQuery(
   aggregateQuery.push(
     { $sort: { createdAt: -1 } },
     { $skip: offset },
-    { $limit: PAGE_SIZE },
+    { $limit: PAGE_SIZE }
   );
   return aggregateQuery;
 }
@@ -162,7 +174,7 @@ export async function incrementDownloadCount(gameGuid: string): Promise<void> {
   try {
     await RecordedGameModel.updateOne(
       { gameGuid },
-      { $inc: { downloadCount: 1 } },
+      { $inc: { downloadCount: 1 } }
     );
   } catch (err) {
     console.error(err);
