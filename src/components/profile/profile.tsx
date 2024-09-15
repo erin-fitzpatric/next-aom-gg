@@ -85,7 +85,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="w-full">
+    <div className="w-full text-2xl">
       <CardHeader className="w-full text-center">
         {steamProfile && (
           <Image

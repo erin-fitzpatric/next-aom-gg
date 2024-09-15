@@ -21,6 +21,7 @@ export default function Match({ match }: IProps) {
     matchDuration,
     gameMode,
   } = match;
+  const isWinner = teams[0].results[0].resulttype ? true : false; // 0 = loss, 1 = win
 
   const handleNameClick = (row: number) => {
     const route = `/profile/${row}`;
@@ -57,7 +58,11 @@ export default function Match({ match }: IProps) {
 
       <div className="flex flex-col items-center md:items-end flex-shrink space-y-4">
         {/* Rating Change */}
-        <RatingChange ratingChange={ratingChange} gameMode={gameMode} />
+        <RatingChange
+          ratingChange={ratingChange}
+          gameMode={gameMode}
+          isWinner={isWinner}
+        />
         {/* Teams */}
         <Team
           teams={teams}
