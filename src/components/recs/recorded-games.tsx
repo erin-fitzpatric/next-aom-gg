@@ -61,7 +61,7 @@ export default function RecordedGames() {
       setRecs((prevRecs) => [...prevRecs, ...mythRecs]);
       setIsLoading(false);
     },
-    []
+    [searchParams]
   );
 
   const handleScroll = useCallback(() => {
