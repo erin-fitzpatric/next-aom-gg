@@ -40,9 +40,10 @@ export default function RecUploadForm({
     setFileName(e.target.value);
   };
 
-  const uploadFileInChunks = async (file: File) => {
+  const uploadFileInChunks = async (file: File): Promise<Response> => {
     const chunkSize = 1024 * 1024; // 1MB
     const totalChunks = Math.ceil(file.size / chunkSize);
+    let response: Response | undefined; // Define response here
 
     for (let chunkNumber = 0; chunkNumber < totalChunks; chunkNumber++) {
       const chunk = file.slice(
@@ -57,7 +58,7 @@ export default function RecUploadForm({
       formData.append("gameTitle", file.name);
 
       try {
-        const response = await fetch("/api/recordedGames", {
+        response = await fetch("/api/recordedGames", {
           method: "POST",
           body: formData,
         });
@@ -75,25 +76,35 @@ export default function RecUploadForm({
       }
     }
 
-    async function handleUploadFile(e: any): Promise<void> {
-      e.preventDefault();
-      if (!recFile) return;
-      setIsUploading(true);
+    // Return the response after the last chunk is uploaded
+    if (!response) {
+      throw new Error("No response received after file upload");
+    }
+    return response;
+  };
 
-      try {
-        // Upload file in chunks
-        await uploadFileInChunks(recFile);
-        if (response.ok) {
+  async function handleUploadFile(e: any): Promise<void> {
+    e.preventDefault();
+    if (!recFile) return;
+    setIsUploading(true);
+
+    try {
+      // Upload file in chunks and get the final response
+      const response = await uploadFileInChunks(recFile);
+
+      if (response.ok) {
         toast({
           title: "Success",
           description: "Rec uploaded successfully",
         });
+
         // TODO - This needs to be called with filters
         const mythRecs = await getMythRecs(0, filters);
         setRecs(mythRecs);
+
+        // Reset form and file state
         setRecFile(null);
         setFileName("");
-        // reset recUploadForm
         const form = document.getElementById(
           "recUploadForm"
         ) as HTMLFormElement;
@@ -110,6 +121,7 @@ export default function RecUploadForm({
           description: "Try again later",
         });
       }
+
       setIsUploading(false);
     } catch (err) {
       console.error("Error uploading rec", err);
@@ -119,69 +131,68 @@ export default function RecUploadForm({
       });
       setIsUploading(false);
     }
+  }
 
-    return (
-      <Sheet>
-        <SheetTrigger className="flex mx-auto" asChild>
-          <Button className="flex mx-auto">Upload Recorded Game</Button>
-        </SheetTrigger>
-        <SheetContent>
-          <SheetHeader>
-            <SheetTitle>Upload Recorded Game</SheetTitle>
-            <SheetDescription>
-              Upload an AoM Retold recorded game to aom.gg! You can find
-              recorded games in the following directory:
-              <br />
-              <code>
-                C:\Users\FitzBro\Games\Age of Mythology
-                Retold\yourSteamId\replays
-              </code>
-              <br />
-              <br />
-            </SheetDescription>
-          </SheetHeader>
-          {!session ? (
-            <SheetDescription className="text-gold">
-              <div className="flex flex-col items-center">
-                <SignIn />
-                <p className="font-semibold mt-2">
-                  Sign in to upload recordings!
-                </p>
+  return (
+    <Sheet>
+      <SheetTrigger className="flex mx-auto" asChild>
+        <Button className="flex mx-auto">Upload Recorded Game</Button>
+      </SheetTrigger>
+      <SheetContent>
+        <SheetHeader>
+          <SheetTitle>Upload Recorded Game</SheetTitle>
+          <SheetDescription>
+            Upload an AoM Retold recorded game to aom.gg! You can find recorded
+            games in the following directory:
+            <br />
+            <code>
+              C:\Users\FitzBro\Games\Age of Mythology Retold\yourSteamId\replays
+            </code>
+            <br />
+            <br />
+          </SheetDescription>
+        </SheetHeader>
+        {!session ? (
+          <SheetDescription className="text-gold">
+            <div className="flex flex-col items-center">
+              <SignIn />
+              <p className="font-semibold mt-2">
+                Sign in to upload recordings!
+              </p>
+            </div>
+          </SheetDescription>
+        ) : (
+          <form
+            id="recUploadForm"
+            onSubmit={handleUploadFile}
+            className="flex mt-1 flex-col"
+          >
+            <input
+              type="file"
+              onChange={handleFileChange}
+              accept=".mythrec"
+              className="mr-2"
+            />
+            <input
+              type="text"
+              value={fileName}
+              onChange={handleFileNameChange}
+              placeholder="Enter file name"
+              className="border-b border-gray-400 focus:outline-none focus:border-blue-500 px-2 py-1"
+            />
+            {isUploading ? (
+              <div className="flex justify-center mt-4">
+                <SpinnerWithText text={"Uploading..."} />
               </div>
-            </SheetDescription>
-          ) : (
-            <form
-              id="recUploadForm"
-              onSubmit={handleUploadFile}
-              className="flex mt-1 flex-col"
-            >
-              <input
-                type="file"
-                onChange={handleFileChange}
-                accept=".mythrec"
-                className="mr-2"
-              />
-              <input
-                type="text"
-                value={fileName}
-                onChange={handleFileNameChange}
-                placeholder="Enter file name"
-                className="border-b border-gray-400 focus:outline-none focus:border-blue-500 px-2 py-1"
-              />
-              {isUploading ? (
-                <div className="flex justify-center mt-4">
-                  <SpinnerWithText text={"Uploading..."} />
-                </div>
-              ) : (
-                <Button type="submit" className="flex mx-auto mt-2">
-                  Upload
-                </Button>
-              )}
-              <p className="mx-auto text-gold">(1vs1 Only for Now)</p>
-            </form>
-          )}
-        </SheetContent>
-      </Sheet>
-    );
-  };
+            ) : (
+              <Button type="submit" className="flex mx-auto mt-2">
+                Upload
+              </Button>
+            )}
+            <p className="mx-auto text-gold">(1vs1 Only for Now)</p>
+          </form>
+        )}
+      </SheetContent>
+    </Sheet>
+  );
 }
