@@ -16,7 +16,7 @@ export default function RecFooter({ rec }: { rec: IRecordedGame }) {
 
   const handleLinkClick = (id: string) => {
     const baseUrl = process.env.NEXT_PUBLIC_BASE_URL;
-    const link = `${baseUrl}recs/?search=${id}&build=${rec.buildNumber}`;
+    const link = `${baseUrl}/recs/?search=${id}&build=${rec.buildNumber}`;
   
     // Copy the link to the clipboard
     navigator.clipboard.writeText(link).then(() => {
