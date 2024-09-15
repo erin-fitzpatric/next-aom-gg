@@ -53,8 +53,6 @@ export const columns: ColumnDef<ILeaderboardPlayer>[] = [
     accessorKey: "redBullRating",
     header: () => <span className="flex">Red Bull Elo</span>,
     cell: ({ row }) => {
-      console.log(row.original.highestrating);
-      console.log(row.original.rating);
       const redBullElo =
         (Number(row.original.highestrating) + Number(row.original.rating)) / 2;
       return <span className="flex">{redBullElo}</span>;
