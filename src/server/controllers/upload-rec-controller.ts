@@ -3,6 +3,7 @@ import { RecordedGameMetadata } from "@/types/RecordedGameParser";
 import getMongoClient from "@/db/mongo/mongo-client";
 import RecordedGameModel from "@/db/mongo/model/RecordedGameModel";
 import { uploadRecToS3 } from "../services/aws";
+import { BuildModel } from "@/db/mongo/model/BuildNumber";
 
 export type UploadRecParams = {
   file: File;
@@ -28,6 +29,25 @@ export default async function uploadRec(
     file
   );
   const mappedRecGameMetadata = mapRecGameMetadata(recGameMetadata); //cleanup the data
+
+  // 2) save build number to mongo, if build number doesn't already exists
+  await getMongoClient();
+  try {
+    // Check if a record with the given buildNumber already exists
+    const existingBuild = await BuildModel.findOne({
+      where: { buildNumber: recGameMetadata.buildNumber },
+    });
+
+    // If no record exists, create a new one
+    if (!existingBuild) {
+      await BuildModel.create({
+        buildNumber: recGameMetadata.buildNumber,
+        releaseDate: Date.now(),
+      });
+    }
+  } catch (error) {
+    console.error("Error inserting build number:", error);
+  }
 
   // 2) save file to mongo, if game guid doesn't already exists
   await getMongoClient();
