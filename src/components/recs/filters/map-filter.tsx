@@ -1,11 +1,3 @@
-import {
-  Select,
-  SelectContent,
-  SelectGroup,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
 import { getMythRecs } from "@/server/controllers/mongo-controller";
 import { FilterProps } from "@/types/Filters";
 import { getAllMaps } from "@/types/RandomMap";
@@ -27,22 +19,17 @@ export function MapFilter({
   }
 
   return (
-    <Select onValueChange={(value: string) => handleFilterChange(value)}>
-      <SelectTrigger className="w-full sm:w-[180px]">
-        <SelectValue placeholder="All Maps" />
-      </SelectTrigger>
-      <SelectContent>
-        <SelectGroup>
-          <SelectItem key="map-filter-all" value="ALL_MAPS">
-            All Maps
-          </SelectItem>
-          {getAllMaps().map((map) => (
-            <SelectItem key={`map-filter-${map.key}`} value={map.key}>
-              {map.displayName}
-            </SelectItem>
-          ))}
-        </SelectGroup>
-      </SelectContent>
-    </Select>
+    <select
+      className="w-full sm:w-[180px] border border-gray-300 rounded-md p-2"
+      onChange={(e) => handleFilterChange(e.target.value)}
+      defaultValue="ALL_MAPS"
+    >
+      <option value="ALL_MAPS">All Maps</option>
+      {getAllMaps().map((map) => (
+        <option key={`map-filter-${map.key}`} value={map.key}>
+          {map.displayName}
+        </option>
+      ))}
+    </select>
   );
 }

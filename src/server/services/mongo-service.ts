@@ -1,21 +1,47 @@
 "use server";
 
+import { BuildModel } from "@/db/mongo/model/BuildNumber";
 import RecordedGameModel from "@/db/mongo/model/RecordedGameModel";
 import getMongoClient from "@/db/mongo/mongo-client";
 import { Filters } from "@/types/Filters";
 import { IRecordedGame } from "@/types/RecordedGame";
 import { PipelineStage } from "mongoose";
 
+export interface QueryOptions {
+  sort?: { [key: string]: 1 | -1 };
+  limit?: number;
+  isCurrentBuild?: boolean;
+}
+
 export async function queryMythRecs(
   pageIndex: number,
-  filters?: Filters
+  filters?: Filters,
+  queryOptions?: QueryOptions
 ): Promise<IRecordedGame[]> {
-  const PAGE_SIZE = 16;
+  // Set a default page size or use limit from queryOptions if provided
+  const PAGE_SIZE = queryOptions?.limit ?? 16;
   const offset = pageIndex * PAGE_SIZE;
   await getMongoClient();
   let result;
+
+  // get current build number
+  if (queryOptions?.isCurrentBuild) {
+    const latestBuild = await BuildModel.findOne({}).limit(1).sort({ buildNumber: -1 }).lean();
+
+    // If a latest build exists, use its buildNumber
+    if (latestBuild) {
+      filters = { ...filters, buildNumbers: [latestBuild.buildNumber] };
+    }
+  }
+
   try {
     const aggregateQuery = buildFilterQuery(offset, PAGE_SIZE, filters);
+
+    if (queryOptions?.sort) {
+      const sortQuery = buildSortQuery(queryOptions.sort);
+      sortQuery && aggregateQuery.push(sortQuery);
+    }
+
     // Match rec with user data
     aggregateQuery.push({
       $lookup: {
@@ -33,12 +59,14 @@ export async function queryMythRecs(
         as: "userData",
       },
     });
+
     aggregateQuery.push({
       $unwind: {
         path: "$userData",
-        preserveNullAndEmptyArrays: true, // Keep original document even if userData is null or empty
+        preserveNullAndEmptyArrays: true,
       },
     });
+
     // Remove _id from all data so the frontend doesn't complain...could stringify if needed later
     aggregateQuery.push({
       $project: {
@@ -51,15 +79,15 @@ export async function queryMythRecs(
     result = await RecordedGameModel.aggregate(aggregateQuery).exec();
 
     result.map((rec) => {
-      rec.uploadedBy = rec?.userData?.name ?? rec?.uploadedBy ?? "Unknown"; // Fallback to uploadedBy if userData is null, this really just suppports uploaded recs before auth was implemented
+      rec.uploadedBy = rec?.userData?.name ?? rec?.uploadedBy ?? "Unknown";
     });
+
     return result;
   } catch (err) {
     console.error(err);
     throw new Error("Failed to fetch Myth recordings: " + err);
   }
 }
-
 function buildFilterQuery(
   offset: number,
   PAGE_SIZE: number,
@@ -111,6 +139,21 @@ function buildFilterQuery(
     { $limit: PAGE_SIZE }
   );
   return aggregateQuery;
+}
+
+function buildSortQuery(sort?: {
+  [key: string]: 1 | -1;
+}): PipelineStage | undefined {
+  if (!sort) {
+    return undefined; // Return nothing if there is no sort params
+  }
+
+  const formattedSort: { [key: string]: 1 | -1 } = {};
+  Object.keys(sort).forEach((key) => {
+    formattedSort[key] = sort[key];
+  });
+
+  return { $sort: formattedSort };
 }
 
 export async function listBuildNumbers(): Promise<number[]> {

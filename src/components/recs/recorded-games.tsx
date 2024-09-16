@@ -34,7 +34,7 @@ export default function RecordedGames() {
       if (initialFetch.current) {
         const builds = await getBuildNumbers();
         setBuildNumbers(builds);
-        
+
         // used when copying a link to a specific game
         const search = searchParams.get("search");
         const buildNumber = searchParams.get("build");
@@ -61,7 +61,7 @@ export default function RecordedGames() {
       setRecs((prevRecs) => [...prevRecs, ...mythRecs]);
       setIsLoading(false);
     },
-    []
+    [searchParams]
   );
 
   const handleScroll = useCallback(() => {
@@ -109,6 +109,26 @@ export default function RecordedGames() {
           selectedBuild={selectedBuild}
           setSelectedBuild={setSelectedBuild}
         />
+      </div>
+      {/* Help Text */}
+      <div className="flex justify-center mb-4">
+        <Card className="p-4 w-full bg-secondary flex flex-col items-center justify-center">
+          <div className="card-header">
+            <p className="text-gold text-center">How to Watch Recorded Games</p>
+          </div>
+          <p className="text-center">
+            Download the .rec file - place in your game directory:
+            <code className="pl-2 text-gold italic break-all">
+              C:\Users\YourUser\Games\Age of Mythology
+              Retold\yourSteamId\replays
+            </code>
+            {" - "}launch the game - select {`'Replays'`} in the main menu -
+            enjoy!
+          </p>
+          <p className="flex font-semibold underline italic flex-wrap text-center text-primary">
+            Replays only work on the Steam version of the game it was recorded - Red bull was played on a beta branch. It is build 486925...access is private as of uploading this.
+          </p>
+        </Card>
       </div>
 
       {recs.length === 0 && !initialFetch.current ? (

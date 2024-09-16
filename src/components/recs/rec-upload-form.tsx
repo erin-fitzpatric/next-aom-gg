@@ -100,9 +100,8 @@ export default function RecUploadForm({ setRecs, filters }: RecUploadFormProps) 
             Upload an AoM Retold recorded game to aom.gg! You can find recorded
             games in the following directory:
             <br />
-            <code>
-              C:\Users\efitz\Games\Age of Mythology Retold
-              Playtest\yourSteamId\replays
+            <code> 
+              C:\Users\FitzBro\Games\Age of Mythology Retold\yourSteamId\replays
             </code>
             <br />
             <br />
