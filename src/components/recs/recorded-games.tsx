@@ -13,7 +13,6 @@ import { Filters } from "@/types/Filters";
 import Loading from "../loading";
 import RecUploadForm from "./rec-upload-form";
 import { useSearchParams } from "next/navigation";
-import { ArrowRightSquare, InfoIcon } from "lucide-react";
 
 export default function RecordedGames() {
   // Set state
