@@ -126,7 +126,7 @@ export default function RecordedGames() {
             enjoy!
           </p>
           <p className="flex font-semibold underline italic flex-wrap text-center text-primary">
-            Replays only work on the Steam version of the game it was recorded
+            Replays only work on the Steam version of the game it was recorded - Red bull was played on a beta branch. It is build 486925...access is private as of uploading this.
           </p>
         </Card>
       </div>
