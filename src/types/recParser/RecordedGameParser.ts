@@ -195,7 +195,7 @@ export const RecordedGameMetadataStringsOptional = [
     //"gameLastMapSetSelected",               // Unknown
     //"gameArenaSeason",                      // Arena of the gods?
     //"gameArenaMission",
-    "gamePlayFabPartyAddress",              // Unknown
+    "gamePlayFabPartyAddress",                // Base64 encoded zlib compressed data. I don't know what it contains.
     //"gameMainMenuScenarioName",             // No idea why this is here
     //"gameContinueMainFileName",             // Unknown
     //"gameContinueCampaignFileName",         // Unknown
@@ -277,7 +277,9 @@ export const RecordedGameMetadataBooleansRequired = [
     "usedEnforcedAgeSettings",
 ] as const;
 
-export const RecordedGameMetadataBooleansOptional = [] as const;
+export const RecordedGameMetadataBooleansOptional = [
+    "commandParserGeneratedWarnings",
+] as const;
 
 export interface RecordedGameMetadata extends Record<typeof RecordedGameMetadataStringsRequired[number], string>,
                                               Record<typeof RecordedGameMetadataNumbersRequired[number], number>,
@@ -334,6 +336,12 @@ export interface RecordedGameMetadata extends Record<typeof RecordedGameMetadata
      * If parsing game commands succeeded, any warnings (typically about invalid or unrecognised parts of commands) that generated.
      */
     commandParserWarnings?: string[]
+    
+    /**
+     * Whether or not there were warnings when parsing this.
+     * This is for saving to the db.
+     */
+    commandParserGeneratedWarnings?: boolean
 
     /** 
      * The player numbers that did not resign in this game.
@@ -371,6 +379,7 @@ Version notes:
             added commands (would strongly recommend deleting this before saving to db)
             added commandParserError
             added commandParserWarnings
+            added commandParserGeneratedWarnings
             added unresignedPlayers
 
 */

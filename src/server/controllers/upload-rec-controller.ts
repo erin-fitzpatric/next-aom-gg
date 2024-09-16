@@ -17,8 +17,8 @@ export function mapRecGameMetadata(data: RecordedGameMetadata) {
     (_player, idx) => idx !== 0
   );
   delete mappedData.commands;
-  // TODO: delete techTimes? Not sure how to make a mongoose schema entry for this
-  //mappedData.playerData.forEach((data)=> delete data.techTimes);
+  delete mappedData.commandParserWarnings;
+  mappedData.playerData.forEach((playerData) => delete playerData.techTimes);
   return mappedData;
 }
 

@@ -5,10 +5,8 @@ import { RecordedGamePlayerMetadata } from "@/types/recParser/RecordedGameParser
 import Image from "next/image";
 
 function PlayerTile(playerData: RecordedGamePlayerMetadata, gameGuid: string) {
-  const { name, civ, civName, id } = playerData;
+  const { name, civ, id } = playerData;
   let godData = majorGodIndexToData(civ);
-  if (civName)
-    godData = majorGodNameToData(civName);
     
   return (
     <div

@@ -27,7 +27,6 @@ const RecordedGameSchema = new Schema(
     gameLength: {type: Number, required: false, default: 0},
     teams: { type: [[Number]]},
     commandParserError: { type: String, required: false, default: "" },
-    commandParserWarnings: { type: [[String]], required: false, default: [] },
     unresignedPlayers: { type: [[Number]], required: false },
     ...recMetadataSchemaHelper(RecordedGameMetadataBooleansRequired, Boolean, false, true),
     ...recMetadataSchemaHelper(RecordedGameMetadataStringsRequired, String, "", true),

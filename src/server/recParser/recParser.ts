@@ -108,6 +108,7 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
     {
         parseCommandDerivedValues(typedOutput, commandData, xmbData);
         typedOutput.commandParserWarnings = commandData.warnings;
+        typedOutput.commandParserGeneratedWarnings = (commandData.warnings ?? []).length > 0;
         typedOutput.commands = commandData;
     }
     else
