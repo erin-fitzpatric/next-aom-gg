@@ -54,30 +54,39 @@ const classNamesScheme = [
   "fill-[#1f4826]",
 ];
 
-interface BarChartProps<T> {
+interface BarChartProps<T, K extends Extract<keyof T, string>> {
   compareFn?: (a: T, b: T) => number;
   data: T[];
   title: string;
   totalGamesAnalyzed?: number;
-  xAxisKey: string;
-  yAxisKey: string;
-  leftDataKey?: string;
-  rightDataKey?: string;
-  dataKeyMiddle?: string;
+  xAxisKey: K;
+  xAxisFormatter?: (value: number) => string;
+  yAxisKey: K;
+  yAxisFormatter?: (value: number) => string;
+  leftDataKey?: K;
+  leftDataFormatter?: (value: number) => string;
+  rightDataKey?: K;
+  rightDataFormatter?: (value: number) => string;
   footerContent?: React.ReactNode;
+  tooltipFormatter?: (value: number) => string;
 }
 
-export default function BarChart<T>({
-  yAxisKey,
+export default function BarChart<T, K extends Extract<keyof T, string>>({
   xAxisKey,
-  leftDataKey = "totalGames",
-  rightDataKey = "pickRate",
+  xAxisFormatter,
+  yAxisKey,
+  yAxisFormatter,
+  leftDataKey,
+  leftDataFormatter,
+  rightDataKey,
+  rightDataFormatter,
   data,
   title,
   compareFn,
   totalGamesAnalyzed,
   footerContent,
-}: BarChartProps<T>) {
+  tooltipFormatter,
+}: BarChartProps<T, K>) {
   const sortedData = [...data.sort(compareFn)].map((value, index, array) => ({
     ...value,
     className:
@@ -87,7 +96,10 @@ export default function BarChart<T>({
   }));
 
   // State for dynamic chart size
-  const [chartSize, setChartSize] = useState({ width: window.innerWidth, height: 500 }); // Default size
+  const [chartSize, setChartSize] = useState({
+    width: window.innerWidth,
+    height: 500,
+  }); // Default size
   const chartContainerRef = useRef<HTMLDivElement | null>(null);
 
   // Resize the chart based on container size and data
@@ -156,11 +168,8 @@ export default function BarChart<T>({
               <XAxis dataKey={xAxisKey} type="number" hide />
               <ChartTooltip
                 content={<ChartTooltipContent indicator="line" />}
-                formatter={(value: number) =>
-                  `Winrate ${(value * 100).toFixed(1)}%`
-                }
+                formatter={tooltipFormatter}
               />
-
               <Bar
                 dataKey={xAxisKey}
                 layout="vertical"
@@ -174,6 +183,7 @@ export default function BarChart<T>({
                   offset={8}
                   className="fill-foreground"
                   fontSize={getFontSize()}
+                  formatter={yAxisFormatter}
                 />
                 <LabelList
                   dataKey={xAxisKey}
@@ -185,7 +195,7 @@ export default function BarChart<T>({
                   offset={8}
                   className="fill-foreground"
                   fontSize={getFontSize()}
-                  formatter={(value: number) => `${(value * 100).toFixed(1)}%`}
+                  formatter={xAxisFormatter}
                 />
                 <LabelList
                   dataKey={leftDataKey}
@@ -196,7 +206,7 @@ export default function BarChart<T>({
                     "translate-x-[15%]": chartSize.width >= chartSizes.sm,
                   })}
                   fontSize={getFontSize()}
-                  formatter={(value: number) => `${value} games`}
+                  formatter={leftDataFormatter}
                 />
                 <LabelList
                   dataKey={rightDataKey}
@@ -206,9 +216,7 @@ export default function BarChart<T>({
                     "translate-x-[40%]": chartSize.width >= chartSizes.sm,
                   })}
                   fontSize={getFontSize()}
-                  formatter={(value: number) =>
-                    `${(value * 100).toFixed(1)}% pick rate`
-                  }
+                  formatter={rightDataFormatter}
                 />
               </Bar>
             </RechartsBarChart>

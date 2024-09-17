@@ -81,6 +81,16 @@ export default function Statistics() {
           <BarChart
             yAxisKey="godName"
             xAxisKey="winRate"
+            xAxisFormatter={(value: number) => `${(value * 100).toFixed(1)}%`}
+            leftDataKey="totalGames"
+            leftDataFormatter={(value: number) => `${value} games`}
+            rightDataKey="winRate"
+            rightDataFormatter={(value: number) =>
+              `${(value * 100).toFixed(1)}% pick rate`
+            }
+            tooltipFormatter={(value: number) =>
+              `Winrate ${(value * 100).toFixed(1)}%`
+            }
             title={title}
             data={statisticsData.civStats}
             compareFn={(a, b) => b.winRate - a.winRate}
