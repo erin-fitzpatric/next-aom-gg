@@ -7,7 +7,10 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+import { Separator } from "@/components/ui/separator";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/utils/utils";
+import { HamburgerMenuIcon } from "@radix-ui/react-icons";
 import {
   Axe,
   BarChart4,
@@ -63,7 +66,7 @@ const navigation: NavigationItem[] = [
 
 export default function Header() {
   return (
-    <header className="w-full bg-white/5 p-4 grid grid-cols-[auto_1fr_auto] items-center gap-x-4 text-sm text-white">
+    <header className="w-full bg-white/5 p-4 grid grid-cols-2 md:grid-cols-[auto_1fr_auto] items-center gap-x-4 text-sm text-white">
       <Link
         href={"/"}
         className="cursor-pointer hover:underline hover:text-primary"
@@ -76,14 +79,32 @@ export default function Header() {
           priority
         />
       </Link>
-      <NavigationMenu className="items-center justify-start w-full">
+      <NavigationMenu className="items-center justify-start w-full hidden md:flex">
         <NavigationMenuList className="gap-2">
           {navigation.map((v) => (
             <NavigationItem key={v.label} item={v} />
           ))}
         </NavigationMenuList>
       </NavigationMenu>
-      <div>
+      <div className="block md:hidden self-center place-self-end">
+        <Sheet>
+          <SheetTrigger asChild>
+            <HamburgerMenuIcon />
+          </SheetTrigger>
+          <SheetContent className="w-fit gap-4 flex flex-col items-start justify-start">
+            <SignIn />
+            <Separator />
+            <NavigationMenu className="w-full">
+              <NavigationMenuList className="gap-2 flex-col space-x-0 items-start">
+                {navigation.map((v) => (
+                  <NavigationItem key={v.label} item={v} />
+                ))}
+              </NavigationMenuList>
+            </NavigationMenu>
+          </SheetContent>
+        </Sheet>
+      </div>
+      <div className="hidden md:block">
         <SignIn />
       </div>
     </header>
@@ -98,7 +119,7 @@ function NavigationItem({ item }: { item: NavigationItem }) {
       <Trigger
         className={cn(
           "bg-transparent flex flex-row items-center gap-2",
-          !hasSubnav && "hover:underline focus:underline"
+          hasSubnav ? "pr-2 md:px-4 md:py-2" : "hover:underline focus:underline"
         )}
         showChevron={!!item.subNavigation}
         href={item.href}
