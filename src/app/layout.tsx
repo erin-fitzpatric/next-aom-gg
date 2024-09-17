@@ -26,7 +26,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <>
       <html lang="en" suppressHydrationWarning className="dark">
-        <body className={cn("min-h-screen bg-background antialiased p-4")}>
+        <body className={cn("min-h-screen bg-background antialiased")}>
           <SessionProvider>
             <TooltipProvider delayDuration={75}>
               <WindowProvider>
@@ -45,7 +45,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           <Analytics />
           <SpeedInsights />
         </body>
-        <GoogleAdsense/>
+        <GoogleAdsense />
       </html>
     </>
   );
