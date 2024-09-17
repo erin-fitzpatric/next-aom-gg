@@ -31,6 +31,9 @@ interface BarChartProps<T> {
     data: T[]
     title: string
     totalGamesAnalyzed?: number
+    dataKeyLeft?: string
+    dataKeyRight?: string
+    dataKeyMiddle?: string
 }
 
 const chartConfig = {
@@ -47,8 +50,15 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-export default function BarChart<T>({ data, title, compareFn, totalGamesAnalyzed }: BarChartProps<T>) {
-    const sortedData = data.sort(compareFn);
+const colorScheme = [
+  "fill-green-500",
+  "fill-green-600",
+  "fill-green-700",
+  "fill-green-800",
+]
+
+export default function BarChart<T>({ dataKeyLeft, dataKeyRight, dataKeyMiddle = 'totalGames', data, title, compareFn, totalGamesAnalyzed }: BarChartProps<T>) {
+  const sortedData = [...data.sort(compareFn)].map((value, index, array) => ({...value, className: colorScheme[Math.floor((index / array.length) * colorScheme.length)]}))
 
     // State for dynamic chart size
     const [chartSize, setChartSize] = useState({ width: 800, height: 500 }); // Default size
@@ -70,7 +80,7 @@ export default function BarChart<T>({ data, title, compareFn, totalGamesAnalyzed
       handleResize(); // Initial resize on mount
   
       return () => window.removeEventListener("resize", handleResize);
-    }, [sortedData]); // Re-run when data changes
+    }, [data]); // Re-run when data changes
   return (
     <Card style={{ minHeight: "600px" }}> {/* Ensures the card has a minimum height */}
     <CardHeader>
@@ -117,14 +127,14 @@ export default function BarChart<T>({ data, title, compareFn, totalGamesAnalyzed
               barSize={30}
             >
               <LabelList
-                dataKey="godName"
+                dataKey={dataKeyLeft}
                 position="insideLeft"
                 offset={8}
                 className="fill-[--color-label]"
                 fontSize={24}
               />
               <LabelList
-                dataKey="winRate"
+                dataKey={dataKeyRight}
                 position="insideRight"
                 offset={8}
                 className="fill-foreground"
@@ -132,12 +142,12 @@ export default function BarChart<T>({ data, title, compareFn, totalGamesAnalyzed
                 formatter={(value: number) => `${(value * 100).toFixed(1)}%`}
               />
               <LabelList
-                dataKey="totalGames"
+                dataKey={dataKeyMiddle}
                 position="outside"
                 offset={8}
                 className="fill-foreground"
                 fontSize={24}
-                formatter={(value: number) => `Games: ${value}`}
+                formatter={(value: number) => `${value} games`}
               />
             </Bar>
           </RechartsBarChart>
