@@ -13,7 +13,7 @@ export const POST = async function POST(request: Request) {
     const userId = session.user.id;
     const { s3Key, gameTitle } = body;
 
-    if (!s3Key || !gameTitle) {
+    if (!s3Key) {
       return Response.json(
         { error: "Missing required fields" },
         { status: 400 },

@@ -22,13 +22,13 @@ export type UploadRecParams = {
 export function mapRecGameMetadata(data: RecordedGameMetadata) {
   const mappedData = data;
   mappedData.playerData = mappedData.playerData.filter(
-    (_player, idx) => idx !== 0,
+    (_player, idx) => idx !== 0
   );
   return mappedData;
 }
 
 export default async function uploadRec(
-  params: UploadRecParams,
+  params: UploadRecParams
 ): Promise<void> {
   const { userId, s3Key, gameTitle } = params;
 
@@ -47,16 +47,18 @@ export default async function uploadRec(
   const file = new File([fileBuffer], s3Key.split("/").pop() || "unknown");
 
   // 2) parse file
-  const recGameMetadata: RecordedGameMetadata =
-    await parseRecordedGameMetadata(file);
+  const recGameMetadata: RecordedGameMetadata = await parseRecordedGameMetadata(
+    file
+  );
   const mappedRecGameMetadata = mapRecGameMetadata(recGameMetadata);
 
   // 3) save build number to mongo, if build number doesn't already exist
   await getMongoClient();
   try {
-    const existingBuild = await BuildModel.findOne({
-      where: { buildNumber: recGameMetadata.buildNumber },
+    const response = await BuildModel.findOne({
+      buildNumber: recGameMetadata.buildNumber,
     });
+    const existingBuild = response?.toJSON()?.buildNumber;
 
     if (!existingBuild) {
       await BuildModel.create({
