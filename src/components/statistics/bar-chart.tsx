@@ -29,6 +29,8 @@ import {
 type BarChartProps<T> = {
     compareFn?: (a: T, b: T) => number
     data: T[]
+    title: string
+    
 }
 
 export default function BarChart({ data, compareFn }: BarChartProps<any>) {
