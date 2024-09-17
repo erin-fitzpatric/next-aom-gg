@@ -7,4 +7,5 @@ export interface IRecordedGame extends RecordedGameMetadata {
   uploadedBy: string;
   createdAt: Date;
   gameLength: number;
+  s3Key?: string;
 }

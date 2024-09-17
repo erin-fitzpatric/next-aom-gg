@@ -14,6 +14,7 @@ import React, { Dispatch, SetStateAction, useState } from "react";
 import { useSession } from "next-auth/react";
 import { SignIn } from "../sign-in";
 import { Filters } from "@/types/Filters";
+import { v4 as uuid4 } from "uuid";
 
 export type RecUploadFormProps = {
   setRecs: Dispatch<SetStateAction<any[]>>;
@@ -48,7 +49,7 @@ export default function RecUploadForm({
   };
 
   async function handleUploadFile(
-    e: React.FormEvent<HTMLFormElement>,
+    e: React.FormEvent<HTMLFormElement>
   ): Promise<void> {
     e.preventDefault();
     if (!recFile) return;
@@ -56,8 +57,11 @@ export default function RecUploadForm({
 
     try {
       // Step 1: Get the pre-signed URL
+      const guid = uuid4() + ".mythrec";
       const presignedUrlResponse = await fetch(
-        `/api/getPresignedUrl?fileName=${encodeURIComponent(recFile.name)}&fileType=${encodeURIComponent(fileType)}`,
+        `/api/getPresignedUrl?fileName=${encodeURIComponent(
+          guid
+        )}&fileType=${encodeURIComponent(fileType)}`
       );
       if (!presignedUrlResponse.ok) {
         throw new Error("Failed to get pre-signed URL");
@@ -102,7 +106,7 @@ export default function RecUploadForm({
         setFileType("");
         // reset recUploadForm
         const form = document.getElementById(
-          "recUploadForm",
+          "recUploadForm"
         ) as HTMLFormElement;
         form.reset();
       } else if (metadataResponse.status === 400) {
