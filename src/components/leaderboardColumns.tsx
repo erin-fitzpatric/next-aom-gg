@@ -49,15 +49,15 @@ export const columns: ColumnDef<ILeaderboardPlayer>[] = [
     accessorKey: "rating",
     header: "Elo",
   },
-  {
-    accessorKey: "redBullRating",
-    header: () => <span className="flex">Red Bull Elo</span>,
-    cell: ({ row }) => {
-      const redBullElo =
-        (Number(row.original.highestrating) + Number(row.original.rating)) / 2;
-      return <span className="flex">{redBullElo}</span>;
-    },
-  },
+  // {
+  //   accessorKey: "redBullRating",
+  //   header: () => <span className="flex">Red Bull Elo</span>,
+  //   cell: ({ row }) => {
+  //     const redBullElo =
+  //       (Number(row.original.highestrating) + Number(row.original.rating)) / 2;
+  //     return <span className="flex">{redBullElo}</span>;
+  //   },
+  // },
   {
     accessorKey: "highestrating",
     header: () => <span className="hidden lg:flex">Highest Elo</span>,
