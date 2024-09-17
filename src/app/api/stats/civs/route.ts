@@ -1,4 +1,3 @@
-import { IStatsCivs } from "@/db/mongo/model/stats/StatsCivsModel";
 import { fetchCivStats, IFetchCivStatsParams, mapCivStats } from "./service";
 
 function toUTCDate(date: Date): Date {
@@ -27,7 +26,10 @@ export const GET = async function GET(req: Request) {
     const civStatsAggregate = mapCivStats(civStats);
 
     return new Response(JSON.stringify(civStatsAggregate), {
-      headers: { "Content-Type": "application/json" },
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "public, max-age=43200, stale-while-revalidate=43200",
+      },
     });
   } catch (error: any) {
     return new Response(

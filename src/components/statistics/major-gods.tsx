@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useState, useRef } from "react";
 import {
   Bar,
   BarChart,
@@ -52,41 +52,50 @@ export function MajorGodBarChart({
 }) {
   const sortedData = data.civStats.sort((a, b) => b.winRate - a.winRate);
 
-  // State for dynamic font size
-  const [chartWidth, setChartWidth] = useState(window.innerWidth); // Default width
+  // State for dynamic chart size
+  const [chartSize, setChartSize] = useState({ width: 800, height: 500 }); // Default size
+  const chartContainerRef = useRef<HTMLDivElement | null>(null);
 
-  // Dynamically adjust font size based on screen width
+  // Resize the chart based on container size and data
   useEffect(() => {
     const handleResize = () => {
-      setChartWidth(window.innerWidth); // Adjust width based on window size
+      if (chartContainerRef.current) {
+        const containerWidth = chartContainerRef.current.offsetWidth;
+        setChartSize({
+          width: containerWidth,
+          height: sortedData.length * 40, // Dynamic height based on the number of bars
+        });
+      }
     };
 
     window.addEventListener("resize", handleResize);
-    handleResize(); // Initial call
+    handleResize(); // Initial resize on mount
 
     return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  }, [sortedData]); // Re-run when data changes
 
   return (
-    <Card>
+    <Card style={{ minHeight: "600px" }}> {/* Ensures the card has a minimum height */}
       <CardHeader>
         <CardTitle className="text-gold">{title}</CardTitle>
         <CardDescription className="text-secondary-foreground">
           Total Games Analyzed: {data.totalGamesAnalyzed}
         </CardDescription>
       </CardHeader>
-      <CardContent>
+      <CardContent style={{ minHeight: "500px" }}> {/* Ensures content area has minimum height */}
         <ChartContainer config={chartConfig}>
-          <div className="w-100">
+          <div
+            className="w-100"
+            ref={chartContainerRef}
+            style={{ minHeight: "500px" }} // Ensures chart container has a minimum height
+          >
             <BarChart
               accessibilityLayer
               data={sortedData}
               layout="vertical"
-              margin={{
-                right: 16,
-              }}
-              width={chartWidth} // You can adjust this based on your needs
-              height={500} // Fix the height to avoid vertical spacing changes
+              margin={{ right: 16 }}
+              width={chartSize.width} // Use dynamic width
+              height={chartSize.height} // Use dynamic height based on data
             >
               <CartesianGrid horizontal={false} />
               <YAxis
@@ -101,35 +110,36 @@ export function MajorGodBarChart({
               <ChartTooltip
                 cursor={false}
                 content={<ChartTooltipContent indicator="line" />}
+                formatter={(value: number) => `${(value * 100).toFixed(1)}%`}
               />
               <Bar
                 dataKey="winRate"
                 layout="vertical"
                 fill="var(--color-desktop)"
                 radius={4}
-                barSize={30} // Adjust this value for fixed bar width
+                barSize={30}
               >
                 <LabelList
                   dataKey="godName"
                   position="insideLeft"
                   offset={8}
                   className="fill-[--color-label]"
-                  fontSize={24} // Dynamic font size
+                  fontSize={24}
                 />
                 <LabelList
                   dataKey="winRate"
-                  position="insideStart"
+                  position="insideRight"
                   offset={8}
                   className="fill-foreground"
-                  fontSize={24} // Dynamic font size
+                  fontSize={24}
                   formatter={(value: number) => `${(value * 100).toFixed(1)}%`}
                 />
                 <LabelList
                   dataKey="totalGames"
-                  position="insideRight"
+                  position="outside"
                   offset={8}
                   className="fill-foreground"
-                  fontSize={24} // Dynamic font size
+                  fontSize={24}
                   formatter={(value: number) => `Games: ${value}`}
                 />
               </Bar>
@@ -138,12 +148,7 @@ export function MajorGodBarChart({
         </ChartContainer>
       </CardContent>
       <CardFooter className="flex-col items-start gap-2 text-sm">
-        {/* <div className="flex gap-2 font-medium leading-none">
-          Trending up by 5.2% this month <TrendingUp className="h-4 w-4" />
-        </div>
-        <div className="leading-none text-muted-foreground">
-          Showing total visitors for the last 6 months
-        </div> */}
+        {/* Additional Footer content */}
       </CardFooter>
     </Card>
   );
