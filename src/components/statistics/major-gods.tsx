@@ -25,7 +25,6 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { MappedCivStats } from "@/app/api/stats/civs/service";
-import { TrendingUp } from "lucide-react";
 
 export const description = "A bar chart with dynamic font size labels";
 
