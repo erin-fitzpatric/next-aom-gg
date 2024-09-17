@@ -10,6 +10,8 @@ function toUTCDate(date: Date): Date {
 export const GET = async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
+    const filters = searchParams.get("filters");
+    // TODO - get new filter object from query params and pass build date ranges and elo bin ranges to the service
 
     const params: IFetchCivStatsParams = {
       eloRange: searchParams?.get("eloRange") || "All",

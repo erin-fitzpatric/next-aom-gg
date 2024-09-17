@@ -4,13 +4,23 @@ import { MajorGodBarChart } from "./major-gods";
 import Loading from "../loading";
 import { MappedCivStats } from "@/app/api/stats/civs/service";
 import EloFilter from "./elo-filter";
+import BuildFilter from "./build-filter";
+
+export interface IFilterOptions {
+  eloRange: string;
+  patch: number | null; // TODO - update this filter to provide a date range associated with a patch.
+}
 
 export default function Statistics() {
   const [statisticsData, setStatisticsData] = useState<MappedCivStats | null>(
     null
-  ); // TODO - update this type as we add other stats
+  );
+  const [builds, setBuilds] = useState([]);
   const [title, setTitle] = useState("Major God Win Rates");
-  const [eloFilter, setEloFilter] = useState("All");
+  const [filterOptions, setFilterOptions] = useState<IFilterOptions>({
+    eloRange: "All",
+    patch: null, // Initialize with null
+  });
   const eloBins = [
     "All",
     "0-750",
@@ -20,19 +30,35 @@ export default function Statistics() {
     "1501-1750",
     "1751-2000",
   ];
-  // TODO: add a filter state sorted by eloBin
+
+  async function fetchBuilds() {
+    const url = "/api/builds";
+    const response = await fetch(url);
+    const data = await response.json();
+    setBuilds(data);
+    if (data.length > 0) {
+      setFilterOptions((prev) => ({ ...prev, patch: data[0] })); // Set patch when builds are available
+    }
+  }
 
   async function fetchCivStats() {
-    const url = `/api/stats/civs?eloRange=${eloFilter}`;
+    const url = `/api/stats/civs?filters=${JSON.stringify(filterOptions)}`;
     const response = await fetch(url);
     const data = await response.json();
     setStatisticsData(data);
   }
 
-  // fetch stat data
+  // fetch builds first, then fetch civ stats once builds are available
   useEffect(() => {
-    fetchCivStats();
-  }, [eloFilter]);
+    fetchBuilds();
+  }, []);
+
+  // Only fetch civ stats once builds and patch filterOptions are set
+  useEffect(() => {
+    if (filterOptions.patch) {
+      fetchCivStats();
+    }
+  }, [filterOptions]);
 
   return (
     <>
@@ -40,11 +66,18 @@ export default function Statistics() {
         <Loading />
       ) : (
         <>
-          <EloFilter
-            eloFilter={eloFilter}
-            setEloFilter={setEloFilter}
-            eloBins={eloBins}
-          />
+          <div className="flex flex-row-reverse flex-wrap pb-4">
+            <EloFilter
+              eloFilter={filterOptions.eloRange}
+              setFilterOptions={setFilterOptions}
+              eloBins={eloBins}
+            />
+            <BuildFilter
+              builds={builds}
+              setFilterOptions={setFilterOptions}
+              filterOptions={filterOptions}
+            />
+          </div>
           <MajorGodBarChart data={statisticsData} title={title} />
         </>
       )}
