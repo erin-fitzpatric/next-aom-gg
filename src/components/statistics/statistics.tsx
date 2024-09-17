@@ -175,7 +175,7 @@ export default function Statistics() {
               filterOptions={filterOptions}
             />
           </div>
-          <BarChart dataKeyLeft="godName" dataKeyRight="winRate" title={title} data={testData.civStats} compareFn={(a, b) => b.winRate - a.winRate} totalGamesAnalyzed={statisticsData.totalGamesAnalyzed}  />
+          <BarChart yAxisKey="godName" xAxisKey="winRate" title={title} data={statisticsData.civStats} compareFn={(a, b) => b.winRate - a.winRate} totalGamesAnalyzed={statisticsData.totalGamesAnalyzed}  />
           </>
       )}
     </>

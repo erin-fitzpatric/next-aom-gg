@@ -31,8 +31,8 @@ interface BarChartProps<T> {
     data: T[]
     title: string
     totalGamesAnalyzed?: number
-    dataKeyLeft?: string
-    dataKeyRight?: string
+    xAxisKey: string
+    yAxisKey: string
     dataKeyMiddle?: string
 }
 
@@ -50,15 +50,15 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
-const colorScheme = [
+const classNamesScheme = [
   "fill-green-500",
   "fill-green-600",
   "fill-green-700",
   "fill-green-800",
 ]
 
-export default function BarChart<T>({ dataKeyLeft, dataKeyRight, dataKeyMiddle = 'totalGames', data, title, compareFn, totalGamesAnalyzed }: BarChartProps<T>) {
-  const sortedData = [...data.sort(compareFn)].map((value, index, array) => ({...value, className: colorScheme[Math.floor((index / array.length) * colorScheme.length)]}))
+export default function BarChart<T>({ yAxisKey, xAxisKey, dataKeyMiddle = 'totalGames', data, title, compareFn, totalGamesAnalyzed }: BarChartProps<T>) {
+  const sortedData = [...data.sort(compareFn)].map((value, index, array) => ({...value, className: classNamesScheme[Math.floor((index / array.length) * classNamesScheme.length)]}))
 
     // State for dynamic chart size
     const [chartSize, setChartSize] = useState({ width: 800, height: 500 }); // Default size
@@ -113,12 +113,13 @@ export default function BarChart<T>({ dataKeyLeft, dataKeyRight, dataKeyMiddle =
               axisLine={false}
               hide
             />
-            <XAxis dataKey="winRate" type="number" hide />
+            <XAxis dataKey={xAxisKey} type="number" hide />
             <ChartTooltip
-              cursor={false}
-              content={<ChartTooltipContent indicator="line" />}
-              formatter={(value: number) => `${(value * 100).toFixed(1)}%`}
+            label="godName"
+              content={<ChartTooltipContent labelKey="godName" nameKey="godName" indicator="line" />}
+              formatter={(value: number) => `Winrate ${(value * 100).toFixed(1)}%`}
             />
+           
             <Bar
               dataKey="winRate"
               layout="vertical"
@@ -127,26 +128,45 @@ export default function BarChart<T>({ dataKeyLeft, dataKeyRight, dataKeyMiddle =
               barSize={30}
             >
               <LabelList
-                dataKey={dataKeyLeft}
+                dataKey={yAxisKey}
                 position="insideLeft"
                 offset={8}
                 className="fill-[--color-label]"
-                fontSize={24}
+                fontSize={20}
               />
               <LabelList
-                dataKey={dataKeyRight}
-                position="insideRight"
+                dataKey={xAxisKey}
+                position={chartSize && chartSize.width >= 768 ? "right" : "insideRight"}
                 offset={8}
                 className="fill-foreground"
-                fontSize={24}
+                fontSize={20}
                 formatter={(value: number) => `${(value * 100).toFixed(1)}%`}
               />
               <LabelList
                 dataKey={dataKeyMiddle}
-                position="outside"
-                offset={8}
-                className="fill-foreground"
-                fontSize={24}
+                position="insideLeft"
+                className="fill-foreground hidden sm:block text-black sm:translate-x-24 md:translate-x-36"
+                fontSize={20}
+                formatter={(value: number) => `${value} games`}
+              />
+              {/* <LabelList
+                dataKey={dataKeyMiddle}
+                position={chartSize && chartSize.width < 768 ? "insideRight" : "right"}
+                className="fill-foreground hidden sm:block text-black sm:translate-x-24 md:translate-x-36"
+                fontSize={20}
+                formatter={(value: number) => `${value} games`}
+              /> */}
+            </Bar>
+            <Bar   dataKey="pickRate"
+              layout="vertical"
+              fill="var(--color-desktop)"
+              radius={4}
+              barSize={30}>
+              <LabelList
+                dataKey={dataKeyMiddle}
+                position={chartSize && chartSize.width < 768 ? "insideRight" : "right"}
+                className="fill-foreground hidden sm:block text-black sm:translate-x-24 md:translate-x-36"
+                fontSize={20}
                 formatter={(value: number) => `${value} games`}
               />
             </Bar>
