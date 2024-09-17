@@ -24,17 +24,7 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-
-
-interface BarChartProps<T> {
-    compareFn?: (a: T, b: T) => number
-    data: T[]
-    title: string
-    totalGamesAnalyzed?: number
-    xAxisKey: string
-    yAxisKey: string
-    dataKeyMiddle?: string
-}
+import { cn } from "@/utils/utils";
 
 const chartConfig = {
   desktop: {
@@ -50,133 +40,184 @@ const chartConfig = {
   },
 } satisfies ChartConfig;
 
+const chartSizes = {
+  sm: 620,
+  md: 800,
+};
+
 const classNamesScheme = [
-  "fill-green-500",
-  "fill-green-600",
-  "fill-green-700",
-  "fill-green-800",
-]
+  "fill-[#569d5d]",
+  "fill-[#4a8c52]",
+  "fill-[#3f7b47]",
+  "fill-[#346a3c]",
+  "fill-[#295931]",
+  "fill-[#1f4826]",
+];
 
-export default function BarChart<T>({ yAxisKey, xAxisKey, dataKeyMiddle = 'totalGames', data, title, compareFn, totalGamesAnalyzed }: BarChartProps<T>) {
-  const sortedData = [...data.sort(compareFn)].map((value, index, array) => ({...value, className: classNamesScheme[Math.floor((index / array.length) * classNamesScheme.length)]}))
+interface BarChartProps<T> {
+  compareFn?: (a: T, b: T) => number;
+  data: T[];
+  title: string;
+  totalGamesAnalyzed?: number;
+  xAxisKey: string;
+  yAxisKey: string;
+  leftDataKey?: string;
+  rightDataKey?: string;
+  dataKeyMiddle?: string;
+  footerContent?: React.ReactNode;
+}
 
-    // State for dynamic chart size
-    const [chartSize, setChartSize] = useState({ width: 800, height: 500 }); // Default size
-    const chartContainerRef = useRef<HTMLDivElement | null>(null);
-  
-    // Resize the chart based on container size and data
-    useEffect(() => {
-      const handleResize = () => {
-        if (chartContainerRef.current) {
-          const containerWidth = chartContainerRef.current.offsetWidth;
-          setChartSize({
-            width: containerWidth,
-            height: sortedData.length * 40, // Dynamic height based on the number of bars
-          });
-        }
-      };
-  
-      window.addEventListener("resize", handleResize);
-      handleResize(); // Initial resize on mount
-  
-      return () => window.removeEventListener("resize", handleResize);
-    }, [data]); // Re-run when data changes
+export default function BarChart<T>({
+  yAxisKey,
+  xAxisKey,
+  leftDataKey = "totalGames",
+  rightDataKey = "pickRate",
+  data,
+  title,
+  compareFn,
+  totalGamesAnalyzed,
+  footerContent,
+}: BarChartProps<T>) {
+  const sortedData = [...data.sort(compareFn)].map((value, index, array) => ({
+    ...value,
+    className:
+      classNamesScheme[
+        Math.floor((index / array.length) * classNamesScheme.length)
+      ],
+  }));
+
+  // State for dynamic chart size
+  const [chartSize, setChartSize] = useState({ width: window.innerWidth, height: 500 }); // Default size
+  const chartContainerRef = useRef<HTMLDivElement | null>(null);
+
+  // Resize the chart based on container size and data
+  useEffect(() => {
+    const handleResize = () => {
+      if (chartContainerRef.current) {
+        const containerWidth = chartContainerRef.current.offsetWidth;
+        setChartSize({
+          width: containerWidth,
+          height: sortedData.length * 40, // Dynamic height based on the number of bars
+        });
+      }
+    };
+
+    window.addEventListener("resize", handleResize);
+    handleResize(); // Initial resize on mount
+
+    return () => window.removeEventListener("resize", handleResize);
+  }, [data]); // Re-run when data changes
+
+  const getFontSize = () => {
+    if (chartSize.width < chartSizes.sm) {
+      return 16;
+    }
+    return 20;
+  };
+
   return (
-    <Card style={{ minHeight: "600px" }}> {/* Ensures the card has a minimum height */}
-    <CardHeader>
-      <CardTitle className="text-gold">{title}</CardTitle>
-      {totalGamesAnalyzed && <CardDescription className="text-secondary-foreground">
-        Total Games Analyzed: {totalGamesAnalyzed}
-      </CardDescription>}
-    </CardHeader>
-    <CardContent style={{ minHeight: "500px" }}> {/* Ensures content area has minimum height */}
-      <ChartContainer config={chartConfig}>
-        <div
-          className="w-100"
-          ref={chartContainerRef}
-          style={{ minHeight: "500px" }} // Ensures chart container has a minimum height
-        >
-          <RechartsBarChart
-            accessibilityLayer
-            data={sortedData}
-            layout="vertical"
-            margin={{ right: 16 }}
-            width={chartSize.width} // Use dynamic width
-            height={chartSize.height} // Use dynamic height based on data
+    <Card style={{ minHeight: "600px" }}>
+      {" "}
+      {/* Ensures the card has a minimum height */}
+      <CardHeader>
+        <CardTitle className="text-gold">{title}</CardTitle>
+        {totalGamesAnalyzed && (
+          <CardDescription className="text-secondary-foreground">
+            Total Games Analyzed: {totalGamesAnalyzed}
+          </CardDescription>
+        )}
+      </CardHeader>
+      <CardContent style={{ minHeight: "500px" }}>
+        {" "}
+        {/* Ensures content area has minimum height */}
+        <ChartContainer config={chartConfig}>
+          <div
+            className="w-100"
+            ref={chartContainerRef}
+            style={{ minHeight: "500px" }} // Ensures chart container has a minimum height
           >
-            <CartesianGrid horizontal={false} />
-            <YAxis
-              dataKey="godName"
-              type="category"
-              tickLine={false}
-              tickMargin={10}
-              axisLine={false}
-              hide
-            />
-            <XAxis dataKey={xAxisKey} type="number" hide />
-            <ChartTooltip
-            label="godName"
-              content={<ChartTooltipContent labelKey="godName" nameKey="godName" indicator="line" />}
-              formatter={(value: number) => `Winrate ${(value * 100).toFixed(1)}%`}
-            />
-           
-            <Bar
-              dataKey="winRate"
+            <RechartsBarChart
+              accessibilityLayer
+              data={sortedData}
               layout="vertical"
-              fill="var(--color-desktop)"
-              radius={4}
-              barSize={30}
+              margin={{ right: 16 }}
+              width={chartSize.width} // Use dynamic width
+              height={chartSize.height} // Use dynamic height based on data
             >
-              <LabelList
-                dataKey={yAxisKey}
-                position="insideLeft"
-                offset={8}
-                className="fill-[--color-label]"
-                fontSize={20}
+              <CartesianGrid horizontal={false} />
+              <YAxis
+                dataKey="godName"
+                type="category"
+                tickLine={false}
+                tickMargin={10}
+                axisLine={false}
+                hide
               />
-              <LabelList
+              <XAxis dataKey={xAxisKey} type="number" hide />
+              <ChartTooltip
+                content={<ChartTooltipContent indicator="line" />}
+                formatter={(value: number) =>
+                  `Winrate ${(value * 100).toFixed(1)}%`
+                }
+              />
+
+              <Bar
                 dataKey={xAxisKey}
-                position={chartSize && chartSize.width >= 768 ? "right" : "insideRight"}
-                offset={8}
-                className="fill-foreground"
-                fontSize={20}
-                formatter={(value: number) => `${(value * 100).toFixed(1)}%`}
-              />
-              <LabelList
-                dataKey={dataKeyMiddle}
-                position="insideLeft"
-                className="fill-foreground hidden sm:block text-black sm:translate-x-24 md:translate-x-36"
-                fontSize={20}
-                formatter={(value: number) => `${value} games`}
-              />
-              {/* <LabelList
-                dataKey={dataKeyMiddle}
-                position={chartSize && chartSize.width < 768 ? "insideRight" : "right"}
-                className="fill-foreground hidden sm:block text-black sm:translate-x-24 md:translate-x-36"
-                fontSize={20}
-                formatter={(value: number) => `${value} games`}
-              /> */}
-            </Bar>
-            <Bar   dataKey="pickRate"
-              layout="vertical"
-              fill="var(--color-desktop)"
-              radius={4}
-              barSize={30}>
-              <LabelList
-                dataKey={dataKeyMiddle}
-                position={chartSize && chartSize.width < 768 ? "insideRight" : "right"}
-                className="fill-foreground hidden sm:block text-black sm:translate-x-24 md:translate-x-36"
-                fontSize={20}
-                formatter={(value: number) => `${value} games`}
-              />
-            </Bar>
-          </RechartsBarChart>
-        </div>
-      </ChartContainer>
-    </CardContent>
-    <CardFooter className="flex-col items-start gap-2 text-sm">
-      {/* Additional Footer content */}
-    </CardFooter>
-  </Card>
+                layout="vertical"
+                fill="var(--color-desktop)"
+                radius={8}
+                barSize={30}
+              >
+                <LabelList
+                  dataKey={yAxisKey}
+                  position="insideLeft"
+                  offset={8}
+                  className="fill-foreground"
+                  fontSize={getFontSize()}
+                />
+                <LabelList
+                  dataKey={xAxisKey}
+                  position={
+                    chartSize && chartSize.width >= chartSizes.sm
+                      ? "right"
+                      : "insideRight"
+                  }
+                  offset={8}
+                  className="fill-foreground"
+                  fontSize={getFontSize()}
+                  formatter={(value: number) => `${(value * 100).toFixed(1)}%`}
+                />
+                <LabelList
+                  dataKey={leftDataKey}
+                  position="insideLeft"
+                  className={cn("fill-foreground text-black", {
+                    "translate-x-[20%] text-sm":
+                      chartSize.width < chartSizes.sm,
+                    "translate-x-[15%]": chartSize.width >= chartSizes.sm,
+                  })}
+                  fontSize={getFontSize()}
+                  formatter={(value: number) => `${value} games`}
+                />
+                <LabelList
+                  dataKey={rightDataKey}
+                  position="insideLeft"
+                  className={cn("fill-foreground text-black", {
+                    "translate-x-[55%] hidden": chartSize.width < chartSizes.sm,
+                    "translate-x-[40%]": chartSize.width >= chartSizes.sm,
+                  })}
+                  fontSize={getFontSize()}
+                  formatter={(value: number) =>
+                    `${(value * 100).toFixed(1)}% pick rate`
+                  }
+                />
+              </Bar>
+            </RechartsBarChart>
+          </div>
+        </ChartContainer>
+      </CardContent>
+      <CardFooter className="flex-col items-start gap-2 text-sm">
+        {footerContent}
+      </CardFooter>
+    </Card>
   );
 }
