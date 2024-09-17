@@ -84,7 +84,7 @@ export default function Statistics() {
             xAxisFormatter={(value: number) => `${(value * 100).toFixed(1)}%`}
             leftDataKey="totalGames"
             leftDataFormatter={(value: number) => `${value} games`}
-            rightDataKey="winRate"
+            rightDataKey="pickRate"
             rightDataFormatter={(value: number) =>
               `${(value * 100).toFixed(1)}% pick rate`
             }
