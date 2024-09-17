@@ -7,6 +7,9 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
+    "docker:up": "docker-compose up -d",
+    "docker:down": "docker-compose down",
+    "setup:local": "npm run docker:up && node scripts/setup-minio.js",
     "postbuild": "next-sitemap"
   },
   "dependencies": {

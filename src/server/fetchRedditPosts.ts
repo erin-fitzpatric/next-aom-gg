@@ -42,6 +42,7 @@ export default async function fetchRedditPosts(): Promise<RedditPost[]> {
     return mappedPosts;
   } catch (error) {
     throw new Error(`Failed to fetch reddit posts: ${error}`);
+    console.error(error)
   }
 }
 

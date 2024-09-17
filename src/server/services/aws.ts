@@ -13,14 +13,21 @@ import { getSignedUrl } from "@aws-sdk/s3-request-presigner";
 import { MythRecDownloadLink } from "../controllers/download-rec-controller";
 import { IRecordedGame } from "@/types/RecordedGame";
 
+const isProduction = process.env.NODE_ENV === 'production';
+
 const credentials = {
   accessKeyId: process.env.AWS_ACCESS_KEY_ID,
   secretAccessKey: process.env.AWS_SECRET_ACCESS_KEY,
 };
+
 const s3Client = new S3Client([
   {
     region: process.env.AWS_REGION,
     credentials,
+    ...(isProduction ? {} : {
+      endpoint: "http://localhost:9000",
+      forcePathStyle: true,
+    }),
   },
 ]);
 
