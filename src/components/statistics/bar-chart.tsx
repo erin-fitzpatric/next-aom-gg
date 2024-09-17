@@ -26,14 +26,28 @@ import {
 } from "@/components/ui/chart";
 
 
-type BarChartProps<T> = {
+interface BarChartProps<T> {
     compareFn?: (a: T, b: T) => number
     data: T[]
     title: string
-    
+    totalGamesAnalyzed?: number
 }
 
-export default function BarChart({ data, compareFn }: BarChartProps<any>) {
+const chartConfig = {
+  desktop: {
+    label: "Desktop",
+    color: "hsl(var(--chart-1))",
+  },
+  mobile: {
+    label: "Mobile",
+    color: "hsl(var(--chart-2))",
+  },
+  label: {
+    color: "hsl(var(--background))",
+  },
+} satisfies ChartConfig;
+
+export default function BarChart<T>({ data, title, compareFn, totalGamesAnalyzed }: BarChartProps<T>) {
     const sortedData = data.sort(compareFn);
 
     // State for dynamic chart size
@@ -61,9 +75,9 @@ export default function BarChart({ data, compareFn }: BarChartProps<any>) {
     <Card style={{ minHeight: "600px" }}> {/* Ensures the card has a minimum height */}
     <CardHeader>
       <CardTitle className="text-gold">{title}</CardTitle>
-      <CardDescription className="text-secondary-foreground">
-        Total Games Analyzed: {data.totalGamesAnalyzed}
-      </CardDescription>
+      {totalGamesAnalyzed && <CardDescription className="text-secondary-foreground">
+        Total Games Analyzed: {totalGamesAnalyzed}
+      </CardDescription>}
     </CardHeader>
     <CardContent style={{ minHeight: "500px" }}> {/* Ensures content area has minimum height */}
       <ChartContainer config={chartConfig}>
