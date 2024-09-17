@@ -1,3 +1,4 @@
+import { SignIn } from "@/components/sign-in";
 import {
   NavigationMenu,
   NavigationMenuContent,
@@ -6,6 +7,7 @@ import {
   NavigationMenuList,
   NavigationMenuTrigger,
 } from "@/components/ui/navigation-menu";
+import { cn } from "@/utils/utils";
 import {
   Axe,
   BarChart4,
@@ -20,7 +22,7 @@ import Link from "next/link";
 
 type NavigationItem = {
   label: string;
-  href: string;
+  href?: string;
   icon?: LucideIcon;
   subNavigation?: NavigationItem[];
 };
@@ -33,7 +35,6 @@ const navigation: NavigationItem[] = [
   },
   {
     label: "Statistics",
-    href: "/stats/gods",
     icon: BarChart4,
     subNavigation: [
       {
@@ -76,34 +77,42 @@ export default function Header() {
         />
       </Link>
       <NavigationMenu className="items-center justify-start w-full">
-        <NavigationMenuList>
+        <NavigationMenuList className="gap-2">
           {navigation.map((v) => (
             <NavigationItem key={v.label} item={v} />
           ))}
         </NavigationMenuList>
       </NavigationMenu>
-      <div className="shrink">Auth</div>
+      <div>
+        <SignIn />
+      </div>
     </header>
   );
 }
 
 function NavigationItem({ item }: { item: NavigationItem }) {
+  const hasSubnav = item.subNavigation && item.subNavigation.length > 0;
+  const Trigger = hasSubnav ? NavigationMenuTrigger : NavigationMenuLink;
   return (
     <NavigationMenuItem>
-      <NavigationMenuTrigger
-        className="bg-transparent gap-2"
+      <Trigger
+        className={cn(
+          "bg-transparent flex flex-row items-center gap-2",
+          !hasSubnav && "hover:underline focus:underline"
+        )}
         showChevron={!!item.subNavigation}
+        href={item.href}
       >
         {item.icon && <item.icon size={16} />}
         {item.label}
-      </NavigationMenuTrigger>
+      </Trigger>
       {item.subNavigation && item.subNavigation.length > 0 && (
         <NavigationMenuContent className="p-4 flex gap-4 flex-col">
           {item.subNavigation.map((v) => (
             <NavigationMenuLink
               href={v.href}
               key={v.label}
-              className="gap-2 flex flex-row items-center"
+              className="gap-2 flex flex-row items-center hover:underline focus:underline"
             >
               {v.icon && <v.icon size={16} />}
               {v.label}
