@@ -59,10 +59,10 @@ export default function Header() {
             {/* Resources */}
             <NavigationMenuItem className="text-center sm:text-left">
               <Link
-                href={"/resources"}
+                href={"/stats"}
                 className="cursor-pointer text-center hover:underline hover:text-primary text-2xl font-medium leading-tight"
               >
-                <p>Resources</p>
+                <p>Statistics</p>
               </Link>
             </NavigationMenuItem>
             {/* Seperator */}

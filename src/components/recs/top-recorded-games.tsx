@@ -10,12 +10,17 @@ import RecTileCondensed from "@/components/recs/rec-tile-condensed";
 
 export default function TopRecordedGames() {
   const getMythRecsCallback = useCallback(
-    () => getMythRecs(0, {}, { sort: { downloadCount: -1 }, limit: 10, isCurrentBuild: true }),
-    [],
+    () =>
+      getMythRecs(
+        0,
+        {},
+        { sort: { downloadCount: -1 }, limit: 10, isCurrentBuild: true }
+      ),
+    []
   );
   const [{ data: recs, loading: isLoading }, isInitialFetch] = useQuery(
     ["getMythRecs"],
-    getMythRecsCallback,
+    getMythRecsCallback
   );
 
   if (isInitialFetch && isLoading) {
@@ -35,6 +40,17 @@ export default function TopRecordedGames() {
   return (
     <Card className="py-4">
       <h2 className="card-header mb-5">Top Recorded Games</h2>
+      {/* Help Text */}
+      <div className=" justify-center mb-4 mx-4">
+        Visit the&nbsp;
+        <a
+          href="/recs"
+          className="hover:cursor-pointer hover:underline text-primary"
+        >
+          Recorded Games 
+        </a>
+        &nbsp;page for download & upload instructions.
+      </div>
 
       {/* Replay Gallery */}
       <div>
