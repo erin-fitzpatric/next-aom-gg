@@ -5,17 +5,18 @@ import { MappedCivStats } from "@/app/api/stats/civs/service";
 import EloFilter from "./elo-filter";
 import BuildFilter from "./build-filter";
 import BarChart from "./bar-chart";
+import { Build } from "@/types/Build";
 
 export interface IFilterOptions {
   eloRange: string;
-  patch: number | null; // TODO - update this filter to provide a date range associated with a patch.
+  patch: number | null;
 }
 
 export default function Statistics() {
   const [statisticsData, setStatisticsData] = useState<MappedCivStats | null>(
-    null,
+    null
   );
-  const [builds, setBuilds] = useState([]);
+  const [builds, setBuilds] = useState<Build[]>([]);
   const [title, setTitle] = useState("Major God Win Rates");
   const [filterOptions, setFilterOptions] = useState<IFilterOptions>({
     eloRange: "All",
@@ -34,17 +35,42 @@ export default function Statistics() {
   async function fetchBuilds() {
     const url = "/api/builds";
     const response = await fetch(url);
-    const data = await response.json();
+    const data: Build[] = await response.json();
     setBuilds(data);
     if (data.length > 0) {
-      setFilterOptions((prev) => ({ ...prev, patch: data[0] })); // Set patch when builds are available
+      setFilterOptions((prev) => ({ ...prev, patch: data[0].buildNumber }));
     }
   }
 
+  function getPatchStartDate(patch: number) {
+    console.log(patch);
+    const startDate = builds.find(
+      (build) => build.buildNumber === patch
+    )?.releaseDate;
+    console.log("startDate", startDate);
+    return startDate;
+  }
+
+  function getPatchEndDate(patch: number) {
+    const startIndex = builds.findIndex((build) => build.buildNumber === patch);
+    return startIndex > 0 ? builds[startIndex - 1].releaseDate : new Date(); // Set to current date if it's the latest build
+  }
+
   async function fetchCivStats() {
-    const url = `/api/stats/civs?filters=${JSON.stringify(filterOptions)}`;
-    const response = await fetch(url);
+    const startDate = filterOptions.patch
+      ? getPatchStartDate(filterOptions.patch)
+      : new Date("2024-08-27"); // launch date of the game
+    const endDate = filterOptions.patch
+      ? getPatchEndDate(filterOptions.patch)
+      : new Date(); // current date
+
+    const url = `/api/stats/civs?eloRange=${filterOptions.eloRange}&startDate=${startDate}&endDate=${endDate}`;
+
+    // Fetch the data from the API
+    const response = await fetch(url); // Ensure toString() is called on URL
     const data = await response.json();
+
+    // Set the data in state
     setStatisticsData(data);
   }
 

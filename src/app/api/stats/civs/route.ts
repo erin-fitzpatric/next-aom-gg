@@ -10,16 +10,13 @@ function toUTCDate(date: Date): Date {
 export const GET = async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
-    const filters = searchParams.get("filters");
-    // TODO - get new filter object from query params and pass build date ranges and elo bin ranges to the service
-
     const params: IFetchCivStatsParams = {
-      eloRange: searchParams?.get("eloRange") || "All",
+      eloRange: searchParams.get("eloRange") || "All",
       startDate: searchParams?.get("startDate")
-        ? toUTCDate(new Date(searchParams.get("startDate")!))
+        ? new Date(searchParams.get("startDate")!)
         : toUTCDate(new Date("2024-08-27")), // default startDate to 8/27/2024 in UTC
       endDate: searchParams?.get("endDate")
-        ? toUTCDate(new Date(searchParams.get("endDate")!))
+        ? new Date(searchParams.get("endDate")!)
         : toUTCDate(new Date()), // default endDate to today in UTC
     };
 
@@ -30,7 +27,8 @@ export const GET = async function GET(req: Request) {
     return new Response(JSON.stringify(civStatsAggregate), {
       headers: {
         "Content-Type": "application/json",
-        "Cache-Control": "public, max-age=43200, stale-while-revalidate=43200",
+        // "Cache-Control": "public, max-age=43200, stale-while-revalidate=43200",
+        "Cache-Control": "public, max-age=0, stale-while-revalidate=0",
       },
     });
   } catch (error: any) {
