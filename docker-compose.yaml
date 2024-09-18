@@ -2,18 +2,19 @@ version: '3.8'
 
 services:
   mongodb:
-    env_file: .env.local
     image: mongo:latest
     ports:
       - "27017:27017"
+    env_file:
+      - .env.local
     environment:
       MONGO_INITDB_ROOT_USERNAME: ${MONGO_USER}
       MONGO_INITDB_ROOT_PASSWORD: ${MONGO_PASSWORD}
+      MONGO_INITDB_DATABASE: "admin"
     volumes:
       - mongodb_data:/data/db
 
   minio:
-    env_file: .env.local
     image: minio/minio:latest
     ports:
       - "9000:9000"
@@ -26,7 +27,6 @@ services:
     command: server /data --console-address ":9001"
 
   redis:
-    env_file: .env.local
     image: redis:latest
     ports:
       - "6379:6379"

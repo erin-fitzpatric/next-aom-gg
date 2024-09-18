@@ -7,8 +7,8 @@
     "build": "next build",
     "start": "next start",
     "lint": "next lint",
-    "docker:up": "docker-compose up -d",
-    "docker:down": "docker-compose down",
+    "docker:up": "docker compose --env-file .env.local up -d",
+    "docker:down": "docker compose down",
     "setup:local": "npm run docker:up && node scripts/setup-local.js",
     "postbuild": "next-sitemap"
   },
