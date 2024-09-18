@@ -2,6 +2,7 @@ version: '3.8'
 
 services:
   mongodb:
+    env_file: .env.local
     image: mongo:latest
     ports:
       - "27017:27017"
@@ -12,6 +13,7 @@ services:
       - mongodb_data:/data/db
 
   minio:
+    env_file: .env.local
     image: minio/minio:latest
     ports:
       - "9000:9000"
@@ -24,6 +26,7 @@ services:
     command: server /data --console-address ":9001"
 
   redis:
+    env_file: .env.local
     image: redis:latest
     ports:
       - "6379:6379"
