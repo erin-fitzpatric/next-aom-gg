@@ -57,8 +57,9 @@ async function waitForService(checkFn, serviceName, maxAttempts = 30, interval =
 
 async function checkMongo() {
   const client = new MongoClient(`mongodb://${MONGO_USER}:${MONGO_PASSWORD}@localhost:27017`);
+
   await client.connect();
-  await client.db("admin").command({ ping: 1 });
+  await client.db().command({ ping: 1 });
   await client.close();
 }
 
