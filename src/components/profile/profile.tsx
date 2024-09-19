@@ -4,42 +4,67 @@ import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from "next-auth/react";
 import { useParams } from "next/navigation";
 import { useEffect, useState } from "react";
-import Match from "./match";
-import { MatchHistory } from "@/types/MatchHistory";
+import MatchComponent from "./match";
 import { LeaderboardTypeValues } from "@/types/LeaderBoard";
 import { SteamProfile } from "@/types/Steam";
 import Image from "next/image";
 import StatCard from "./statCard";
 import { ILeaderboardPlayer } from "@/types/LeaderboardPlayer";
+import { Match } from "@/types/Match";
+import {
+  Pagination,
+  PaginationContent,
+  PaginationEllipsis,
+  PaginationItem,
+  PaginationLink,
+  PaginationNext,
+  PaginationPrevious,
+} from "../ui/pagination";
 
 export default function Profile() {
-  const [matchHistoryStats, setMatchHistoryStats] = useState<
-    MatchHistory["mappedMatchHistoryData"]
-  >([]);
+  const [matchHistoryStats, setMatchHistoryStats] = useState<Match[]>([]);
   const [playerStats, setPlayerStats] = useState<ILeaderboardPlayer[]>([]);
   const [playerName, setPlayerName] = useState<string>("");
   const [steamProfile, setSteamProfile] = useState<SteamProfile>();
   const [leaderboardId, setLeaderboardId] = useState<number>(
     LeaderboardTypeValues["1v1Supremacy"]
   );
+
   const params = useParams();
   const { id } = params;
   const playerId = String(id);
 
   const { status } = useSession(); // get the client session status
+  const { limit, onPaginationChange, skip, pagination } = usePagination();
+
+  function usePagination() {
+    const [pagination, setPagination] = useState({
+      pageSize: 25,
+      pageIndex: 0,
+    });
+    const { pageSize, pageIndex } = pagination;
+
+    return {
+      limit: pageSize,
+      onPaginationChange: setPagination,
+      pagination,
+      skip: pageSize * pageIndex,
+    };
+  }
 
   const fetchProfileData = async (playerId: string) => {
     const baseUrl = "/api/matchHistory";
     const params = new URLSearchParams({
       playerId,
+      skip: skip.toString(),
+      limit: limit.toString(),
     });
     const url = `${baseUrl}?${params.toString()}`;
 
     try {
       const response = await fetch(url);
-      const data: MatchHistory = await response.json();
-      setMatchHistoryStats(data.mappedMatchHistoryData);
-      setPlayerName(data.playerName);
+      const matchHistory: Match[] = await response.json();
+      setMatchHistoryStats(matchHistory);
     } catch (error: any) {
       console.error("Error fetching profile data:", error);
       setMatchHistoryStats([]);
@@ -56,6 +81,9 @@ export default function Profile() {
     const response = await fetch(url);
     const data: ILeaderboardPlayer[] = await response.json();
     setPlayerStats(data);
+
+    setPlayerName(String(data[0].name));
+
     if (data.length > 0) {
       const steamId = data[0].profileUrl.split("/").pop();
       if (steamId) {
@@ -111,9 +139,27 @@ export default function Profile() {
 
       <Card className="w-full">
         {matchHistoryStats.map((match) => (
-          <Match key={match.matchId} match={match} />
+          <MatchComponent key={match.matchId} match={match} />
         ))}
       </Card>
+      <Pagination>
+        <PaginationContent>
+          {pagination.pageIndex !== 0 ?? (
+            <PaginationItem>
+              <PaginationPrevious href="#" />
+            </PaginationItem>
+          )}
+          <PaginationItem>
+            <PaginationLink href="#">{pagination.pageIndex + 1}</PaginationLink>
+          </PaginationItem>
+          {/* <PaginationItem>
+            <PaginationEllipsis />
+          </PaginationItem> */}
+          <PaginationItem>
+            <PaginationNext href="#" />
+          </PaginationItem>
+        </PaginationContent>
+      </Pagination>
     </div>
   );
 }

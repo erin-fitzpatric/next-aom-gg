@@ -1,5 +1,6 @@
 import { MappedTeam } from "@/app/api/matchHistory/matchHelpers";
 import { RandomMapData } from "./RandomMap";
+import { Match } from "./Match";
 
 export type MatchHistoryReportResult = {
   matchhistory_id: number;
@@ -98,23 +99,6 @@ export type MatchHistoryResponse = {
 export type TeamResult = {
   teamid: number;
   results: MappedTeam[];
-};
-
-export type MappedMatchHistoryData = {
-  matchType: string;
-  gameMode: string;
-  matchId: number;
-  mapData: RandomMapData;
-  matchDate: number;
-  matchDuration: number;
-  teams: TeamResult[];
-  matchHistoryMap: MatchHistoryMap;
-  ratingChange: number;
-};
-
-export type MatchHistory = {
-  mappedMatchHistoryData: MappedMatchHistoryData[];
-  playerName: string;
 };
 
 export interface MatchHistoryMap {
