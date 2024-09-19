@@ -1,22 +1,22 @@
 import { formatTime } from "@/app/api/matchHistory/matchHelpers";
-import { MappedMatchHistoryData } from "@/types/MatchHistory";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import RatingChange from "./ratingChange";
 import Team from "./team";
+import { Match as MatchType} from "@/types/Match";
 
 type IProps = {
-  match: MappedMatchHistoryData;
+  match: MatchType;
 };
 
-export default function Match({ match }: IProps) {
+export default function MatchComponent({ match }: IProps) {
   const router = useRouter();
   const {
     mapData,
     matchDate,
     matchType,
     teams,
-    ratingChange,
+    ratingChange = 0,
     matchHistoryMap,
     matchDuration,
     gameMode,

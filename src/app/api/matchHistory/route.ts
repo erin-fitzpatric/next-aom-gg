@@ -1,17 +1,16 @@
 import { Errors } from "@/utils/errors";
-import {
-  fetchMatchHistory,
-  FetchMatchHistoryResponse,
-  mapMatchHistoryData,
-} from "./service";
-import { MatchHistory } from "@/types/MatchHistory";
+import { fetchMongoMatchHistory, mapMatchHistoryData } from "./service";
+import { MatchResults } from "@/types/Match";
 
 export const GET = async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
 
     // Retrieve the playerId from the query parameters
-    const playerId = searchParams.get("playerId");
+    const playerId = Number(searchParams.get("playerId"));
+    const skip = Number(searchParams.get("skip")) || 0;
+    const limit = Number(searchParams.get("limit")) || 10;
+
     if (!playerId) {
       return new Response(JSON.stringify({ error: "playerId is required" }), {
         status: 400,
@@ -19,14 +18,21 @@ export const GET = async function GET(req: Request) {
       });
     }
 
-    const data: FetchMatchHistoryResponse = await fetchMatchHistory(playerId);
-    const mappedMatchHistoryData: MatchHistory = mapMatchHistoryData({
-      matchHistoryStats: data.matchHistoryStats,
-      profiles: data.profiles,
-      playerId,
+    const matchData: MatchResults = await fetchMongoMatchHistory(playerId, {
+      skip,
+      limit,
     });
-    return new Response(JSON.stringify(mappedMatchHistoryData), {
-      headers: { "Content-Type": "application/json" },
+    const [ data, totalCount ] = [ matchData.data, matchData.totalCount ];
+    const mappedMatchData = mapMatchHistoryData(data, playerId);
+
+    return new Response(JSON.stringify({
+      matches: mappedMatchData,
+      total: totalCount,
+    }), {
+      headers: {
+        "Content-Type": "application/json",
+        "Cache-Control": "public, max-age=180, stale-while-revalidate=60",
+      },
     });
   } catch (error: any) {
     if (error.message === Errors.PLAYER_NOT_FOUND) {
