@@ -1,5 +1,5 @@
 export default function TermsAndConditions() {
-  const date = "2024-09-19";
+  const currentDate = new Date().toISOString().split("T")[0];
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 text-white">
       <h1 className="text-4xl font-extrabold text-center mb-10">
@@ -7,7 +7,7 @@ export default function TermsAndConditions() {
       </h1>
 
       <p className="mb-6">
-        <strong>Last Updated:</strong> {date}
+        <strong>Last Updated:</strong> {currentDate}
       </p>
 
       <section className="mb-12">

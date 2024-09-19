@@ -4,7 +4,7 @@ import { Button } from "./ui/button";
 
 export default function AboutUs() {
   return (
-    <div className="bg-gray-900 text-white min-h-screen py-12">
+    <div className="text-white min-h-screen py-12">
       <div className="container mx-auto px-6">
         {/* Hero Section */}
         <h1 className="text-4xl sm:text-5xl font-bold text-center mb-12">
