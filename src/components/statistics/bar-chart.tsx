@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef } from "react";
+import { useEffect, useState, useRef, useCallback } from "react";
 import {
   Bar,
   BarChart as RechartsBarChart,
@@ -25,6 +25,7 @@ import {
   ChartTooltipContent,
 } from "@/components/ui/chart";
 import { cn } from "@/utils/utils";
+import { Formatter } from "recharts/types/component/DefaultTooltipContent";
 
 const chartConfig = {
   desktop: {
@@ -66,9 +67,9 @@ interface BarChartProps<T, K extends Extract<keyof T, string>> {
   leftDataKey?: K;
   leftDataFormatter?: (value: number) => string;
   rightDataKey?: K;
-  rightDataFormatter?: (value: number) => string;
+  rightDataFormatter?: (value: number) => number;
   footerContent?: React.ReactNode;
-  tooltipFormatter?: (value: number) => string;
+  tooltipFormatter?: Formatter<any, any>;
 }
 
 export default function BarChart<T, K extends Extract<keyof T, string>>({
@@ -93,23 +94,23 @@ export default function BarChart<T, K extends Extract<keyof T, string>>({
       classNamesScheme[
         Math.floor((index / array.length) * classNamesScheme.length)
       ],
+    ...(rightDataKey && rightDataFormatter &&{ [rightDataKey]: rightDataFormatter(value[rightDataKey] as number) }),
   }));
 
   // State for dynamic chart size
   const [chartSize, setChartSize] = useState({
     width: window.innerWidth,
-    height: 500,
+    height: sortedData.length * 60,
   }); // Default size
-  const chartContainerRef = useRef<HTMLDivElement | null>(null);
 
   // Resize the chart based on container size and data
-  useEffect(() => {
+  const refCallback = useCallback((node: HTMLDivElement) => {
     const handleResize = () => {
-      if (chartContainerRef.current) {
-        const containerWidth = chartContainerRef.current.offsetWidth;
+      if (node) {
+        const containerWidth = node.offsetWidth;
         setChartSize({
           width: containerWidth,
-          height: sortedData.length * 40, // Dynamic height based on the number of bars
+          height: sortedData.length * (containerWidth < chartSizes.sm ? 40 : 60),
         });
       }
     };
@@ -127,6 +128,16 @@ export default function BarChart<T, K extends Extract<keyof T, string>>({
     return 20;
   };
 
+  const getMargin = () => {
+    if (chartSize.width < chartSizes.sm) {
+      return { left: 20, right: 20 };
+    }
+    if (chartSize.width < chartSizes.md) {
+      return { left: 30, right: 30 };
+    }
+    return { left: 40, right: 40 };
+  }
+
   return (
     <Card style={{ minHeight: "600px" }}>
       {" "}
@@ -139,33 +150,32 @@ export default function BarChart<T, K extends Extract<keyof T, string>>({
           </CardDescription>
         )}
       </CardHeader>
-      <CardContent style={{ minHeight: "500px" }}>
+      <CardContent style={{ minHeight: "900px" }}>
         {" "}
         {/* Ensures content area has minimum height */}
         <ChartContainer config={chartConfig}>
           <div
-            className="w-100"
-            ref={chartContainerRef}
-            style={{ minHeight: "500px" }} // Ensures chart container has a minimum height
+            className="w-100 gap-20 h-fit"
+            ref={refCallback}
           >
             <RechartsBarChart
+              margin={getMargin()}
               accessibilityLayer
               data={sortedData}
               layout="vertical"
-              margin={{ right: 16 }}
               width={chartSize.width} // Use dynamic width
               height={chartSize.height} // Use dynamic height based on data
             >
               <CartesianGrid horizontal={false} />
               <YAxis
-                dataKey="godName"
+                dataKey={yAxisKey}
                 type="category"
                 tickLine={false}
-                tickMargin={10}
                 axisLine={false}
-                hide
+                fontSize={getFontSize()}
+
               />
-              <XAxis dataKey={xAxisKey} type="number" hide />
+              <XAxis dataKey={xAxisKey} type="number" hide/>
               <ChartTooltip
                 content={<ChartTooltipContent indicator="line" />}
                 formatter={tooltipFormatter}
@@ -175,16 +185,8 @@ export default function BarChart<T, K extends Extract<keyof T, string>>({
                 layout="vertical"
                 fill="var(--color-desktop)"
                 radius={8}
-                barSize={30}
+                barSize={20}
               >
-                <LabelList
-                  dataKey={yAxisKey}
-                  position="insideLeft"
-                  offset={8}
-                  className="fill-foreground"
-                  fontSize={getFontSize()}
-                  formatter={yAxisFormatter}
-                />
                 <LabelList
                   dataKey={xAxisKey}
                   position={
@@ -200,15 +202,10 @@ export default function BarChart<T, K extends Extract<keyof T, string>>({
                 <LabelList
                   dataKey={leftDataKey}
                   position="insideLeft"
-                  className={cn("fill-foreground text-black", {
-                    "translate-x-[20%] text-sm":
-                      chartSize.width < chartSizes.sm,
-                    "translate-x-[15%]": chartSize.width >= chartSizes.sm,
-                  })}
                   fontSize={getFontSize()}
                   formatter={leftDataFormatter}
                 />
-                <LabelList
+                {/* <LabelList
                   dataKey={rightDataKey}
                   position="insideLeft"
                   className={cn("fill-foreground text-black", {
@@ -217,6 +214,27 @@ export default function BarChart<T, K extends Extract<keyof T, string>>({
                   })}
                   fontSize={getFontSize()}
                   formatter={rightDataFormatter}
+                /> */}
+              </Bar>
+              <Bar
+                type="grouped"
+                dataKey={rightDataKey || ""}
+                layout="vertical"
+                fill="var(--color-mobile)"
+                radius={8}
+                barSize={20}
+              >
+                     <LabelList
+                  dataKey={rightDataKey}
+                  position={
+                    chartSize && chartSize.width >= chartSizes.sm
+                      ? "right"
+                      : "insideRight"
+                  }
+                  offset={8}
+                  className="fill-foreground"
+                  fontSize={getFontSize()}
+                  formatter={xAxisFormatter}
                 />
               </Bar>
             </RechartsBarChart>

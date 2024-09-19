@@ -106,20 +106,30 @@ export default function Statistics() {
           </div>
           <BarChart
             yAxisKey="godName"
-            xAxisKey="winRate"
+            xAxisKey="Winrate"
             xAxisFormatter={(value: number) => `${(value * 100).toFixed(1)}%`}
             leftDataKey="totalGames"
             leftDataFormatter={(value: number) => `${value} games`}
-            rightDataKey="pickRate"
+            rightDataKey="Pickrate"
             rightDataFormatter={(value: number) =>
-              `${(value * 100).toFixed(1)}% pick rate`
+              value
             }
-            tooltipFormatter={(value: number) =>
-              `Winrate ${(value * 100).toFixed(1)}%`
-            }
+            tooltipFormatter={(value, name, item) => {
+              if (name === "Winrate") {
+                return `Winrate ${(value * 100).toFixed(1)}%`;
+              }
+              if (name === "Pickrate") {
+                return `Pickrate ${(value * 100).toFixed(1)}%`;
+              }
+              return value;
+            }}
             title={title}
-            data={statisticsData.civStats}
-            compareFn={(a, b) => b.winRate - a.winRate}
+            data={statisticsData.civStats.map(({winRate, pickRate, ...civ}) => ({
+              ...civ,
+              Pickrate: pickRate,
+              Winrate: winRate,
+            }))}
+            compareFn={(a, b) => b.Winrate - a.Winrate}
             totalGamesAnalyzed={statisticsData.totalGamesAnalyzed}
           />
         </>
