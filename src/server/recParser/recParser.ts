@@ -13,7 +13,7 @@ import { RecordedGameRefinedCommands, RefinedGameCommand } from "@/types/recPars
 
 const REC_PARSER_STRUCTURE_VERSION = 2;
 
-// The max allowed decomprssed size of files that are passed as "recorded games".
+// The max allowed decompressed size of files that are passed as "recorded games".
 // This needs to be limited to avoid someone uploading a huge zlib decompression bomb and trying to decompress the entire thing in memory
 const RECORDED_GAME_MAX_BYTES_TO_DECOMPRESS = 500000000; // 50mb
 
@@ -122,7 +122,7 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
     const view = new DataView(decompressed.buffer);
     // The end of the file is the command list, with one entry per 20th of a second
     // 5 bytes before the end of the file is the index of the last one
-    // If the actual command list fails to parse for any reason, this should be able to read it
+    // If the actual command list fails to parse for any reason, this should still be able to get the game duration successfully
     const numGameEntriesOffset = decompressed.length - 5;
     const numGameEntries = view.getUint32(numGameEntriesOffset, true);
     typedOutput.gameLength = numGameEntries / 20;
@@ -318,7 +318,7 @@ function addMetadataKeyToOutput(output: any, keyName: string, value: number | st
 function parseTeams(output: RecordedGameMetadata, hierarchy: RecordedGameHierarchyContainer)
 {
     // Profile keys has teamid = -1 for random teams, which is no good
-    // This gets out out of the actual data instead.
+    // This gets the real team ids out of the binary player data section instead
     const playerSections = traverseRecordedGameHierarchy(hierarchy, ["J1", "PL", "BP", "P1"], "data");
     if (playerSections.length < 2)
         throw new Error(Errors.PARSER_INTERNAL_ERROR, {cause: `Failed to find enough player data sections: only found ${playerSections.length}`});
