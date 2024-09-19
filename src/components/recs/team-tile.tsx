@@ -1,5 +1,5 @@
 import { teamIndexToPlayerData } from "@/server/teams";
-import { majorGodIndexToData, majorGodNameToData } from "@/types/MajorGods";
+import { majorGodIndexToData } from "@/types/MajorGods";
 import { IRecordedGame } from "@/types/RecordedGame";
 import { RecordedGamePlayerMetadata } from "@/types/recParser/RecordedGameParser";
 import Image from "next/image";
