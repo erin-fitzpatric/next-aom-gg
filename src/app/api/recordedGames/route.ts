@@ -1,6 +1,7 @@
 import uploadRec from "@/server/controllers/upload-rec-controller";
 import { Errors } from "@/utils/errors";
 import { auth } from "@/auth";
+import editGameTitle from "@/server/controllers/editGameTitle";
 
 export const POST = async function POST(request: Request) {
   try {
@@ -16,7 +17,7 @@ export const POST = async function POST(request: Request) {
     if (!s3Key) {
       return Response.json(
         { error: "Missing required fields" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -27,12 +28,12 @@ export const POST = async function POST(request: Request) {
     if (error.message === Errors.UNIQUE_KEY_VIOLATION) {
       return Response.json(
         { error: Errors.UNIQUE_KEY_VIOLATION },
-        { status: 400 },
+        { status: 400 }
       );
     } else if (error.message === Errors.UNSUPPORTED_GAME_SIZE) {
       return Response.json(
         { error: Errors.UNSUPPORTED_GAME_SIZE },
-        { status: 400 },
+        { status: 400 }
       );
     } else {
       console.error("Error uploading rec", error);
@@ -40,3 +41,35 @@ export const POST = async function POST(request: Request) {
     }
   }
 };
+
+export async function PUT(request: Request) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return Response.json(
+        {
+          error: "Not authenticated",
+        },
+        { status: 401 }
+      );
+    }
+    const body = await request.json();
+    const userId = session.user.id;
+    const { gameTitle, gameGuid } = body;
+
+    if (!gameGuid) {
+      return Response.json(
+        { error: "Missing required fields" },
+        { status: 400 }
+      );
+    }
+    await editGameTitle({ gameTitle, gameGuid });
+    return Response.json({ status: 200 });
+  } catch (error) {
+    console.error("Error editing game title", error);
+    return Response.json(
+      { error: "Error editing game title" },
+      { status: 500 }
+    );
+  }
+}

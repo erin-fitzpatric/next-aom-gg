@@ -1,4 +1,4 @@
-"use server"
+"use server";
 import mongoose, { Mongoose } from "mongoose";
 
 let mongoClient: Mongoose | null = null;
@@ -12,7 +12,9 @@ export default async function getMongoClient() {
   }
 
   try {
-    mongoClient = await mongoose.connect(`mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@cluster0.ecbmcuc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`);
+    mongoClient = await mongoose.connect(
+      `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@dev.yjhvu.mongodb.net/`
+    );
     return mongoClient;
   } catch (err) {
     console.error(err);
