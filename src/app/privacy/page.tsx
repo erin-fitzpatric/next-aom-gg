@@ -1,5 +1,5 @@
 import PrivacyPolicy from "@/components/privacyPage";
 
-export default function Privacy() {
+export default function PrivacyPage() {
   return <PrivacyPolicy />;
 }
