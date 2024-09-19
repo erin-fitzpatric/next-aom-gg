@@ -1,7 +1,6 @@
 import { Errors } from "@/utils/errors";
 import { fetchMongoMatchHistory, mapMatchHistoryData } from "./service";
-import { Match } from "@/types/Match";
-import { sortTeams } from "./matchHelpers";
+import { MatchResults } from "@/types/Match";
 
 export const GET = async function GET(req: Request) {
   try {
@@ -19,13 +18,17 @@ export const GET = async function GET(req: Request) {
       });
     }
 
-    const matchData: Match[] = await fetchMongoMatchHistory(playerId, {
+    const matchData: MatchResults = await fetchMongoMatchHistory(playerId, {
       skip,
       limit,
     });
-    const mappedMatchData = mapMatchHistoryData(matchData, playerId);
+    const [ data, totalCount ] = [ matchData.data, matchData.totalCount ];
+    const mappedMatchData = mapMatchHistoryData(data, playerId);
 
-    return new Response(JSON.stringify(mappedMatchData), {
+    return new Response(JSON.stringify({
+      matches: mappedMatchData,
+      total: totalCount,
+    }), {
       headers: {
         "Content-Type": "application/json",
         "Cache-Control": "public, max-age=180, stale-while-revalidate=60",

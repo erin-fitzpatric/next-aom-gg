@@ -1,8 +1,9 @@
 import { MatchHistoryStat, Profile } from "@/types/MatchHistory";
-import { sortTeams } from "./matchHelpers";
 import getMongoClient from "@/db/mongo/mongo-client";
 import { MatchModel } from "@/db/mongo/model/MatchModel";
-import { Match } from "@/types/Match";
+import { Match, MatchResults } from "@/types/Match";
+import { PipelineStage } from "mongoose";
+import { sortTeams } from "./matchHelpers";
 
 export type FetchMatchHistoryResponse = {
   matchHistoryStats: MatchHistoryStat[];
@@ -12,12 +13,12 @@ export type FetchMatchHistoryResponse = {
 export async function fetchMongoMatchHistory(
   playerId: number,
   filters: { skip: number; limit: number }
-): Promise<Match[]> {
-  const [skip, limit] = [filters.skip, filters.limit];
+): Promise<MatchResults> {
+  const { skip, limit } = filters;
   await getMongoClient();
 
   // Build the Pipeline
-  const pipeline = [
+  const pipeline: PipelineStage[] = [
     {
       $addFields: {
         matchHistoryArray: { $objectToArray: "$matchHistoryMap" },
@@ -29,22 +30,40 @@ export async function fetchMongoMatchHistory(
       },
     },
     {
+      $facet: {
+        data: [
+          {
+            $project: {
+              matchHistoryArray: 0, // Exclude the temporary field
+              _id: 0, // Remove BSON _id field
+              __v: 0, // Remove __v field
+              "teams._id": 0, // Remove BSON _id field inside teams
+              "teams.results._id": 0, // Remove BSON _id field inside results
+              "matchHistoryMap.v._id": 0, // Remove BSON _id field inside matchHistoryMap
+            },
+          },
+          { $sort: { matchId: -1 } },
+          { $skip: skip },
+          { $limit: limit },
+        ],
+        totalCount: [
+          {
+            $count: "count",
+          },
+        ],
+      },
+    },
+    {
       $project: {
-        matchHistoryArray: 0, // Exclude the temporary field
-        _id: 0, // Remove BSON _id field
-        __v: 0, // Remove __v field
-        "teams._id": 0, // Remove BSON _id field inside teams
-        "teams.results._id": 0, // Remove BSON _id field inside results
-        "matchHistoryMap.v._id": 0, // Remove BSON _id field inside matchHistoryMap
+        data: 1,
+        totalCount: { $arrayElemAt: ["$totalCount.count", 0] }, // Unwrap the count from the array
       },
     },
   ];
+
   // Fetch Data
-  const response: Match[] = await MatchModel.aggregate(pipeline)
-    .sort({ matchId: -1 })
-    .skip(skip)
-    .limit(limit);
-  return response;
+  const response = await MatchModel.aggregate(pipeline).exec();
+  return response[0] as MatchResults;
 }
 
 export function mapMatchHistoryData(
@@ -66,6 +85,7 @@ export function mapMatchHistoryData(
   });
   return mappedMatchData;
 }
+
 
 // deprecated
 // export async function fetchMatchHistory(

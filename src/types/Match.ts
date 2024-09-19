@@ -15,3 +15,8 @@ export interface Match {
   matchHistoryMap: Record<string, MatchHistoryMember[]>;
   ratingChange?: number;
 }
+
+export interface MatchResults {
+  data: Match[];
+  totalCount: number;
+}
