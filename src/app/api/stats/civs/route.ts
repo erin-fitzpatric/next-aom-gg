@@ -27,8 +27,7 @@ export const GET = async function GET(req: Request) {
     return new Response(JSON.stringify(civStatsAggregate), {
       headers: {
         "Content-Type": "application/json",
-        // "Cache-Control": "public, max-age=43200, stale-while-revalidate=43200",
-        "Cache-Control": "public, max-age=0, stale-while-revalidate=0",
+        "Cache-Control": "public, max-age=86400, stale-while-revalidate=86400",
       },
     });
   } catch (error: any) {

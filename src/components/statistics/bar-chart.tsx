@@ -199,12 +199,12 @@ export default function BarChart<T, K extends Extract<keyof T, string>>({
                   fontSize={getFontSize()}
                   formatter={xAxisFormatter}
                 />
-                <LabelList
+                {/* <LabelList
                   dataKey={leftDataKey}
                   position="insideLeft"
                   fontSize={getFontSize()}
                   formatter={leftDataFormatter}
-                />
+                /> */}
                 {/* <LabelList
                   dataKey={rightDataKey}
                   position="insideLeft"

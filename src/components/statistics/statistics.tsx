@@ -7,6 +7,8 @@ import { Skeleton } from "../ui/skeleton";
 import BuildFilter from "./build-filter";
 import BarChart from "./bar-chart";
 import { Build } from "@/types/Build";
+import { HardHat } from "lucide-react";
+import { Card } from "../ui/card";
 
 export interface IFilterOptions {
   eloRange: string;
@@ -109,6 +111,11 @@ export default function Statistics() {
               filterOptions={filterOptions}
             />
           </div>
+          <Card className="p-4 mb-4 flex">
+            <div className="text-primary flex font-semibold mx-auto">
+              <HardHat className="text-gold mr-2"></HardHat>Page under construction -please use a desktop browser for best viewing experience! <HardHat className="text-gold ml-2"></HardHat>
+            </div>
+          </Card>
           <BarChart
             yAxisKey="godName"
             xAxisKey="Winrate"
