@@ -1,238 +1,146 @@
-"use client";
-import { useState } from "react";
-import Image from "next/image";
+import { SignIn } from "@/components/sign-in";
 import {
   NavigationMenu,
+  NavigationMenuContent,
   NavigationMenuItem,
+  NavigationMenuLink,
   NavigationMenuList,
-} from "./ui/navigation-menu";
+  NavigationMenuTrigger,
+} from "@/components/ui/navigation-menu";
+import { Separator } from "@/components/ui/separator";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
+import { cn } from "@/utils/utils";
+import { HamburgerMenuIcon } from "@radix-ui/react-icons";
+import {
+  Axe,
+  BarChart4,
+  BookOpen,
+  Film,
+  LucideIcon,
+  Map,
+  Zap,
+} from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
-import dynamic from "next/dynamic";
-import { SignIn } from "./sign-in";
-import { DiscordLogoIcon } from "@radix-ui/react-icons";
-import { Twitch } from "lucide-react";
 
-const Countdown = dynamic(() => import("./countdown"), { ssr: false });
+type NavigationItem = {
+  label: string;
+  href?: string;
+  icon?: LucideIcon;
+  subNavigation?: NavigationItem[];
+};
+
+const navigation: NavigationItem[] = [
+  {
+    label: "Recorded Games",
+    href: "/recs",
+    icon: Film,
+  },
+  {
+    label: "Statistics",
+    icon: BarChart4,
+    subNavigation: [
+      {
+        label: "Gods",
+        href: "/stats/gods",
+        icon: Zap,
+      },
+      {
+        label: "Matchups",
+        href: "/stats/matchups",
+        icon: Axe,
+      },
+      {
+        label: "Maps",
+        href: "/stats/maps",
+        icon: Map,
+      },
+    ],
+  },
+  {
+    label: "Resources",
+    href: "/resources",
+    icon: BookOpen,
+  },
+];
 
 export default function Header() {
-  const [isOpen, setIsOpen] = useState(false);
-
-  const toggleMenu = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const closeMenu = () => {
-    setIsOpen(false);
-  };
-
   return (
-    <header className="p-4 flex justify-between items-center">
-      {/* AOM.gg */}
-      <div className="flex items-center space-x-4">
-        <Link
-          href={"/"}
-          className="cursor-pointer hover:underline hover:text-primary"
-        >
-          <Image
-            src="/aom-gg-logo.png"
-            width={175}
-            height={175}
-            alt="AoM.gg"
-            priority
-          />
-        </Link>
-        {/* Desktop Nav Menu */}
-        <NavigationMenu className="w-full sm:w-auto hidden sm:flex sm:items-center ">
-          <NavigationMenuList className="flex flex-col sm:flex-row items-center sm:space-x-4">
-            {/* Recs */}
-            <NavigationMenuItem className="text-center sm:text-left">
-              <Link
-                href={"/recs"}
-                className="cursor-pointer text-center hover:underline hover:text-primary text-2xl font-medium leading-tight"
-              >
-                <p>Recorded</p>
-                <p>Games</p>
-              </Link>
-            </NavigationMenuItem>
-            {/* Seperator */}
-            <div className="hidden sm:block h-10 w-0.5 bg-gray-400"></div>
-            {/* Resources */}
-            <NavigationMenuItem className="text-center sm:text-left">
-              <Link
-                href={"/stats"}
-                className="cursor-pointer text-center hover:underline hover:text-primary text-2xl font-medium leading-tight"
-              >
-                <p>Statistics</p>
-              </Link>
-            </NavigationMenuItem>
-            {/* Seperator */}
-            <div className="hidden sm:block h-10 w-0.5 bg-gray-400"></div>
-            <NavigationMenuItem className="text-center sm:text-left">
-              <Link
-                href="https://discord.gg/Um8MZju4CK"
-                className="flex items-center"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <DiscordLogoIcon className="w-8 h-8 text-blue-600 transition-transform duration-300 ease-in-out transform hover:scale-110 hover:text-blue-800" />
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem className="text-center sm:text-left">
-              <Link
-                href="https://www.twitch.tv/fitzbro/videos"
-                className="flex items-center"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Twitch className="w-8 h-8 text-purple-500 transition-transform duration-300 ease-in-out transform hover:scale-110 hover:text-purple-700" />
-              </Link>
-            </NavigationMenuItem>
-            <NavigationMenuItem className="text-center sm:text-left">
-              <Link
-                href="https://ko-fi.com/fitzbro"
-                className="flex items-center"
-                target="_blank"
-                rel="noopener noreferrer"
-              >
-                <Image
-                  src="/kofi_button_blue.png"
-                  width={200}
-                  height={200}
-                  alt="Ko-fi"
-                  priority
-                  className=""
-                />
-              </Link>
-            </NavigationMenuItem>
-          </NavigationMenuList>
-        </NavigationMenu>
-      </div>
-      {/* Hamburger Icon */}
-      <div className="sm:hidden">
-        <button
-          className="text-gray-500 hover:text-gray-700 focus:outline-none"
-          onClick={toggleMenu}
-        >
-          <svg
-            className="w-6 h-6"
-            fill="none"
-            stroke="currentColor"
-            viewBox="0 0 24 24"
-            xmlns="http://www.w3.org/2000/svg"
-          >
-            <path
-              strokeLinecap="round"
-              strokeLinejoin="round"
-              strokeWidth="2"
-              d="M4 6h16M4 12h16M4 18h16"
-            ></path>
-          </svg>
-        </button>
-      </div>
-      <div className="hidden sm:flex sm:items-center w-full sm:w-auto">
-        {/* Countdown */}
-        {/* <div className="flex justify-center sm:justify-end w-full sm:w-auto mt-4 sm:mt-0 sm:pr-6">
-          <Countdown
-            targetDate={"2024-09-04T17:00:00Z"}
-            title={"Retold Official Launch"}
-          />
-        </div> */}
-        {/* Sign In */}
-        <div className="mt-4 sm:mt-0 flex justify-center sm:justify-end w-full sm:w-auto">
-          <SignIn />
-        </div>
-      </div>
-
-      {/* TODO - move mobile nav to its own component */}
-      {/* Mobile Nav */}
-      <div
-        className={`fixed inset-0 z-30 flex transition-transform transform ${
-          isOpen ? "translate-x-0" : "translate-x-full"
-        } justify-end`}
+    <header className="w-full bg-white/5 p-4 grid grid-cols-2 md:grid-cols-[auto_1fr_auto] items-center gap-x-4 text-sm text-white">
+      <Link
+        href={"/"}
+        className="cursor-pointer hover:underline hover:text-primary"
       >
-        <div
-          className="fixed inset-0 bg-black opacity-50"
-          onClick={closeMenu}
-        ></div>
-        <div className="relative flex flex-col bg-card w-64 max-w-xs shadow-xl transition-transform transform translate-x-0 sm:hidden">
-          <button
-            className="self-end p-4 text-gray-500 hover:text-gray-700 focus:outline-none"
-            onClick={closeMenu}
-          >
-            <svg
-              className="w-6 h-6"
-              fill="none"
-              stroke="currentColor"
-              viewBox="0 0 24 24"
-              xmlns="http://www.w3.org/2000/svg"
-            >
-              <path
-                strokeLinecap="round"
-                strokeLinejoin="round"
-                strokeWidth="2"
-                d="M6 18L18 6M6 6l12 12"
-              ></path>
-            </svg>
-          </button>
-          <nav className="flex flex-col space-y-4 p-6">
-            <div className="mx-auto">
-              <SignIn />
-            </div>
-            <Link
-              href={"/"}
-              className="cursor-pointer hover:underline hover:text-primary text-2xl font-medium leading-tight"
-              onClick={closeMenu}
-            >
-              Home
-            </Link>
-            <Link
-              href={"/recs"}
-              className="cursor-pointer hover:underline hover:text-primary text-2xl font-medium leading-tight"
-              onClick={closeMenu}
-            >
-              Replays
-            </Link>
-            <Link
-              href={"/resources"}
-              className="cursor-pointer hover:underline hover:text-primary text-2xl font-medium leading-tight"
-              onClick={closeMenu}
-            >
-              Resources
-            </Link>
-            <Link
-              href="https://discord.gg/Um8MZju4CK"
-              className="flex items-center"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <DiscordLogoIcon className="w-8 h-8 text-blue-600 transition-transform duration-300 ease-in-out transform hover:scale-110 hover:text-blue-800" />
-            </Link>
-            <Link
-              href="https://www.twitch.tv/fitzbro/videos"
-              className="flex items-center"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Twitch className="w-8 h-8 text-purple-500 transition-transform duration-300 ease-in-out transform hover:scale-110 hover:text-purple-700" />
-            </Link>
-            <Link
-              href="https://ko-fi.com/fitzbro"
-              className="flex items-center"
-              target="_blank"
-              rel="noopener noreferrer"
-            >
-              <Image
-                src="/kofi_bg_tag_dark.png"
-                width={100}
-                height={100}
-                alt="Ko-fi"
-                priority
-                className=""
-              />
-            </Link>
-          </nav>
-        </div>
+        <Image
+          src="/aom-gg-logo.png"
+          width={124}
+          height={124}
+          alt="AoM.gg"
+          priority
+        />
+      </Link>
+      <NavigationMenu className="items-center justify-start w-full hidden md:flex">
+        <NavigationMenuList className="gap-2">
+          {navigation.map((v) => (
+            <NavigationItem key={v.label} item={v} />
+          ))}
+        </NavigationMenuList>
+      </NavigationMenu>
+      <div className="block md:hidden self-center place-self-end">
+        <Sheet>
+          <SheetTrigger asChild>
+            <HamburgerMenuIcon />
+          </SheetTrigger>
+          <SheetContent className="w-fit gap-4 flex flex-col items-start justify-start">
+            <SignIn />
+            <Separator />
+            <NavigationMenu className="w-full">
+              <NavigationMenuList className="gap-2 flex-col space-x-0 items-start">
+                {navigation.map((v) => (
+                  <NavigationItem key={v.label} item={v} />
+                ))}
+              </NavigationMenuList>
+            </NavigationMenu>
+          </SheetContent>
+        </Sheet>
+      </div>
+      <div className="hidden md:block">
+        <SignIn />
       </div>
     </header>
+  );
+}
+
+function NavigationItem({ item }: { item: NavigationItem }) {
+  const hasSubnav = item.subNavigation && item.subNavigation.length > 0;
+  const Trigger = hasSubnav ? NavigationMenuTrigger : NavigationMenuLink;
+  return (
+    <NavigationMenuItem>
+      <Trigger
+        className={cn(
+          "bg-transparent flex flex-row items-center gap-2",
+          hasSubnav ? "pr-2 md:px-4 md:py-2" : "hover:underline focus:underline"
+        )}
+        showChevron={!!item.subNavigation}
+        href={item.href}
+      >
+        {item.icon && <item.icon size={16} />}
+        {item.label}
+      </Trigger>
+      {item.subNavigation && item.subNavigation.length > 0 && (
+        <NavigationMenuContent className="p-4 flex gap-4 flex-col">
+          {item.subNavigation.map((v) => (
+            <NavigationMenuLink
+              href={v.href}
+              key={v.label}
+              className="gap-2 flex flex-row items-center hover:underline focus:underline"
+            >
+              {v.icon && <v.icon size={16} />}
+              {v.label}
+            </NavigationMenuLink>
+          ))}
+        </NavigationMenuContent>
+      )}
+    </NavigationMenuItem>
   );
 }
