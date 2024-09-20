@@ -1,6 +1,4 @@
 "use client";
-import { SignInDialog } from "./sign-in-dialog-conent";
-import { Button } from "./ui/button";
 
 export default function AboutUs() {
   return (
@@ -14,15 +12,13 @@ export default function AboutUs() {
         {/* Welcome Message */}
         <section className="mb-12 text-center">
           <p className="text-lg sm:text-xl mb-6">
-            Welcome to <span className="font-semibold">fitzbrogaming</span>,
-            where passion for gaming and cutting-edge technology come together
-            to create a unique online experience.
+            Welcome to <span className="font-semibold">AoM.gg</span>,
+            the #1 home for Age of Mythlogy Retold fans, competitors, and creators.
           </p>
           <p className="text-base sm:text-lg">
-            Our mission is to build an inclusive, innovative, and engaging
-            platform that brings together gamers from all walks of life. From
-            livestreams to interactive features, we are here to provide a space
-            where you can connect, play, and thrive.
+            Our mission is to build a vibrant community around the game we all love,
+            providing a platform for players to connect, compete, and share their passion
+            for Age of Mythology Retold.
           </p>
         </section>
 
@@ -33,16 +29,10 @@ export default function AboutUs() {
           </h2>
           <div className="flex flex-col gap-6">
             <p className="text-base sm:text-lg mb-4">
-              fitzbrogaming started as a small community of passionate gamers
-              who wanted to share their experiences and connect with like-minded
-              individuals. From these humble beginnings, we’ve grown into a
-              larger platform offering livestreams, tournaments, and interactive
-              content for a global audience.
-            </p>
-            <p className="text-base sm:text-lg">
-              Today, we’re proud to serve a thriving community of gamers who
-              inspire us to keep pushing the boundaries of what’s possible in
-              the gaming world.
+              AoM.gg started as a small project by FitzBro to host recorded games and leaderboard stats, 
+              and has since grown to become the go-to destination for Age of Mythology Retold players. As an 
+              open source project, we’re constantly evolving and improving our platform to better serve the
+              community. Get in touch with us on Discord to share your feedback and ideas!
             </p>
           </div>
         </section>
@@ -55,44 +45,46 @@ export default function AboutUs() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
             <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
               <h3 className="text-xl sm:text-2xl font-semibold mb-4">
-                Livestreams
+                Leaderboards
               </h3>
               <p>
-                Watch your favorite games live, interact with streamers, and be
-                part of the action. Our platform supports high-quality streams
-                with a user-friendly interface.
+                Compete with other players and climb the leaderboards to prove
+                your skill and earn recognition. Our leaderboards are updated in
+                real-time, so you can track your progress and see how you stack
+                up against the competition.
               </p>
             </div>
 
             <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
               <h3 className="text-xl sm:text-2xl font-semibold mb-4">
-                Tournaments
+                Recorded Games
               </h3>
               <p>
-                Participate in our regular tournaments for a chance to showcase
-                your skills, compete with others, and win exciting rewards.
+                Watch and learn from the best players in the world with our
+                extensive library of recorded games. Analyze their strategies,
+                build orders, and decision-making to improve your own gameplay. Upload
+                your own games to share with the community!
               </p>
             </div>
 
             <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
               <h3 className="text-xl sm:text-2xl font-semibold mb-4">
-                Community
+                Statistics
               </h3>
               <p>
-                Join our thriving community of gamers, engage in discussions,
-                share tips, and make new friends. We’re all about fostering an
-                inclusive environment.
+                Track your performance and analyze your gameplay with detailed
+                statistics and match history. Identify your strengths and
+                weaknesses, and use that information to improve and become a
+                better player.
               </p>
             </div>
 
             <div className="bg-gray-800 p-6 rounded-lg shadow-lg">
               <h3 className="text-xl sm:text-2xl font-semibold mb-4">
-                Customization
+                Resources
               </h3>
               <p>
-                Personalize your gaming experience with customizable overlays,
-                in-game features, and more. We believe that every gamer should
-                have the tools to make their streams unique.
+                
               </p>
             </div>
           </div>
@@ -103,7 +95,7 @@ export default function AboutUs() {
           <h2 className="text-2xl sm:text-3xl font-semibold mb-6">Join Us</h2>
           <p className="text-base sm:text-lg mb-4">
             Whether you&apos;re a seasoned gamer or just starting out,
-            fitzbrogaming has something for everyone. Become a part of our
+            AoM.gg has something for everyone. Become a part of our
             community and experience the future of gaming with us!
           </p>
 

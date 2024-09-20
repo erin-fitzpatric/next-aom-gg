@@ -1,5 +1,4 @@
 export default function TermsAndConditions() {
-  const currentDate = new Date().toISOString().split("T")[0];
   return (
     <div className="max-w-4xl mx-auto px-4 py-8 text-white">
       <h1 className="text-4xl font-extrabold text-center mb-10">
@@ -7,7 +6,7 @@ export default function TermsAndConditions() {
       </h1>
 
       <p className="mb-6">
-        <strong>Last Updated:</strong> {currentDate}
+        <strong>Last Updated:</strong> {new Date('2024-09-20').toLocaleDateString()}
       </p>
 
       <section className="mb-12">
@@ -76,7 +75,7 @@ export default function TermsAndConditions() {
         </h2>
         <p>
           All content, including but not limited to text, images, graphics,
-          logos, and software, is the property of fitzbrogaming or our licensors
+          logos, and software, is the property of AoM.gg or our licensors
           and is protected by copyright, trademark, and other intellectual
           property laws.
         </p>
@@ -101,7 +100,7 @@ export default function TermsAndConditions() {
           7. Limitation of Liability
         </h2>
         <p>
-          To the fullest extent permitted by law, fitzbrogaming and its
+          To the fullest extent permitted by law, aom.gg and its
           affiliates, officers, employees, and agents shall not be liable for
           any indirect, incidental, special, consequential, or punitive damages,
           including but not limited to loss of profits, data, or goodwill,
