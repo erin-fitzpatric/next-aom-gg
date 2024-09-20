@@ -13,17 +13,20 @@ import { Button } from "../ui/button";
 import { toast } from "../ui/use-toast";
 
 interface RecTileProps {
+  id:string
   rec: IRecordedGame;
   showMap?: boolean;
 }
 
-export default function RecTile({ rec, showMap = true }: RecTileProps) {
+export default function RecTile({id, rec, showMap = true }: RecTileProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [action, setAction] = useState<'edit' | 'delete'>('edit');
   const [fileName, setFileName] = useState("");
   const windowSize = useContext(WindowContext);
   const { leftTeams, rightTeams } = useTeams(rec);
 
+  const recGameAuthor = id === rec.uploadedByUserId ? true : false;
+    
   async function handleEditGameTitle(fileName: string, gameGuid: string) {
     const response = await fetch(`/api/recordedGames`, {
       method: "PUT",
@@ -90,7 +93,7 @@ export default function RecTile({ rec, showMap = true }: RecTileProps) {
         <div>
           <div className="flex">
             <RecTitle gameTitle={rec.gameTitle || ""} />
-            <Sheet open={isOpen} onOpenChange={setIsOpen}>
+            { recGameAuthor && <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger className="flex mx-auto" asChild>
                 <SquarePen className="cursor-pointer" onClick={() => {
                   setAction('edit');
@@ -139,7 +142,7 @@ export default function RecTile({ rec, showMap = true }: RecTileProps) {
                   Confirm
                 </Button>
               </SheetContent>
-            </Sheet>
+            </Sheet> }
           </div>
           <div className="flex">
             {leftTeams}

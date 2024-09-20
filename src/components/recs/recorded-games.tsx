@@ -13,6 +13,7 @@ import { Filters } from "@/types/Filters";
 import Loading from "../loading";
 import RecUploadForm from "./rec-upload-form";
 import { useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function RecordedGames() {
   // Set state
@@ -24,10 +25,11 @@ export default function RecordedGames() {
   const [filters, setFilters] = useState<Filters>({});
   const [buildNumbers, setBuildNumbers] = useState<number[]>([]);
   const [selectedBuild, setSelectedBuild] = useState<number | null>(null);
-
+  const { data: session } = useSession();
+  const loggedInUserId = session?.user?.id
   const initialFetch = useRef(true);
   const searchParams = useSearchParams();
-
+  
   const fetchRecs = useCallback(
     async (pageNum: number, filters?: Filters) => {
       let mappedFilters = filters;
@@ -150,6 +152,7 @@ export default function RecordedGames() {
                   <div>
                     <RecTile
                       key={`rec-tile-${rec.gameGuid}`}
+                      id={loggedInUserId || ""}
                       rec={rec}
                     ></RecTile>
                   </div>

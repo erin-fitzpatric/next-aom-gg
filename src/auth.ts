@@ -30,5 +30,16 @@ export const {
           ]
         : []),
     ],
+  callbacks: {
+    async session({session}) {
+        session = {
+            ...session,
+            user: {
+                ...session.user
+            }
+        }
+        return session
+    }
+}
   };
 });
