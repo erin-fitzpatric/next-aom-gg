@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import Loading from "../loading";
 import { MappedCivStats } from "@/app/api/stats/civs/service";
 import EloFilter from "./elo-filter";
+import { Skeleton } from "../ui/skeleton";
 import BuildFilter from "./build-filter";
 import BarChart from "./bar-chart";
 import { Build } from "@/types/Build";
@@ -89,7 +90,11 @@ export default function Statistics() {
   return (
     <>
       {!statisticsData ? (
-        <Loading />
+        <div>
+          <Skeleton className="h-96">
+            <Loading />
+          </Skeleton>
+        </div>
       ) : (
         <>
           <div className="flex flex-row-reverse flex-wrap pb-4">

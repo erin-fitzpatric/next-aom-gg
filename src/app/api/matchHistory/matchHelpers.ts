@@ -1,3 +1,4 @@
+import { Match } from "@/types/Match";
 import {
   MatchHistoryReportResult,
   TeamResult,
@@ -32,74 +33,41 @@ export type MappedTeam = {
   xpgained: number;
 };
 
-export function groupAndReorderTeams(
-  results: MatchHistoryReportResult[],
-  profiles: Record<string, Profile>,
-  profile_id: string
-): TeamResult[] {
-  // Step 1: Group the results by teamid
-  const teamsMap: { [key: number]: MappedTeam[] } = results.reduce(
-    (acc, result) => {
-      const { teamid } = result;
-      if (!acc[teamid]) {
-        acc[teamid] = [];
-      }
-      acc[teamid].push({
-        civilization_id: result.civilization_id,
-        matchhistory_id: result.matchhistory_id,
-        matchstartdate: result.matchstartdate,
-        profile_id: result.profile_id,
-        race_id: result.race_id,
-        resulttype: result.resulttype,
-        teamid: result.teamid,
-        xpgained: result.xpgained,
-        postgameStats: JSON.parse(result.counters) as MatchStats,
-        playerName: profiles[result.profile_id].alias,
+export function sortTeams(matchData: Match[], playerId: number): Match[] {
+  return matchData.map((match) => {
+    const sortedTeams = match.teams
+      .sort((teamA, teamB) => {
+        // Check if either team contains the playerId
+        const hasPlayerInTeamA = teamA.results.some(
+          (result) => result.profile_id === playerId
+        );
+        const hasPlayerInTeamB = teamB.results.some(
+          (result) => result.profile_id === playerId
+        );
+
+        // Place team with playerId first
+        if (hasPlayerInTeamA && !hasPlayerInTeamB) {
+          return -1;
+        }
+        if (!hasPlayerInTeamA && hasPlayerInTeamB) {
+          return 1;
+        }
+        return 0;
+      })
+      .map((team) => {
+        // Sort results within each team to ensure playerId is prioritized
+        const sortedResults = team.results.sort((a, b) => {
+          if (a.profile_id === playerId) {
+            return -1;
+          }
+          if (b.profile_id === playerId) {
+            return 1;
+          }
+          return 0;
+        });
+        return { ...team, results: sortedResults };
       });
-      return acc;
-    },
-    {} as { [key: number]: MappedTeam[] }
-  );
 
-  // Step 2: Convert the teamsMap object to an array of TeamResult
-  let teamsArray: TeamResult[] = Object.entries(teamsMap).map(
-    ([teamid, results]) => ({
-      teamid: Number(teamid),
-      results,
-    })
-  );
-
-  // Step 3: Find the index of the team containing the target profile_id
-  const targetIndex = teamsArray.findIndex((team) =>
-    team.results.some((player) => player.profile_id === Number(profile_id))
-  );
-
-  // Step 4: If the team with the target profile_id is found, move it to the front
-  if (targetIndex > -1) {
-    const [targetTeam] = teamsArray.splice(targetIndex, 1);
-    teamsArray.unshift(targetTeam);
-  }
-
-  return teamsArray;
-}
-
-export function createMatchHistoryMap(
-  data: MatchHistoryMember[]
-): MatchHistoryMap {
-  const map: MatchHistoryMap = {};
-
-  data.forEach((member) => {
-    if (!map[member.profile_id]) {
-      map[member.profile_id] = [];
-    }
-    map[member.profile_id].push(member);
+    return { ...match, teams: sortedTeams };
   });
-  return map;
-}
-
-export function parseMapName(mapname: string): string {
-  const underscoreIndex = mapname.indexOf("_");
-  return underscoreIndex !== -1
-    ? mapname.substring(underscoreIndex + 1)
-    : mapname;
 }

@@ -21,13 +21,37 @@ export async function fetchCivStats(
   }
 
   await getMongoClient();
+
+  const batchSize = 200; // Adjust as needed
+  const count = await StatsCivsModel.countDocuments({
+    matchDay: { $gte: startDate, $lte: endDate },
+    "metaField.lower_elo": { $gte: lowerElo },
+    "metaField.upper_elo": { $lte: higherElo },
+  });
+
+  const numBatches = Math.ceil(count / batchSize);
+  const batchPromises: Promise<IStatsCivs[]>[] = [];
+
   try {
-    const result: IStatsCivs[] = await StatsCivsModel.find({
-      matchDay: { $gte: startDate, $lte: endDate },
-      "metaField.lower_elo": { $gte: lowerElo },
-      "metaField.upper_elo": { $lte: higherElo },
-    }).lean();
-    return result;
+    // Create all batch promises
+    for (let i = 0; i < numBatches; i++) {
+      batchPromises.push(
+        StatsCivsModel.find({
+          matchDay: { $gte: startDate, $lte: endDate },
+          "metaField.lower_elo": { $gte: lowerElo },
+          "metaField.upper_elo": { $lte: higherElo },
+        })
+          .limit(batchSize)
+          .skip(i * batchSize)
+          .lean()
+      );
+    }
+
+    // Execute all batch queries in parallel
+    const results = await Promise.all(batchPromises);
+
+    // Flatten the results
+    return results.flat();
   } catch (error: any) {
     throw new Error("Error fetching civ stats: " + error.message);
   }

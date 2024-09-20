@@ -17,15 +17,18 @@ export default function Home() {
       <div>
         <RedditFeed />
       </div>
+
       <div className="grid grid-cols-1 xl:grid-cols-4 gap-5">
-        <div className="xl:col-span-1 order-2 xl:order-1">
-          <TopRecordedGames />
-        </div>
-        <div className="xl:col-span-2 order-1 xl:order-2">
+        <div className="xl:col-span-3 order-1">
           <Leaderboard />
         </div>
-        <div className="xl:col-span-1 order-3">
-          <FeaturedYoutubeVideos />
+        <div className="xl:col-span-1 order-2 space-y-4">
+          <div>
+            <FeaturedYoutubeVideos />
+          </div>
+          <div>
+            <TopRecordedGames />
+          </div>
         </div>
       </div>
     </main>
