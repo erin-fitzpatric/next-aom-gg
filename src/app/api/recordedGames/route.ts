@@ -2,6 +2,7 @@ import uploadRec from "@/server/controllers/upload-rec-controller";
 import { Errors } from "@/utils/errors";
 import { auth } from "@/auth";
 import editGameTitle from "@/server/controllers/editGameTitle";
+import deleteRecGame from "@/server/controllers/deleteRecGame";
 
 export const POST = async function POST(request: Request) {
   try {
@@ -44,16 +45,16 @@ export const POST = async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    // const session = await auth();
-    // if (!session?.user?.id) {
-    //   return Response.json(
-    //     {
-    //       error: "Not authenticated",
-    //     },
-    //     { status: 401 }
-    //   );
-    // }
-    // const userId = session.user.id;
+    const session = await auth();
+    if (!session?.user?.id) {
+      return Response.json(
+        {
+          error: "Not authenticated",
+        },
+        { status: 401 }
+      );
+    }
+    const userId = session.user.id;
     const body = await request.json();
     const { gameTitle, gameGuid } = body;
 
@@ -76,5 +77,39 @@ export async function PUT(request: Request) {
       { error: "Error editing game title" },
       { status: 500 }
     );
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return Response.json(
+        {
+          error: "Not authenticated",
+        },
+        { status: 401 }
+      );
+    }
+    const userId = session.user.id;
+    const body = await request.json();
+    const { gameGuid } = body;
+
+    if (!gameGuid) {
+      return Response.json({ error: "Missing gameGuid" }, { status: 400 });
+    }
+    await deleteRecGame(gameGuid);
+    return Response.json(
+      { message: "Rec game deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.error("Error deleting rec game:", error);
+
+    if (error.message.includes("not found")) {
+      return Response.json({ error: error.message }, { status: 404 });
+    }
+
+    return Response.json({ error: "Error deleting rec game" }, { status: 500 });
   }
 }
