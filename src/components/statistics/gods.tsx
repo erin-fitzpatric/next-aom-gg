@@ -1,21 +1,20 @@
 "use client";
 import { useEffect, useState } from "react";
 import Loading from "../loading";
-import { MappedCivStats } from "@/app/api/stats/civs/service";
+import { MappedCivStats } from "@/app/api/stats/gods/service";
 import EloFilter from "./elo-filter";
 import { Skeleton } from "../ui/skeleton";
 import BuildFilter from "./build-filter";
 import BarChart from "./bar-chart";
 import { Build } from "@/types/Build";
-import { HardHat } from "lucide-react";
-import { Card } from "../ui/card";
+import UnderConstruction from "./under-construction";
 
 export interface IFilterOptions {
   eloRange: string;
   patch: number | null;
 }
 
-export default function Statistics() {
+export default function Gods() {
   const [statisticsData, setStatisticsData] = useState<MappedCivStats | null>(
     null
   );
@@ -65,7 +64,7 @@ export default function Statistics() {
       ? getPatchEndDate(filterOptions.patch)
       : new Date(); // current date
 
-    const url = `/api/stats/civs?eloRange=${filterOptions.eloRange}&startDate=${startDate}&endDate=${endDate}`;
+    const url = `/api/stats/gods?eloRange=${filterOptions.eloRange}&startDate=${startDate}&endDate=${endDate}`;
 
     // Fetch the data from the API
     const response = await fetch(url); // Ensure toString() is called on URL
@@ -109,11 +108,6 @@ export default function Statistics() {
               filterOptions={filterOptions}
             />
           </div>
-          <Card className="p-4 mb-4 flex">
-            <div className="text-primary flex font-semibold mx-auto">
-              <HardHat className="text-gold mr-2"></HardHat>Page under construction -please use a desktop browser for best viewing experience! <HardHat className="text-gold ml-2"></HardHat>
-            </div>
-          </Card>
           <BarChart
             yAxisKey="godName"
             xAxisKey="Winrate"
@@ -121,9 +115,7 @@ export default function Statistics() {
             leftDataKey="totalGames"
             leftDataFormatter={(value: number) => `${value} games`}
             rightDataKey="Pickrate"
-            rightDataFormatter={(value: number) =>
-              value
-            }
+            rightDataFormatter={(value: number) => value}
             tooltipFormatter={(value, name, item) => {
               if (name === "Winrate") {
                 return `Winrate ${(value * 100).toFixed(1)}%`;
@@ -134,11 +126,13 @@ export default function Statistics() {
               return value;
             }}
             title={title}
-            data={statisticsData.civStats.map(({winRate, pickRate, ...civ}) => ({
-              ...civ,
-              Pickrate: pickRate,
-              Winrate: winRate,
-            }))}
+            data={statisticsData.civStats.map(
+              ({ winRate, pickRate, ...civ }) => ({
+                ...civ,
+                Pickrate: pickRate,
+                Winrate: winRate,
+              })
+            )}
             compareFn={(a, b) => b.Winrate - a.Winrate}
             totalGamesAnalyzed={statisticsData.totalGamesAnalyzed}
           />

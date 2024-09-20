@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from "react";
-import { IFilterOptions } from "./statistics";
+import { IFilterOptions } from "./gods";
 
 export default function EloFilter({
   setFilterOptions,
