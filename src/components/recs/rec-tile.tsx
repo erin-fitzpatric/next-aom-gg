@@ -9,6 +9,7 @@ import { useTeams } from "@/hooks/useTeams";
 import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTrigger } from "../ui/sheet";
 import { Button } from "../ui/button";
 import { toast } from "../ui/use-toast";
+import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from "../ui/dialog";
 
 interface RecTileProps {
   id: string;
@@ -19,6 +20,7 @@ interface RecTileProps {
 export default function RecTile({ id, rec, showMap = true }: RecTileProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [fileName, setFileName] = useState(rec.gameTitle);
+  const [dialogOpen, setDialogOpen] = useState(false);
   const windowSize = useContext(WindowContext);
   const { leftTeams, rightTeams } = useTeams(rec);
 
@@ -35,19 +37,9 @@ export default function RecTile({ id, rec, showMap = true }: RecTileProps) {
         title: "Game Title updated successfully",
         duration: 3000,
       });
-    } else if (response.status === 404) {
-      toast({
-        title: "Incorrect game guid",
-        duration: 3000,
-      });
-    } else if (response.status === 400) {
-      toast({
-        title: "Internal server error",
-        duration: 3000,
-      });
     } else {
       toast({
-        title: "Unexpected error occurred",
+        title: "Error updating the title",
         duration: 3000,
       });
     }
@@ -66,23 +58,14 @@ export default function RecTile({ id, rec, showMap = true }: RecTileProps) {
         title: "Game deleted successfully",
         duration: 3000,
       });
-    } else if (response.status === 404) {
-      toast({
-        title: "Incorrect game guid",
-        duration: 3000,
-      });
-    } else if (response.status === 500) {
-      toast({
-        title: "Internal server error",
-        duration: 3000,
-      });
     } else {
       toast({
-        title: "Unexpected error occurred",
+        title: "Error deleting the game",
         duration: 3000,
       });
     }
     setIsOpen(false);
+    setDialogOpen(false);
   }
   return (
     <div>
@@ -90,9 +73,7 @@ export default function RecTile({ id, rec, showMap = true }: RecTileProps) {
         // desktop layout
         <div>
           <div className="flex">
-            <div className="flex mt-9">
-              {leftTeams}
-            </div>
+            <div className="flex mt-9">{leftTeams}</div>
             <div>
               <RecTitle gameTitle={rec.gameTitle || ""} />
               {showMap && <RecMap rec={rec} />}
@@ -100,61 +81,78 @@ export default function RecTile({ id, rec, showMap = true }: RecTileProps) {
             <div className="flex flex-col">
               <div className="flex justify-end mt-2 mr-2">
                 {!recGameAuthor && (
-              <div className="flex space-x-2">
-                <Sheet open={isOpen} onOpenChange={setIsOpen}>
-                  <SheetTrigger asChild>
-                    <SquarePen
-                      className="cursor-pointer"
-                      onClick={() => {
-                        setIsOpen(true);
-                      }}
-                    />
-                  </SheetTrigger>
-                  <SheetContent>
-                    <SheetHeader>
-                      <SheetTitle>
-                        <div className="text-center">Edit Game Title</div>
-                      </SheetTitle>
-                    </SheetHeader>
-                    <SheetDescription>
-                        <input
-                          type="text"
-                          autoFocus="false"
-                          value={fileName}
-                          onChange={(e) => setFileName(e.target.value)}
-                          placeholder="Enter file name"
-                          className="w-full flex justify-center border-b border-gray-400 focus:outline-none focus:border-blue-500 mt-2 px-2 py-2"
+                  <div className="flex space-x-2">
+                    <Sheet open={isOpen} onOpenChange={setIsOpen}>
+                      <SheetTrigger asChild>
+                        <SquarePen
+                          className="cursor-pointer"
+                          onClick={() => setIsOpen(true)}
                         />
-                    </SheetDescription>
-                    <Button
-                      type="submit"
-                      className="mx-auto mt-4 flex"
-                      onClick={() => {
-                          handleEditGameTitle(fileName || "", rec.gameGuid);
-                        }
-                      }
-                    >
-                      Confirm
-                    </Button>
-                    <SheetTitle>
-                      <div className="text-center mt-2">Delete this game</div>
-                    </SheetTitle>
-                    <Button
-                      type="submit"
-                      className="mx-auto mt-4 bg-red-500 flex"
-                      onClick={() => {
-                          handleDeleteGame(rec.gameGuid);
-                        }
-                      }
-                    >
-                      Delete
-                    </Button>
-                  </SheetContent>
-                </Sheet>
+                      </SheetTrigger>
+                      <SheetContent>
+                        <SheetHeader>
+                          <SheetTitle>
+                            <div className="text-center">Edit Game Title</div>
+                          </SheetTitle>
+                        </SheetHeader>
+                        <SheetDescription>
+                          <input
+                            type="text"
+                            autoFocus="false"
+                            value={fileName}
+                            onChange={(e) => setFileName(e.target.value)}
+                            placeholder="Enter file name"
+                            className="w-full flex justify-center border-b border-gray-400 focus:outline-none focus:border-blue-500 mt-2 px-2 py-2"
+                          />
+                        </SheetDescription>
+                        <Button
+                          type="submit"
+                          className="mx-auto mt-4 flex"
+                          onClick={() => handleEditGameTitle(fileName || "", rec.gameGuid)}
+                        >
+                          Confirm
+                        </Button>
+                        <SheetTitle>
+                          <div className="text-center mt-2">Delete this game</div>
+                        </SheetTitle>
+                        <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                          <DialogTrigger asChild>
+                            <Button
+                              type="submit"
+                              className="mx-auto mt-4 bg-red-500 flex"
+                              onClick={() => setDialogOpen(true)}
+                            >
+                              Delete
+                            </Button>
+                          </DialogTrigger>
+
+                          <DialogContent>
+                            <DialogHeader>
+                              <DialogTitle>Confirm Deletion</DialogTitle>
+                              <DialogDescription>
+                                Are you sure you want to delete this game? This action cannot be undone.
+                              </DialogDescription>
+                            </DialogHeader>
+                            <DialogFooter>
+                              <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                                Cancel
+                              </Button>
+                              <Button
+                                type="submit"
+                                className="bg-red-500"
+                                onClick={() => handleDeleteGame(rec.gameGuid)}
+                              >
+                                Confirm
+                              </Button>
+                            </DialogFooter>
+                          </DialogContent>
+                        </Dialog>
+                      </SheetContent>
+                    </Sheet>
+                  </div>
+                )}
               </div>
-            )}
-              </div>
-                {rightTeams}
+              {rightTeams}
             </div>
           </div>
           <RecFooter rec={rec} />
