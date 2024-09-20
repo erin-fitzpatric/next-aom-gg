@@ -44,29 +44,34 @@ export const POST = async function POST(request: Request) {
 
 export async function PUT(request: Request) {
   try {
-    const session = await auth();
-    if (!session?.user?.id) {
-      return Response.json(
-        {
-          error: "Not authenticated",
-        },
-        { status: 401 }
-      );
-    }
+    // const session = await auth();
+    // if (!session?.user?.id) {
+    //   return Response.json(
+    //     {
+    //       error: "Not authenticated",
+    //     },
+    //     { status: 401 }
+    //   );
+    // }
+    // const userId = session.user.id;
     const body = await request.json();
-    const userId = session.user.id;
     const { gameTitle, gameGuid } = body;
 
     if (!gameGuid) {
-      return Response.json(
-        { error: "Missing required fields" },
-        { status: 400 }
-      );
+      return Response.json({ error: "Missing gameGuid" }, { status: 400 });
     }
     await editGameTitle({ gameTitle, gameGuid });
-    return Response.json({ status: 200 });
-  } catch (error) {
-    console.error("Error editing game title", error);
+    return Response.json(
+      { message: "Game title updated successfully" },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.error("Error editing game title:", error);
+
+    if (error.message.includes("not found")) {
+      return Response.json({ error: error.message }, { status: 404 });
+    }
+
     return Response.json(
       { error: "Error editing game title" },
       { status: 500 }

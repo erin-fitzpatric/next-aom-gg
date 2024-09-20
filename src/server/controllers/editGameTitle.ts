@@ -13,10 +13,13 @@ export default async function editGameTitle(
 
   await getMongoClient();
   try {
-    await RecordedGameModel.findByIdAndUpdate(gameGuid, {
-      gameTitle: gameTitle,
-    });
+    const existingGame = await RecordedGameModel.findOne({ gameGuid });
+    if (!existingGame) {
+      throw new Error(`Game with gameGuid ${gameGuid} not found.`);
+    }
+    await existingGame.updateOne({ $set: { gameTitle } });
   } catch (error) {
     console.error("Error editing game title:", error);
+    throw error;
   }
 }
