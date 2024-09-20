@@ -10,14 +10,16 @@ import {
 import { Separator } from "@/components/ui/separator";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { cn } from "@/utils/utils";
-import { HamburgerMenuIcon } from "@radix-ui/react-icons";
+import { DiscordLogoIcon, HamburgerMenuIcon } from "@radix-ui/react-icons";
 import {
   Axe,
   BarChart4,
   BookOpen,
   Film,
+  Flame,
   LucideIcon,
   Map,
+  Twitch,
   Zap,
 } from "lucide-react";
 import Image from "next/image";
@@ -26,8 +28,11 @@ import Link from "next/link";
 type NavigationItem = {
   label: string;
   href?: string;
-  icon?: LucideIcon;
+  icon?: LucideIcon | any;
   subNavigation?: NavigationItem[];
+  disabled?: boolean;
+  className?: string;
+  customRender?: React.ReactNode;
 };
 
 const navigation: NavigationItem[] = [
@@ -46,14 +51,21 @@ const navigation: NavigationItem[] = [
         icon: Zap,
       },
       {
+        label: "Heat Maps",
+        href: "/stats/heat-maps",
+        icon: Flame,
+      },
+      {
         label: "Matchups",
         href: "/stats/matchups",
         icon: Axe,
+        disabled: true,
       },
       {
         label: "Maps",
         href: "/stats/maps",
         icon: Map,
+        disabled: true,
       },
     ],
   },
@@ -66,34 +78,67 @@ const navigation: NavigationItem[] = [
 
 export default function Header() {
   return (
-    <header className="w-full bg-white/5 p-4 grid grid-cols-2 md:grid-cols-[auto_1fr_auto] items-center gap-x-4 text-sm text-white">
+    <header className="w-full bg-white/5 p-4 grid grid-cols-2 md:grid-cols-[auto_1fr_auto] items-center gap-x-4 text-xl text-white">
+      {/* Logo */}
       <Link
         href={"/"}
         className="cursor-pointer hover:underline hover:text-primary"
       >
         <Image
           src="/aom-gg-logo.png"
-          width={124}
-          height={124}
+          width={172}
+          height={172}
           alt="AoM.gg"
           priority
         />
       </Link>
-      <NavigationMenu className="items-center justify-start w-full hidden md:flex">
+
+      {/* Desktop Navigation Menu */}
+      <NavigationMenu className="items-center justify-start w-full hidden md:flex font-semibold">
         <NavigationMenuList className="gap-2">
           {navigation.map((v) => (
             <NavigationItem key={v.label} item={v} />
           ))}
         </NavigationMenuList>
       </NavigationMenu>
+
+      {/* Container for SignIn and Social Links */}
+      <div className="hidden md:flex items-center space-x-4">
+        {/* Social Links (hidden on mobile) */}
+        <div className="flex items-center space-x-2">
+          <Link href="https://ko-fi.com/fitzbro">
+            <Image
+              src="/kofi_button_blue.png"
+              width={200}
+              height={200}
+              alt="Ko-fi"
+              priority
+              className="hover:scale-110"
+            />
+          </Link>
+          <Link href="https://discord.gg/Um8MZju4CK">
+            <DiscordLogoIcon className="w-10 h-10 text-blue-600 transition-transform duration-300 ease-in-out transform hover:scale-110 hover:text-blue-800" />
+          </Link>
+          <Link href="https://www.twitch.tv/fitzbro/videos?filter=archives&sort=time">
+            <Twitch className="w-10 h-10 text-purple-500 transition-transform duration-300 ease-in-out transform hover:scale-110 hover:text-purple-700" />
+          </Link>
+        </div>
+
+        {/* SignIn Component */}
+        <SignIn />
+      </div>
+
+      {/* Mobile Hamburger Menu (shown on mobile) */}
       <div className="block md:hidden self-center place-self-end">
         <Sheet>
           <SheetTrigger asChild>
-            <HamburgerMenuIcon />
+            <HamburgerMenuIcon className="w-8 h-8" />
           </SheetTrigger>
           <SheetContent className="w-fit gap-4 flex flex-col items-start justify-start">
             <SignIn />
             <Separator />
+
+            {/* Mobile Navigation Menu */}
             <NavigationMenu className="w-full">
               <NavigationMenuList className="gap-2 flex-col space-x-0 items-start">
                 {navigation.map((v) => (
@@ -101,41 +146,67 @@ export default function Header() {
                 ))}
               </NavigationMenuList>
             </NavigationMenu>
+
+            {/* Social Links (only shown inside hamburger menu) */}
+            <div className="flex items-center space-x-2 mt-4">
+              <Link href="https://ko-fi.com/fitzbro">
+                <Image
+                  src="/kofi_button_blue.png"
+                  width={184}
+                  height={184}
+                  alt="Ko-fi"
+                  priority
+                  className="hover:scale-110"
+                />
+              </Link>
+              <Link href="https://discord.gg/Um8MZju4CK">
+                <DiscordLogoIcon className="w-10 h-10 text-blue-600 transition-transform duration-300 ease-in-out transform hover:scale-110 hover:text-blue-800" />
+              </Link>
+              <Link href="https://www.twitch.tv/fitzbro/videos?filter=archives&sort=time">
+                <Twitch className="w-10 h-10 text-purple-500 transition-transform duration-300 ease-in-out transform hover:scale-110 hover:text-purple-700" />
+              </Link>
+            </div>
           </SheetContent>
         </Sheet>
-      </div>
-      <div className="hidden md:block">
-        <SignIn />
       </div>
     </header>
   );
 }
 
 function NavigationItem({ item }: { item: NavigationItem }) {
-  const hasSubnav = item.subNavigation && item.subNavigation.length > 0;
+  const hasSubnav = item.subNavigation && item.subNavigation.length > 0; // Check if subNavigation exists and has items
   const Trigger = hasSubnav ? NavigationMenuTrigger : NavigationMenuLink;
+
   return (
     <NavigationMenuItem>
       <Trigger
         className={cn(
-          "bg-transparent flex flex-row items-center gap-2",
+          "bg-transparent flex flex-row items-center gap-2 text-xl",
           hasSubnav ? "pr-2 md:px-4 md:py-2" : "hover:underline focus:underline"
         )}
-        showChevron={!!item.subNavigation}
         href={item.href}
       >
-        {item.icon && <item.icon size={16} />}
-        {item.label}
+        {item.customRender
+          ? item.customRender
+          : item.icon && <item.icon size={24} className={item.className} />}
+        {item.label && item.label}
       </Trigger>
-      {item.subNavigation && item.subNavigation.length > 0 && (
-        <NavigationMenuContent className="p-4 flex gap-4 flex-col">
+
+      {hasSubnav && item.subNavigation && (
+        <NavigationMenuContent className="p-4 flex gap-4 flex-col transition duration-150"> {/* Adjusted duration here */}
           {item.subNavigation.map((v) => (
             <NavigationMenuLink
-              href={v.href}
+              href={!v.disabled ? v.href : undefined}
               key={v.label}
-              className="gap-2 flex flex-row items-center hover:underline focus:underline"
+              className={cn(
+                "gap-2 flex flex-row items-center text-xl",
+                v.disabled
+                  ? "text-gray-400 cursor-default"
+                  : "hover:underline focus:underline"
+              )}
+              aria-disabled={v.disabled}
             >
-              {v.icon && <v.icon size={16} />}
+              {v.icon && <v.icon size={24} />}
               {v.label}
             </NavigationMenuLink>
           ))}
@@ -144,3 +215,6 @@ function NavigationItem({ item }: { item: NavigationItem }) {
     </NavigationMenuItem>
   );
 }
+
+
+
