@@ -57,10 +57,6 @@ export async function PUT(request: Request) {
     const userId = session.user.id;
     const body = await request.json();
     const { gameTitle, gameGuid } = body;
-
-    if (!gameGuid) {
-      return Response.json({ error: "Missing gameGuid" }, { status: 400 });
-    }
     await editGameTitle({ gameTitle, gameGuid });
     return Response.json(
       { message: "Game title updated successfully" },
@@ -94,10 +90,6 @@ export async function DELETE(request: Request) {
     const userId = session.user.id;
     const body = await request.json();
     const { gameGuid } = body;
-
-    if (!gameGuid) {
-      return Response.json({ error: "Missing gameGuid" }, { status: 400 });
-    }
     await deleteRecGame(gameGuid);
     return Response.json(
       { message: "Rec game deleted successfully" },

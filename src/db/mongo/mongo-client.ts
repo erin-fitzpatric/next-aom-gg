@@ -12,9 +12,7 @@ export default async function getMongoClient() {
   }
 
   try {
-    mongoClient = await mongoose.connect(
-      `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@dev.yjhvu.mongodb.net/`
-    );
+    mongoClient = await mongoose.connect(process.env.MONGODB_URI||"");
     return mongoClient;
   } catch (err) {
     console.error(err);

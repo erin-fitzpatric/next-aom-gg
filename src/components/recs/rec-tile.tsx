@@ -19,8 +19,40 @@ interface RecTileProps {
 
 export default function RecTile({ rec, showMap = true }: RecTileProps) {
   const [isOpen, setIsOpen] = useState(false);
+  const [action, setAction] = useState<'edit' | 'delete'>('edit');
+  const [fileName, setFileName] = useState("");
   const windowSize = useContext(WindowContext);
   const { leftTeams, rightTeams } = useTeams(rec);
+
+  async function handleEditGameTitle(fileName: string, gameGuid: string) {
+    const response = await fetch(`/api/recordedGames`, {
+      method: "PUT",
+      headers: {"content-type": "application/json",},body:JSON.stringify({ gameTitle: fileName, gameGuid })
+    })
+    if (response.ok) { 
+      toast({
+        title: "Game Title updated successfully",
+        duration: 3000,
+      });
+    }else if (response.status === 404) {
+      toast({
+        title: "Incorrect game guid",
+        duration: 3000,
+      });
+    } else if (response.status === 400) {
+        toast({
+          title: "Internal server error",
+          duration: 3000,
+        });
+    } else  {
+        toast({
+          title: "Unexpected error occurred",
+          duration: 3000,
+        });
+    }
+    setFileName("")
+    setIsOpen(false);
+  }
   
   async function handleDeleteGame(gameGuid: string) {
     const response = await fetch(`/api/recordedGames`, {
@@ -29,7 +61,7 @@ export default function RecTile({ rec, showMap = true }: RecTileProps) {
     })
     if (response.ok) { 
       toast({
-        title: "Game deleted",
+        title: "Game deleted successfully",
         duration: 3000,
       });
     }
@@ -58,21 +90,53 @@ export default function RecTile({ rec, showMap = true }: RecTileProps) {
         <div>
           <div className="flex">
             <RecTitle gameTitle={rec.gameTitle || ""} />
-            <SquarePen className="cursor-pointer"/>
             <Sheet open={isOpen} onOpenChange={setIsOpen}>
               <SheetTrigger className="flex mx-auto" asChild>
-                <Trash2 className="cursor-pointer" onClick={() => setIsOpen(true)}/>
+                <SquarePen className="cursor-pointer" onClick={() => {
+                  setAction('edit');
+                  setIsOpen(true);
+                }} />
+              </SheetTrigger>
+              <SheetTrigger className="flex mx-auto" asChild>
+                <Trash2 className="cursor-pointer" onClick={() => {
+                  setAction('delete');
+                  setIsOpen(true);
+                }} />
               </SheetTrigger>
               <SheetContent>
                 <SheetHeader>
-                  <SheetTitle className="text-center">Delete Rec Game</SheetTitle>
+                  <SheetTitle>
+                    {action === 'edit' ? 'Edit Game Title' : 'Delete Rec Game'}
+                  </SheetTitle>
                 </SheetHeader>
                 <SheetDescription>
-                  <p>Are you sure you want to delete game -&gt; </p>
-                  <p>{rec.gameTitle }</p>
+                  {action === 'edit' ? (
+                    <form action="">
+                      <input
+                        type="text"
+                        value={fileName}
+                        onChange={(e)=>setFileName(e.target.value)}
+                        placeholder="Enter file name"
+                        className="border-b border-gray-400 focus:outline-none focus:border-blue-500 px-2 py-2"
+                      />
+                    </form>
+                  ) : (
+                    <p>Are you sure you want to delete game? </p>
+                  )}
+                  {/* <p>{rec.gameTitle}</p> */}
                 </SheetDescription>
-                <Button type="submit" className="flex mx-auto mt-2" onClick={()=>handleDeleteGame(rec.gameGuid)}>
-                Confirm
+                <Button 
+                  type="submit" 
+                  className="flex mx-auto mt-4" 
+                  onClick={() => {
+                    if (action === 'delete') {
+                      handleDeleteGame(rec.gameGuid);
+                    } else {
+                      handleEditGameTitle(fileName||"",rec.gameGuid);
+                    }
+                  }}
+                >
+                  Confirm
                 </Button>
               </SheetContent>
             </Sheet>
