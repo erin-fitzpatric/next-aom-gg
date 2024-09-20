@@ -1,8 +1,5 @@
 "use client";
 
-import { useEffect, useState } from "react";
-import { Card } from "./ui/card";
-import { ChatBubbleIcon, ThickArrowUpIcon } from "@radix-ui/react-icons";
 import {
   Carousel,
   CarouselContent,
@@ -10,10 +7,14 @@ import {
   CarouselNext,
   CarouselPrevious,
 } from "@/components/ui/carousel";
-import fetchRedditPosts from "@/server/fetchRedditPosts";
 import { RedditPost } from "@/types/RedditPost";
+import { ChatBubbleIcon, ThickArrowUpIcon } from "@radix-ui/react-icons";
 import Image from "next/image";
+import { useEffect, useState } from "react";
+import { Card } from "./ui/card";
 import { Skeleton } from "./ui/skeleton";
+
+const REDDIT_GET_URL = `/api/reddit`
 
 export default function RedditFeed() {
   const [redditPosts, setRedditPosts] = useState<RedditPost[]>([]);
@@ -22,14 +23,19 @@ export default function RedditFeed() {
 
   function getRedditPosts() {
     // TODO -move this to a serverless function in the /api folder and call it from the client
-    fetchRedditPosts()
+    fetch(REDDIT_GET_URL)
+      .then((response) => {
+        console.log(response);
+        if (response.ok) return response.json();
+        else throw (response.statusText)
+      })
       .then((response) => {
         setRedditPosts(response);
-        setLoading(false);
       })
       .catch((error) => {
         console.error("Failed to fetch reddit posts", error);
-      });
+      })
+      .finally(() => setLoading(false));
   }
 
   useEffect(() => {
@@ -99,100 +105,100 @@ export default function RedditFeed() {
           <CarouselContent className="flex items-center">
             {loading
               ? Array.from({ length: 4 }).map((_, index) => (
-                  <CarouselItem
-                    key={index}
-                    className="bg-secondary h-full rounded-3xl mx-2 sm:basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4 hover:opacity-75 transition-opacity duration-200 ease-in-out overflow-hidden"
+                <CarouselItem
+                  key={index}
+                  className="bg-secondary h-full rounded-3xl mx-2 sm:basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4 hover:opacity-75 transition-opacity duration-200 ease-in-out overflow-hidden"
+                >
+                  <div className="flex h-32">
+                    <div className="m-2">
+                      <div className="h-32 w-32 overflow-hidden rounded-lg">
+                        <Skeleton className="w-full h-full" />
+                      </div>
+                    </div>
+                    <div className="flex-1 ml-4">
+                      <Skeleton className="w-full h-6 mb-2" />
+                      <Skeleton className="w-3/4 h-4 mb-2" />
+                      <Skeleton className="w-1/2 h-4" />
+                    </div>
+                  </div>
+                </CarouselItem>
+              ))
+              : redditPosts.map((post: RedditPost) => (
+                <CarouselItem
+                  key={post.id}
+                  className="bg-secondary h-full rounded-3xl mx-2 sm:basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4 hover:opacity-75 transition-opacity duration-200 ease-in-out overflow-hidden"
+                >
+                  <a
+                    href={`https://www.reddit.com${post.permalink}`}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex flex-col justify-between p-4 h-full"
                   >
                     <div className="flex h-32">
                       <div className="m-2">
-                        <div className="h-32 w-32 overflow-hidden rounded-lg">
-                          <Skeleton className="w-full h-full" />
-                        </div>
+                        {post.url &&
+                          !post.url.startsWith("https://twitter.com") && (
+                            <div className="h-32 w-32 overflow-hidden rounded-lg">
+                              {galleryImages[post.id] ? (
+                                galleryImages[post.id].map((imgUrl, index) => (
+                                  <Image
+                                    key={index}
+                                    src={imgUrl}
+                                    alt={post.title}
+                                    width={128}
+                                    height={128}
+                                    className="object-cover w-full h-full"
+                                  />
+                                ))
+                              ) : post.url.includes("youtube.com") ||
+                                post.url.includes("youtu.be") ? (
+                                <Image
+                                  src={`https://img.youtube.com/vi/${getYouTubeVideoId(
+                                    post.url
+                                  )}/mqdefault.jpg`}
+                                  alt={post.title}
+                                  width={128}
+                                  height={128}
+                                  className="object-cover w-full h-full"
+                                />
+                              ) : isValidImageUrl(post.url) ? (
+                                <Image
+                                  src={post.url}
+                                  alt={post.title}
+                                  width={128}
+                                  height={128}
+                                  className="object-cover w-full h-full"
+                                />
+                              ) : (
+                                <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500">
+                                  No image available
+                                </div>
+                              )}
+                            </div>
+                          )}
                       </div>
                       <div className="flex-1 ml-4">
-                        <Skeleton className="w-full h-6 mb-2" />
-                        <Skeleton className="w-3/4 h-4 mb-2" />
-                        <Skeleton className="w-1/2 h-4" />
+                        <h2 className="text-xl text-primary text-wrap line-clamp-2 leading-2">
+                          {post.title}
+                        </h2>
+                        <p className="whitespace-normal truncate">
+                          {post.author}
+                        </p>
+                        <div className="flex flex-row space-x-4 justify-start text-center">
+                          <p>
+                            <ThickArrowUpIcon className="text-gold" />
+                            {post.ups}
+                          </p>
+                          <p>
+                            <ChatBubbleIcon className="text-gold" />
+                            {post.num_comments}
+                          </p>
+                        </div>
                       </div>
                     </div>
-                  </CarouselItem>
-                ))
-              : redditPosts.map((post: RedditPost) => (
-                  <CarouselItem
-                    key={post.id}
-                    className="bg-secondary h-full rounded-3xl mx-2 sm:basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4 hover:opacity-75 transition-opacity duration-200 ease-in-out overflow-hidden"
-                  >
-                    <a
-                      href={`https://www.reddit.com${post.permalink}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="flex flex-col justify-between p-4 h-full"
-                    >
-                      <div className="flex h-32">
-                        <div className="m-2">
-                          {post.url &&
-                            !post.url.startsWith("https://twitter.com") && (
-                              <div className="h-32 w-32 overflow-hidden rounded-lg">
-                                {galleryImages[post.id] ? (
-                                  galleryImages[post.id].map((imgUrl, index) => (
-                                    <Image
-                                      key={index}
-                                      src={imgUrl}
-                                      alt={post.title}
-                                      width={128}
-                                      height={128}
-                                      className="object-cover w-full h-full"
-                                    />
-                                  ))
-                                ) : post.url.includes("youtube.com") ||
-                                  post.url.includes("youtu.be") ? (
-                                  <Image
-                                    src={`https://img.youtube.com/vi/${getYouTubeVideoId(
-                                      post.url
-                                    )}/mqdefault.jpg`}
-                                    alt={post.title}
-                                    width={128}
-                                    height={128}
-                                    className="object-cover w-full h-full"
-                                  />
-                                ) : isValidImageUrl(post.url) ? (
-                                  <Image
-                                    src={post.url}
-                                    alt={post.title}
-                                    width={128}
-                                    height={128}
-                                    className="object-cover w-full h-full"
-                                  />
-                                ) : (
-                                  <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500">
-                                    No image available
-                                  </div>
-                                )}
-                              </div>
-                            )}
-                        </div>
-                        <div className="flex-1 ml-4">
-                          <h2 className="text-xl text-primary text-wrap line-clamp-2 leading-2">
-                            {post.title}
-                          </h2>
-                          <p className="whitespace-normal truncate">
-                            {post.author}
-                          </p>
-                          <div className="flex flex-row space-x-4 justify-start text-center">
-                            <p>
-                              <ThickArrowUpIcon className="text-gold" />
-                              {post.ups}
-                            </p>
-                            <p>
-                              <ChatBubbleIcon className="text-gold" />
-                              {post.num_comments}
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </a>
-                  </CarouselItem>
-                ))}
+                  </a>
+                </CarouselItem>
+              ))}
           </CarouselContent>
           <CarouselPrevious />
           <CarouselNext />
