@@ -4,6 +4,7 @@ import { MajorGodBarChart } from "./major-gods";
 import Loading from "../loading";
 import { MappedCivStats } from "@/app/api/stats/civs/service";
 import EloFilter from "./elo-filter";
+import { Skeleton } from "../ui/skeleton";
 
 export default function Statistics() {
   const [statisticsData, setStatisticsData] = useState<MappedCivStats | null>(
@@ -37,7 +38,11 @@ export default function Statistics() {
   return (
     <>
       {!statisticsData ? (
-        <Loading />
+        <div>
+          <Skeleton className="h-96">
+            <Loading />
+          </Skeleton>
+        </div>
       ) : (
         <>
           <EloFilter
