@@ -1,5 +1,4 @@
 export default function PrivacyPolicy() {
-  const currentDate = new Date().toISOString().split("T")[0];
 
   return (
     <div className="text-white min-h-screen py-12">
@@ -10,11 +9,11 @@ export default function PrivacyPolicy() {
 
         <section className="mb-12">
           <p className="text-lg sm:text-xl text-center mb-6">
-            <strong>Last Updated:</strong> {currentDate}
+            <strong>Last Updated:</strong> {new Date('2024-09-20').toLocaleDateString('en-US', { year: 'numeric', month: 'long', day: 'numeric' })}
           </p>
 
           <p className="text-lg mb-6">
-            At <span className="font-semibold">fitzbrogaming</span>, your
+            At <span className="font-semibold">AoM.gg</span>, your
             privacy is important to us. This Privacy Policy outlines how we
             collect, use, and protect your personal information when you use our
             services.
