@@ -26,7 +26,7 @@ export default function RecordedGames() {
   const [buildNumbers, setBuildNumbers] = useState<number[]>([]);
   const [selectedBuild, setSelectedBuild] = useState<number | null>(null);
   const { data: session } = useSession();
-  const loggedInUserId = session?.user?.id
+  const loggedInUserId = session?.userId
   const initialFetch = useRef(true);
   const searchParams = useSearchParams();
   

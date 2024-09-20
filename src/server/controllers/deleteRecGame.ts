@@ -11,11 +11,11 @@ export default async function deleteRecGame(
   const gameGuid = params;
   await getMongoClient();
   try {
-    const existingGame = await RecordedGameModel.findOne({ gameGuid });
-    if (!existingGame) {
+    const deleteGame = await RecordedGameModel.findOneAndDelete({ gameGuid });
+    
+    if (!deleteGame) {
       throw new Error(`Game with gameGuid ${gameGuid} not found.`);
-    }
-    await existingGame.deleteOne();
+}
   } catch (error) {
     console.error("Error deleting rec game:", error);
     throw error;

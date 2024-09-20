@@ -12,7 +12,7 @@ export default async function getMongoClient() {
   }
 
   try {
-    mongoClient = await mongoose.connect(process.env.MONGODB_URI||"");
+    mongoClient = await mongoose.connect( process.env.MONGODB_URI || "");
     return mongoClient;
   } catch (err) {
     console.error(err);
