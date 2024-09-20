@@ -193,7 +193,7 @@ function NavigationItem({ item }: { item: NavigationItem }) {
       </Trigger>
 
       {hasSubnav && item.subNavigation && (
-        <NavigationMenuContent className="p-4 flex gap-4 flex-col">
+        <NavigationMenuContent className="p-4 flex gap-4 flex-col transition duration-150"> {/* Adjusted duration here */}
           {item.subNavigation.map((v) => (
             <NavigationMenuLink
               href={!v.disabled ? v.href : undefined}
@@ -215,5 +215,6 @@ function NavigationItem({ item }: { item: NavigationItem }) {
     </NavigationMenuItem>
   );
 }
+
 
 
