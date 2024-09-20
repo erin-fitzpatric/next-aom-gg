@@ -18,7 +18,7 @@ interface RecTileProps {
 
 export default function RecTile({ id, rec, showMap = true }: RecTileProps) {
   const [isOpen, setIsOpen] = useState(false);
-  const [fileName, setFileName] = useState("");
+  const [fileName, setFileName] = useState(rec.gameTitle);
   const windowSize = useContext(WindowContext);
   const { leftTeams, rightTeams } = useTeams(rec);
 
@@ -113,16 +113,17 @@ export default function RecTile({ id, rec, showMap = true }: RecTileProps) {
                   <SheetContent>
                     <SheetHeader>
                       <SheetTitle>
-                        Edit Game Title
+                        <div className="text-center">Edit Game Title</div>
                       </SheetTitle>
                     </SheetHeader>
                     <SheetDescription>
                         <input
                           type="text"
+                          autoFocus="false"
                           value={fileName}
                           onChange={(e) => setFileName(e.target.value)}
                           placeholder="Enter file name"
-                          className="w-[80%] border-b border-gray-400 focus:outline-none focus:border-blue-500 mt-2 px-2 py-2"
+                          className="w-full flex justify-center border-b border-gray-400 focus:outline-none focus:border-blue-500 mt-2 px-2 py-2"
                         />
                     </SheetDescription>
                     <Button
@@ -135,9 +136,9 @@ export default function RecTile({ id, rec, showMap = true }: RecTileProps) {
                     >
                       Confirm
                     </Button>
-                    <SheetDescription>
-                        <p className="mt-4">Delete this recorded game</p>
-                    </SheetDescription>
+                    <SheetTitle>
+                      <div className="text-center mt-2">Delete this game</div>
+                    </SheetTitle>
                     <Button
                       type="submit"
                       className="mx-auto mt-4 bg-red-500 flex"
