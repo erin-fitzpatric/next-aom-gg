@@ -25,10 +25,10 @@ export function SignIn() {
         <div className="relative flex flex-col items-center">
           <Image
             src={userImage}
-            width={32}
-            height={32}
+            width={64}
+            height={64}
             alt="User"
-            className="mx-auto cursor-pointer filter transition-transform duration-300 ease-in-out"
+            className="mx-auto cursor-pointer filter transition-transform duration-300 ease-in-out rounded-full"
           />
           <div
             onClick={() => signOut()}
