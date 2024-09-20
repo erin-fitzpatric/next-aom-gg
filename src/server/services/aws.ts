@@ -1,7 +1,6 @@
 "use server";
 import {
   RecordedGameMetadata,
-  RecordedGamePlayerMetadata,
 } from "@/types/RecordedGameParser";
 import {
   GetObjectCommand,

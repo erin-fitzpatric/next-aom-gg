@@ -1,7 +1,7 @@
 "use client";
 
 import { Dispatch, SetStateAction, useState } from "react";
-import { IFilterOptions } from "./statistics";
+import { IFilterOptions } from "./gods";
 import { Build } from "@/types/Build";
 
 export default function BuildFilter({

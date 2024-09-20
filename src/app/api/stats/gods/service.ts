@@ -57,46 +57,6 @@ export async function fetchCivStats(
   }
 }
 
-// TODO - clean this up
-// export function mapCivStats(civStats: IStatsCivs[]): IStatsCivs[] {
-//   const groupedStats = civStats.reduce((acc:any , stat) => {
-//     const { civ_id } = stat.metaField;
-
-//     if (!acc[civ_id]) {
-//       acc[civ_id] = {
-//         civ_id,
-//         totalResultsinEloBracket: 0,
-//         totalWins: 0,
-//         avgDurationMins: 0,
-//         playRate: 0,
-//         totalResults: 0,
-//         winRate: 0,
-//       };
-//     }
-
-//     // Aggregate values
-//     acc[civ_id].totalResultsinEloBracket += stat.totalResultsinEloBracket;
-//     acc[civ_id].totalWins += stat.totalWins;
-//     acc[civ_id].totalResults += stat.totalResults;
-
-//     // For avgDurationMins, you will need to calculate the average
-//     acc[civ_id].avgDurationMins += stat.avgDurationMins;
-
-//     // For playRate, you may need to calculate the average if it's a rate
-//     acc[civ_id].playRate += stat.playRate;
-
-//     // For winRate, you should calculate the weighted average
-//     acc[civ_id].winRate =
-//       (acc[civ_id].winRate * acc[civ_id].totalResults +
-//         stat.winRate * stat.totalResults) /
-//       (acc[civ_id].totalResults + stat.totalResults);
-
-//     return acc;
-//   }, {});
-
-//   return groupedStats;
-// }
-
 export interface CivStatRollup {
   godName: string;
   totalGames: number;
@@ -141,6 +101,6 @@ export function mapCivStats(civStats: IStatsCivs[]): MappedCivStats {
   });
   return {
     civStats: statsArr,
-    totalGamesAnalyzed: totalGamesAnalyzed,
+    totalGamesAnalyzed: totalGamesAnalyzed / 2,
   };
 }
