@@ -7,6 +7,7 @@ import Loading from "../loading";
 import { useQuery } from "@/utils/useQuery";
 import { useCallback } from "react";
 import RecTileCondensed from "@/components/recs/rec-tile-condensed";
+import { FilmIcon } from "lucide-react";
 
 export default function TopRecordedGames() {
   const getMythRecsCallback = useCallback(
@@ -14,7 +15,7 @@ export default function TopRecordedGames() {
       getMythRecs(
         0,
         {},
-        { sort: { downloadCount: -1 }, limit: 10, isCurrentBuild: true }
+        { sort: { downloadCount: -1 }, limit: 6, isCurrentBuild: true }
       ),
     []
   );
@@ -39,15 +40,19 @@ export default function TopRecordedGames() {
 
   return (
     <Card className="py-4">
+      <div className="flex justify-center text-gold">
+        <FilmIcon size={42} />
+      </div>
+
       <h2 className="card-header mb-5">Top Recorded Games</h2>
       {/* Help Text */}
-      <div className=" justify-center mb-4 mx-4">
+      <div className="mb-4 px-4 text-center">
         Visit the&nbsp;
         <a
           href="/recs"
           className="hover:cursor-pointer hover:underline text-primary"
         >
-          Recorded Games 
+          Recorded Games
         </a>
         &nbsp;page for download & upload instructions.
       </div>
