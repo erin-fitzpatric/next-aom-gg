@@ -52,23 +52,24 @@ export default async function uploadRec(
   );
   const mappedRecGameMetadata = mapRecGameMetadata(recGameMetadata);
 
+  // Removing this for now, because it messes up the stats since the matches don't have a build number
   // 3) save build number to mongo, if build number doesn't already exist
-  await getMongoClient();
-  try {
-    const response = await BuildModel.findOne({
-      buildNumber: recGameMetadata.buildNumber,
-    });
-    const existingBuild = response?.toJSON()?.buildNumber;
+  // await getMongoClient();
+  // try {
+  //   const response = await BuildModel.findOne({
+  //     buildNumber: recGameMetadata.buildNumber,
+  //   });
+  //   const existingBuild = response?.toJSON()?.buildNumber;
 
-    if (!existingBuild) {
-      await BuildModel.create({
-        buildNumber: recGameMetadata.buildNumber,
-        releaseDate: Date.now(),
-      });
-    }
-  } catch (error) {
-    console.error("Error inserting build number:", error);
-  }
+  //   if (!existingBuild) {
+  //     await BuildModel.create({
+  //       buildNumber: recGameMetadata.buildNumber,
+  //       releaseDate: Date.now(),
+  //     });
+  //   }
+  // } catch (error) {
+  //   console.error("Error inserting build number:", error);
+  // }
 
   // 4) save metadata to mongo, if game guid doesn't already exist
   try {
