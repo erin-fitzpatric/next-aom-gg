@@ -31,7 +31,7 @@ export default function HeatMaps() {
         <Card>
           <CardHeader>
             <CardTitle className="text-gold flex items-center mx-auto text-3xl">
-              <FlameIcon className="text-red-500" size={32} /> Heatmaps
+              <FlameIcon className="text-red-500" size={32} /> Heat Maps
             </CardTitle>
           </CardHeader>
 
