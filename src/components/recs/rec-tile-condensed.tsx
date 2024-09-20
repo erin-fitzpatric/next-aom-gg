@@ -14,7 +14,7 @@ export default function RecTileCondensed({ rec }: RecTileProps) {
   const { leftTeams, rightTeams } = useTeams(rec);
   return (
     <div className="flex flex-col gap-5">
-      <RecTitle gameTitle={rec.gameTitle} className="self-center" />
+      <RecTitle gameTitle={rec.gameTitle} className="self-center w-ful" />
       <div className="flex">
         {leftTeams}
         <div className="self-center">VS</div>

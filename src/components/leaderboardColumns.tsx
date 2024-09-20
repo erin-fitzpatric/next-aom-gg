@@ -7,7 +7,7 @@ import { ArrowDown, ArrowUp } from "lucide-react";
 export const columns: ColumnDef<ILeaderboardPlayer>[] = [
   {
     accessorKey: "rank",
-    header: "Rank",
+    header: "#",
     cell: ({ row }) => (
       <div className="flex items-center">
         <span>{String(row.original.rank)}.</span>
@@ -41,13 +41,13 @@ export const columns: ColumnDef<ILeaderboardPlayer>[] = [
           height={40}
           className="mr-4 rounded-full"
         /> */}
-        <span className="text-primary">{row.original.name}</span>
+        <span className="text-primary hover:underline">{row.original.name}</span>
       </div>
     ),
   },
   {
     accessorKey: "rating",
-    header: "Elo",
+    header: "Rating",
   },
   // {
   //   accessorKey: "redBullRating",
@@ -58,15 +58,15 @@ export const columns: ColumnDef<ILeaderboardPlayer>[] = [
   //     return <span className="flex">{redBullElo}</span>;
   //   },
   // },
-  {
-    accessorKey: "highestrating",
-    header: () => <span className="hidden lg:flex">Highest Elo</span>,
-    cell: ({ row }) => (
-      <span className="hidden lg:flex">
-        {Number(row.original.highestrating)}
-      </span>
-    ),
-  },
+  // {
+  //   accessorKey: "highestrating",
+  //   header: () => <span className="hidden lg:flex">Highest Elo</span>,
+  //   cell: ({ row }) => (
+  //     <span className="hidden lg:flex">
+  //       {Number(row.original.highestrating)}
+  //     </span>
+  //   ),
+  // },
   {
     accessorKey: "winPercent",
     header: "Win %",
@@ -77,31 +77,31 @@ export const columns: ColumnDef<ILeaderboardPlayer>[] = [
       return `${percentage.toFixed()}%`;
     },
   },
-  {
-    accessorKey: "wins",
-    header: () => <span className="hidden lg:flex">Wins</span>,
-    cell: ({ row }) => (
-      <div className="items-center hidden lg:flex">
-        <span className="text-primary hidden lg:flex">
-          {String(row.original.wins)}
-        </span>
-      </div>
-    ),
-  },
-  {
-    accessorKey: "losses",
-    header: () => <span className="hidden lg:flex">Losses</span>,
-    cell: ({ row }) => (
-      <div className="items-center hidden lg:flex">
-        <span className="text-red-500 hidden lg:flex">
-          {String(row.original.losses)}
-        </span>
-      </div>
-    ),
-  },
+  // {
+  //   accessorKey: "wins",
+  //   header: () => <span className="hidden lg:flex">Wins</span>,
+  //   cell: ({ row }) => (
+  //     <div className="items-center hidden lg:flex">
+  //       <span className="text-primary hidden lg:flex">
+  //         {String(row.original.wins)}
+  //       </span>
+  //     </div>
+  //   ),
+  // },
+  // {
+  //   accessorKey: "losses",
+  //   header: () => <span className="hidden lg:flex">Losses</span>,
+  //   cell: ({ row }) => (
+  //     <div className="items-center hidden lg:flex">
+  //       <span className="text-red-500 hidden lg:flex">
+  //         {String(row.original.losses)}
+  //       </span>
+  //     </div>
+  //   ),
+  // },
   {
     accessorKey: "totalGames",
-    header: () => <span className="hidden lg:flex">Total Games</span>,
+    header: () => <span className="hidden lg:flex">Games</span>,
     cell: ({ row }) => (
       <div className="hidden lg:flex">
         <span className="hidden lg:flex">
