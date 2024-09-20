@@ -46,11 +46,9 @@ export default function Statistics() {
   }
 
   function getPatchStartDate(patch: number) {
-    console.log(patch);
     const startDate = builds.find(
       (build) => build.buildNumber === patch
     )?.releaseDate;
-    console.log("startDate", startDate);
     return startDate;
   }
 
