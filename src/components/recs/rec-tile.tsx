@@ -126,7 +126,7 @@ export default function RecTile({ id, rec, showMap = true }: RecTileProps) {
                             </Button>
                           </DialogTrigger>
 
-                          <DialogContent>
+                          <DialogContent customOverlayClass="bg-black/00">
                             <DialogHeader>
                               <DialogTitle>Confirm Deletion</DialogTitle>
                               <DialogDescription>
