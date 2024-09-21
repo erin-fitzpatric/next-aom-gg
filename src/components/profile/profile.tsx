@@ -3,7 +3,7 @@ import { Card, CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import MatchComponent from "./match";
 import { LeaderboardTypeValues } from "@/types/LeaderBoard";
 import { SteamProfile } from "@/types/Steam";
@@ -30,7 +30,7 @@ export default function Profile() {
   const [playerName, setPlayerName] = useState<string>("");
   const [steamProfile, setSteamProfile] = useState<SteamProfile>();
   const [leaderboardId, setLeaderboardId] = useState<number>(
-    LeaderboardTypeValues["1v1Supremacy"]
+    LeaderboardTypeValues["1v1Supremacy"],
   );
   const [totalPages, setTotalPages] = useState<number>(1); // To manage total pages
   const [loading, setLoading] = useState<boolean>(false); // Loading state
@@ -51,7 +51,7 @@ export default function Profile() {
       pageIndex:
         parseInt(
           new URLSearchParams(window.location.search).get("page") || "1",
-          10
+          10,
         ) - 1,
     });
     const { pageSize, pageIndex } = pagination;
@@ -72,72 +72,78 @@ export default function Profile() {
     };
   }
 
-  const fetchProfileData = async (playerId: string) => {
-    const baseUrl = "/api/matchHistory";
-    const params = new URLSearchParams({
-      playerId,
-      skip: skip.toString(),
-      limit: limit.toString(),
-    });
-    const url = `${baseUrl}?${params.toString()}`;
+  const fetchProfileData = useCallback(
+    async (playerId: string) => {
+      const baseUrl = "/api/matchHistory";
+      const params = new URLSearchParams({
+        playerId,
+        skip: skip.toString(),
+        limit: limit.toString(),
+      });
+      const url = `${baseUrl}?${params.toString()}`;
 
-    setLoading(true); // Set loading true when fetching data
+      setLoading(true); // Set loading true when fetching data
 
-    try {
-      const response = await fetch(url);
-      if (!response.ok) throw new Error("Failed to fetch profile data");
-      const { matches, total } = await response.json();
-      setMatchHistoryStats(matches);
-      setTotalPages(Math.ceil(total / limit)); // Update total pages based on total matches
-      setDataFetched(true); // Set dataFetched to true after fetching data
-      setError(false); // Reset error state on successful fetch
-    } catch (error: any) {
-      console.error("Error fetching profile data:", error);
-      setMatchHistoryStats([]);
-      setDataFetched(true); // Ensure dataFetched is true even if there is an error
-      setError(true); // Set error state if an error occurs
-    } finally {
-      setLoading(false); // Set loading false after fetching data
-    }
-  };
-
-  const fetchPlayerStats = async (playerId: string) => {
-    const baseUrl = `/api/leaderboards/[${playerId}]`;
-    const params = new URLSearchParams({
-      leaderboardId: leaderboardId.toString(),
-      playerId,
-    });
-    const url = `${baseUrl}?${params.toString()}`;
-    setLoading(true); // Set loading true when fetching data
-    try {
-      const response = await fetch(url);
-      if (!response.ok) throw new Error("Failed to fetch player stats");
-      const data: ILeaderboardPlayer[] = await response.json();
-      setPlayerStats(data);
-
-      if (data.length > 0) {
-        setPlayerName(String(data[0].name));
-        const steamId = data[0].profileUrl.split("/").pop();
-        if (steamId) {
-          fetchSteamProfile(steamId);
-        }
-      } else {
-        setPlayerName(""); // Clear playerName if no player stats found
-        setSteamProfile(undefined); // Clear steamProfile if no player stats found
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Failed to fetch profile data");
+        const { matches, total } = await response.json();
+        setMatchHistoryStats(matches);
+        setTotalPages(Math.ceil(total / limit)); // Update total pages based on total matches
+        setDataFetched(true); // Set dataFetched to true after fetching data
+        setError(false); // Reset error state on successful fetch
+      } catch (error: any) {
+        console.error("Error fetching profile data:", error);
+        setMatchHistoryStats([]);
+        setDataFetched(true); // Ensure dataFetched is true even if there is an error
+        setError(true); // Set error state if an error occurs
+      } finally {
+        setLoading(false); // Set loading false after fetching data
       }
+    },
+    [skip, limit],
+  );
 
-      setError(false); // Reset error state on successful fetch
-    } catch (error: any) {
-      console.error("Error fetching player stats:", error);
-      setPlayerStats([]);
-      setPlayerName(""); // Clear playerName if an error occurs
-      setSteamProfile(undefined); // Clear steamProfile if an error occurs
-      setError(true); // Set error state if an error occurs
-    } finally {
-      setLoading(false); // Set loading false after fetching data
-      setDataFetched(true); // Set dataFetched to true after fetching player stats
-    }
-  };
+  const fetchPlayerStats = useCallback(
+    async (playerId: string) => {
+      const baseUrl = `/api/leaderboards/[${playerId}]`;
+      const params = new URLSearchParams({
+        leaderboardId: leaderboardId.toString(),
+        playerId,
+      });
+      const url = `${baseUrl}?${params.toString()}`;
+      setLoading(true); // Set loading true when fetching data
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Failed to fetch player stats");
+        const data: ILeaderboardPlayer[] = await response.json();
+        setPlayerStats(data);
+
+        if (data.length > 0) {
+          setPlayerName(String(data[0].name));
+          const steamId = data[0].profileUrl.split("/").pop();
+          if (steamId) {
+            fetchSteamProfile(steamId);
+          }
+        } else {
+          setPlayerName(""); // Clear playerName if no player stats found
+          setSteamProfile(undefined); // Clear steamProfile if no player stats found
+        }
+
+        setError(false); // Reset error state on successful fetch
+      } catch (error: any) {
+        console.error("Error fetching player stats:", error);
+        setPlayerStats([]);
+        setPlayerName(""); // Clear playerName if an error occurs
+        setSteamProfile(undefined); // Clear steamProfile if an error occurs
+        setError(true); // Set error state if an error occurs
+      } finally {
+        setLoading(false); // Set loading false after fetching data
+        setDataFetched(true); // Set dataFetched to true after fetching player stats
+      }
+    },
+    [leaderboardId],
+  );
 
   const fetchSteamProfile = async (steamId: string) => {
     const url = `/api/steam/${steamId}`;
@@ -157,14 +163,14 @@ export default function Profile() {
   useEffect(() => {
     fetchProfileData(playerId);
     fetchPlayerStats(playerId);
-  }, [playerId, pagination.pageIndex]); // Re-fetch on page index change
+  }, [playerId, pagination.pageIndex, fetchProfileData, fetchPlayerStats]); // Re-fetch on page index change
 
   useEffect(() => {
     // Update pageIndex from query parameter on component mount
     const queryParams = new URLSearchParams(window.location.search);
     const page = parseInt(queryParams.get("page") || "1", 10) - 1;
     onPaginationChange((prev) => ({ ...prev, pageIndex: page }));
-  }, []);
+  }, [onPaginationChange]);
 
   const handlePageClick = (pageIndex: number) => {
     onPaginationChange((prev) => ({ ...prev, pageIndex }));
