@@ -1,3 +1,4 @@
+"use client";
 import { Button } from "@/components/ui/button";
 import { signOut, useSession } from "next-auth/react";
 import Image from "next/image";
@@ -12,7 +13,8 @@ export function SignIn() {
   if (status === "loading") {
     return (
       <div className="flex justify-center items-center">
-        <Skeleton className="w-16 h-16 rounded-full" /> {/* Adjust the Skeleton as needed */}
+        <Skeleton className="w-8 h-8 rounded-full" />{" "}
+        {/* Adjust the Skeleton as needed */}
       </div>
     );
   }
@@ -26,7 +28,7 @@ export function SignIn() {
             width={64}
             height={64}
             alt="User"
-            className="mx-auto cursor-pointer filter transition-transform duration-300 ease-in-out"
+            className="mx-auto cursor-pointer filter transition-transform duration-300 ease-in-out rounded-full"
           />
           <div
             onClick={() => signOut()}
