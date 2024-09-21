@@ -259,7 +259,7 @@ export default function Profile() {
         )}
       </div>
 
-      <Card className="w-full">
+      <div className="max-w-[1500px] flex flex-col mx-auto gap-4">
         {loading ? (
           <div className="p-4">
             <Loading />
@@ -273,7 +273,7 @@ export default function Profile() {
             <MatchComponent key={match.matchId} match={match} />
           ))
         )}
-      </Card>
+      </div>
 
       {totalPages > 1 && (
         <Pagination>
