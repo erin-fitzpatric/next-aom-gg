@@ -58,15 +58,15 @@ export const columns: ColumnDef<ILeaderboardPlayer>[] = [
   //     return <span className="flex">{redBullElo}</span>;
   //   },
   // },
-  // {
-  //   accessorKey: "highestrating",
-  //   header: () => <span className="hidden lg:flex">Highest Elo</span>,
-  //   cell: ({ row }) => (
-  //     <span className="hidden lg:flex">
-  //       {Number(row.original.highestrating)}
-  //     </span>
-  //   ),
-  // },
+  {
+    accessorKey: "highestrating",
+    header: () => <span className="hidden lg:flex">Highest Elo</span>,
+    cell: ({ row }) => (
+      <span className="hidden lg:flex">
+        {Number(row.original.highestrating)}
+      </span>
+    ),
+  },
   {
     accessorKey: "winPercent",
     header: "Win %",
