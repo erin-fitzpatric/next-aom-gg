@@ -22,10 +22,8 @@ export default function RedditFeed() {
   const [galleryImages, setGalleryImages] = useState<{ [key: string]: string[] }>({});
 
   function getRedditPosts() {
-    // TODO -move this to a serverless function in the /api folder and call it from the client
     fetch(REDDIT_GET_URL)
       .then((response) => {
-        console.log(response);
         if (response.ok) return response.json();
         else throw (response.statusText)
       })
