@@ -159,19 +159,92 @@ export default function RecTile({ id, rec, showMap = true }: RecTileProps) {
         </div>
       ) : (
         // mobile layout
-        <div>
-          <div className="flex flex-col">
-            <div className="flex flex-col items-center">
-              <RecTitle gameTitle={rec.gameTitle || ""} />
-              {showMap && <RecMap rec={rec} />}
-            </div>
-            <div className="mx-auto pt-2">
-              {leftTeams}
-              {rightTeams}
-            </div>
+        <div className="relative">
+      <div className="flex flex-col">
+        <div className="flex flex-col items-center">
+          <div className="relative w-full pl-5">
+            <RecTitle gameTitle={rec.gameTitle || ""} />
+            {recGameAuthor && (
+              <div className="absolute top-0 right-0 z-10 mt-1 mr-1">
+                <Sheet open={isOpen} onOpenChange={setIsOpen}>
+                  <SheetTrigger asChild>
+                    <SquarePen
+                      className="cursor-pointer"
+                      onClick={() => setIsOpen(true)}
+                    />
+                  </SheetTrigger>
+                  <SheetContent>
+                    <SheetHeader>
+                      <SheetTitle>
+                        <div className="text-center">Edit Game Title</div>
+                      </SheetTitle>
+                    </SheetHeader>
+                    <SheetDescription>
+                      <input
+                        type="text"
+                        autoFocus="false"
+                        value={fileName}
+                        onChange={(e) => setFileName(e.target.value)}
+                        placeholder="Enter file name"
+                        className="w-full flex justify-center border-b border-gray-400 focus:outline-none focus:border-blue-500 mt-2 px-2 py-2"
+                      />
+                    </SheetDescription>
+                    <Button
+                      type="submit"
+                      className="mx-auto mt-4 flex"
+                      onClick={() => handleEditGameTitle(fileName || "", rec.gameGuid)}
+                    >
+                      Confirm
+                    </Button>
+                    <SheetTitle>
+                      <div className="text-center mt-2">Delete this game</div>
+                    </SheetTitle>
+                    <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
+                      <DialogTrigger asChild>
+                        <Button
+                          type="submit"
+                          className="mx-auto mt-4 bg-red-500 flex"
+                          onClick={() => setDialogOpen(true)}
+                        >
+                          Delete
+                        </Button>
+                      </DialogTrigger>
+
+                      <DialogContent className="sm:max-w-[425px]">
+                        <DialogHeader>
+                          <DialogTitle>Confirm Deletion</DialogTitle>
+                          <DialogDescription>
+                            Are you sure you want to delete this game? This action cannot be undone.
+                          </DialogDescription>
+                        </DialogHeader>
+                        <DialogFooter>
+                          <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                            Cancel
+                          </Button>
+                          <Button
+                            type="submit"
+                            className="bg-red-500"
+                            onClick={() => handleDeleteGame(rec.gameGuid)}
+                          >
+                            Confirm
+                          </Button>
+                        </DialogFooter>
+                      </DialogContent>
+                    </Dialog>
+                  </SheetContent>
+                </Sheet>
+              </div>
+            )}
           </div>
-          <RecFooter rec={rec} />
+          {showMap && <RecMap rec={rec} />}
         </div>
+        <div className="mx-auto pt-2">
+          {leftTeams}
+          {rightTeams}
+        </div>
+      </div>
+      <RecFooter rec={rec} />
+    </div>
       )}
     </div>
   );
