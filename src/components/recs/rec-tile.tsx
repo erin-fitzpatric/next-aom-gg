@@ -80,7 +80,7 @@ export default function RecTile({ id, rec, showMap = true }: RecTileProps) {
             </div>
             <div className="flex flex-col">
               <div className="flex justify-end mt-2 mr-2">
-                {!recGameAuthor && (
+                {recGameAuthor && (
                   <div className="flex space-x-2">
                     <Sheet open={isOpen} onOpenChange={setIsOpen}>
                       <SheetTrigger asChild>
