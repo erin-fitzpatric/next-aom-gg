@@ -275,7 +275,7 @@ export default function Profile() {
           </div>
         )}
       </div>
-      <div className="max-w-[1500px] flex flex-col mx-auto gap-4">
+      <div className="flex flex-col mx-auto gap-4">
         {loading ? (
           <div className="p-4">
             <Loading />
