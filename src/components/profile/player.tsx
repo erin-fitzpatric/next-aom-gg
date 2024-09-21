@@ -22,7 +22,7 @@ export default function Player({
     <>
       {team.results.map((player: MappedTeam) => {
         const { portraitPath, name: civName } = majorGodIndexToData(
-          Number(player.civilization_id)
+          Number(player.civilization_id),
         );
         const isWinner = player.resulttype === 1;
         const ratingChangeColor = isWinner
@@ -32,7 +32,7 @@ export default function Player({
         return (
           <div
             key={player.profile_id}
-            className="flex flex-col md:flex-row items-center w-full lg:w-96 md:w-64 p-2 border rounded-lg m-1"
+            className="flex flex-col shadow-card md:flex-row items-center w-full lg:w-96 md:w-64 p-2 border rounded-lg m-1"
           >
             {/* Civ Image */}
             <div className="flex-shrink-0 mb-2 md:mb-0 md:mr-4">
