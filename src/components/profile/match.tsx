@@ -4,6 +4,7 @@ import { useRouter } from "next/navigation";
 import { Map } from "./map";
 import RatingChange from "./ratingChange";
 import Team from "./team";
+
 type IProps = {
   match: MatchType;
 };
@@ -28,20 +29,22 @@ export default function MatchComponent({ match }: IProps) {
   };
 
   return (
-    <div className="w-auto grid grid-cols-12 items-center border-b">
+    <div className="w-full grid grid-cols-12 items-center border-b py-4">
       <div className="col-span-2 justify-self-center">
         <Map mapData={mapData} />
       </div>
-      <div className="col-span-2 flex flex-col justify-center space-y-2 flex-grow text-center mx-auto xl:text-left xl:mx-0">
-        <div className="text-sm">{mapData.name}</div>
-        <div className="text-sm">{gameMode}</div>
-        <div className="text-sm">{formatTime(Math.floor(matchDuration))}</div>
-        <div className="text-sm">{matchType}</div>
+      {/* Details */}
+      <div className="col-span-2 flex flex-col justify-center space-y-2 px-2">
+        <div className="text-sm font-semibold">{mapData.name}</div>
+        <div className="text-xs text-gray-600">{gameMode}</div>
+        <div className="text-xs text-gray-600">
+          {formatTime(Math.floor(matchDuration))}
+        </div>
+        <div className="text-xs text-gray-600">{matchType}</div>
       </div>
-      <div className="text-base font-semibold text-center mb-2">
+      <div className="col-span-1 text-sm font-semibold text-center">
         {new Date(matchDate).toLocaleDateString()}
       </div>
-      {/* Details */}
 
       {/* Teams */}
       <Team
