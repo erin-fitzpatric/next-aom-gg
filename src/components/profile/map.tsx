@@ -11,7 +11,6 @@ export function Map({ mapData }: { mapData: MatchType["mapData"] }) {
           alt={mapData.name}
           width={64}
           height={64}
-          className="xl:block hidden"
         />
       )}
     </div>
