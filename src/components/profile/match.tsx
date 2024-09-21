@@ -28,20 +28,22 @@ export default function MatchComponent({ match }: IProps) {
   };
 
   return (
-    <div className="w-auto grid-cols-12">
-      <Map mapData={mapData} />
-      <div className="text-xl font-semibold text-center mb-2">
+    <div className="w-auto grid grid-cols-12 border-b">
+      <div className="col-span-2">
+        <Map mapData={mapData} />
+      </div>
+      <div className="col-span-3 flex flex-col justify-center space-y-2 flex-grow text-center mx-auto xl:text-left xl:mx-0">
+        <div className="text-sm">{mapData.name}</div>
+        <div className="text-sm">{gameMode}</div>
+        <div className="text-sm">{formatTime(Math.floor(matchDuration))}</div>
+        <div className="text-sm">{matchType}</div>
+      </div>
+      <div className="text-base font-semibold text-center mb-2">
         {new Date(matchDate).toLocaleDateString()}
       </div>
       {/* Details */}
-      <div className="flex flex-col justify-center space-y-2 flex-grow text-center mx-auto xl:text-left xl:mx-0">
-        <div>{gameMode}</div>
-        <div>{matchType}</div>
-        <div>{mapData.name}</div>
-        <div>{formatTime(Math.floor(matchDuration))}</div>
-      </div>
 
-      <div className="flex flex-col items-center xl:items-end flex-shrink space-y-4">
+      <div className="col-span-6 flex flex-col items-center xl:items-end flex-shrink space-y-4">
         {/* Rating Change */}
         <RatingChange
           ratingChange={ratingChange}
