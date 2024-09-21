@@ -6,7 +6,7 @@ import Image from "next/image";
 
 function PlayerTile(playerData: RecordedGamePlayerMetadata, gameGuid: string) {
   const { name, civ, id } = playerData;
-  let godData = majorGodIndexToData(civ);
+  const godData = majorGodIndexToData(civ);
     
   return (
     <div
