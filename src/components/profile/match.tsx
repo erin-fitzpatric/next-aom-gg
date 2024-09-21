@@ -28,11 +28,11 @@ export default function MatchComponent({ match }: IProps) {
   };
 
   return (
-    <div className="w-auto grid grid-cols-12 border-b">
-      <div className="col-span-2">
+    <div className="w-auto grid grid-cols-12 items-center border-b">
+      <div className="col-span-2 justify-self-center">
         <Map mapData={mapData} />
       </div>
-      <div className="col-span-3 flex flex-col justify-center space-y-2 flex-grow text-center mx-auto xl:text-left xl:mx-0">
+      <div className="col-span-2 flex flex-col justify-center space-y-2 flex-grow text-center mx-auto xl:text-left xl:mx-0">
         <div className="text-sm">{mapData.name}</div>
         <div className="text-sm">{gameMode}</div>
         <div className="text-sm">{formatTime(Math.floor(matchDuration))}</div>
@@ -43,21 +43,21 @@ export default function MatchComponent({ match }: IProps) {
       </div>
       {/* Details */}
 
-      <div className="col-span-6 flex flex-col items-center xl:items-end flex-shrink space-y-4">
-        {/* Rating Change */}
-        <RatingChange
-          ratingChange={ratingChange}
-          gameMode={gameMode}
-          isWinner={isWinner}
-        />
-        {/* Teams */}
-        <Team
-          teams={teams}
-          matchHistoryMap={matchHistoryMap}
-          handleNameClick={handleNameClick}
-          gameMode={gameMode}
-        />
-      </div>
+      {/* Teams */}
+      <Team
+        teams={teams}
+        matchHistoryMap={matchHistoryMap}
+        handleNameClick={handleNameClick}
+        gameMode={gameMode}
+        className="col-span-6"
+      />
+      {/* Rating Change */}
+      <RatingChange
+        ratingChange={ratingChange}
+        gameMode={gameMode}
+        isWinner={isWinner}
+        className="col-span-1"
+      />
     </div>
   );
 }

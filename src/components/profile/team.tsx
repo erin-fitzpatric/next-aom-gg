@@ -6,6 +6,7 @@ interface IProps {
   matchHistoryMap: MatchHistoryMap;
   handleNameClick: (row: number) => void;
   gameMode: string;
+  className: string;
 }
 
 export default function Team({
@@ -13,9 +14,10 @@ export default function Team({
   matchHistoryMap,
   handleNameClick,
   gameMode,
+  className,
 }: IProps) {
   return (
-    <div className="flex items-center">
+    <div className={`flex items-center ${className}`}>
       {teams.map((team: TeamResult, index: number) => (
         <div key={team.teamid} className="flex flex-col items-center">
           <h2 className="text-gold underline text-lg font-semibold">
