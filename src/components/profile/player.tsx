@@ -32,18 +32,16 @@ export default function Player({
         return (
           <div
             key={player.profile_id}
-            className="flex flex-col shadow-card md:flex-row items-center w-full lg:w-96 md:w-64 p-2 m-1"
+            className="flex flex-col gap-1 shadow-card md:flex-row items-center w-full"
           >
             {/* Civ Image */}
-            <div className="flex-shrink-0 mb-2 md:mb-0 md:mr-4">
-              <Image
-                src={portraitPath}
-                alt={civName}
-                width={24}
-                height={24}
-                className={`rounded-full border-2 ${ratingChangeColor}`}
-              />
-            </div>
+            <Image
+              src={portraitPath}
+              alt={civName}
+              width={24}
+              height={24}
+              className={`rounded-full border-2 ${ratingChangeColor}`}
+            />
             {/* Player Name */}
             <div
               className="text-base text-left cursor-pointer flex-1 mb-2 md:mb-0 overflow-hidden truncate mr-2"
@@ -55,7 +53,7 @@ export default function Player({
 
             {/* Rating */}
             {!isCustom && (
-              <div className="text-base font-semibold text-right">
+              <div className="text-small font-light text-right">
                 {matchHistoryMap[player.profile_id]?.[0]?.newrating}
               </div>
             )}
