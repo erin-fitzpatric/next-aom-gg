@@ -7,9 +7,10 @@ import Team from "./team";
 
 type IProps = {
   match: MatchType;
+  playerId: string;
 };
 
-export default function MatchComponent({ match }: IProps) {
+export default function MatchComponent({ match, playerId }: IProps) {
   const router = useRouter();
   const {
     mapData,
@@ -30,7 +31,7 @@ export default function MatchComponent({ match }: IProps) {
 
   return (
     <div className="w-full grid grid-cols-8 items-center border-b py-4">
-      <div className="col-span-2 justify-self-center">
+      <div className="col-span-1 justify-self-center">
         <Map mapData={mapData} />
       </div>
       {/* Details */}
@@ -48,6 +49,7 @@ export default function MatchComponent({ match }: IProps) {
 
       {/* Teams */}
       <Team
+        activePlayerId={playerId}
         teams={teams}
         matchHistoryMap={matchHistoryMap}
         handleNameClick={handleNameClick}
