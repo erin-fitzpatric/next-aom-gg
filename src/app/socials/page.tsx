@@ -1,7 +1,5 @@
-export default function Socials() {
-    return (
-        <div>
-            <div></div>
-        </div>
-    )
+import Socials from "@/components/socials";
+
+export default function SocialsPage() {
+    return <Socials/>
 }
