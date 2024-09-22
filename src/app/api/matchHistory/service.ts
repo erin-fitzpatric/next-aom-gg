@@ -1,121 +1,115 @@
-import {
-  MappedMatchHistoryData,
-  MatchHistory,
-  MatchHistoryStat,
-  Profile,
-} from "@/types/MatchHistory";
-import { Errors } from "@/utils/errors";
-import {
-  createMatchHistoryMap,
-  groupAndReorderTeams,
-  parseMapName,
-} from "./matchHelpers";
-import { randomMapNameToData } from "@/types/RandomMap";
-import { getGameModeByMatchTypeId } from "@/types/MatchTypes";
+import { MatchHistoryStat, Profile } from "@/types/MatchHistory";
+import getMongoClient from "@/db/mongo/mongo-client";
+import { MatchModel } from "@/db/mongo/model/MatchModel";
+import { Match, MatchResults } from "@/types/Match";
+import { PipelineStage } from "mongoose";
+import { sortTeams } from "./matchHelpers";
 
 export type FetchMatchHistoryResponse = {
   matchHistoryStats: MatchHistoryStat[];
   profiles: Profile[];
 };
 
-export async function fetchMatchHistory(
-  playerId: string
-): Promise<FetchMatchHistoryResponse> {
-  const baseUrl =
-    "https://athens-live-api.worldsedgelink.com/community/leaderboard/getRecentMatchHistory";
-  const profileIds = JSON.stringify([playerId]);
-  const url = `${baseUrl}?title=athens&profile_ids=${encodeURIComponent(
-    profileIds
-  )}`;
+export async function fetchMongoMatchHistory(
+  playerId: number,
+  filters: { skip: number; limit: number }
+): Promise<MatchResults> {
+  const { skip, limit } = filters;
+  await getMongoClient();
 
-  const response = await fetch(url);
-  if (!response.ok) {
-    throw new Error("Failed to fetch profile data");
-  }
+  // Build the Pipeline
+  const pipeline: PipelineStage[] = [
+    {
+      $addFields: {
+        matchHistoryArray: { $objectToArray: "$matchHistoryMap" },
+      },
+    },
+    {
+      $match: {
+        "matchHistoryArray.v.profile_id": playerId,
+      },
+    },
+    {
+      $facet: {
+        data: [
+          {
+            $project: {
+              matchHistoryArray: 0, // Exclude the temporary field
+              _id: 0, // Remove BSON _id field
+              __v: 0, // Remove __v field
+              "teams._id": 0, // Remove BSON _id field inside teams
+              "teams.results._id": 0, // Remove BSON _id field inside results
+              "matchHistoryMap.v._id": 0, // Remove BSON _id field inside matchHistoryMap
+            },
+          },
+          { $sort: { matchId: -1 } },
+          { $skip: skip },
+          { $limit: limit },
+        ],
+        totalCount: [
+          {
+            $count: "count",
+          },
+        ],
+      },
+    },
+    {
+      $project: {
+        data: 1,
+        totalCount: { $arrayElemAt: ["$totalCount.count", 0] }, // Unwrap the count from the array
+      },
+    },
+  ];
 
-  const data = await response.json();
-  if (data.result.code !== 0) {
-    // No match found for the playerId
-    throw new Error(Errors.PLAYER_NOT_FOUND);
-  }
-  return {
-    matchHistoryStats: data.matchHistoryStats,
-    profiles: data.profiles,
-  };
+  // Fetch Data
+  const response = await MatchModel.aggregate(pipeline).exec();
+  return response[0] as MatchResults;
 }
 
-export function mapMatchHistoryData({
-  matchHistoryStats,
-  profiles,
-  playerId,
-}: {
-  matchHistoryStats: MatchHistoryStat[];
-  profiles: Profile[];
-  playerId: string;
-}): MatchHistory {
-  // Sort the match history stats by completion time
-  const sortedMatchHistoryStats = matchHistoryStats.sort(
-    (a: MatchHistoryStat, b: MatchHistoryStat) =>
-      b.completiontime - a.completiontime
-  );
+export function mapMatchHistoryData(
+  matchData: Match[],
+  playerId: number
+): Match[] {
+  // sort that teams always have the playerId first
+  const sortedMatchData = sortTeams(matchData, playerId);
 
-  const profileMap = getProfileMap(profiles);
-  const playerName = getPlayerName(profileMap, playerId);
-  const mappedMatchHistoryData: MappedMatchHistoryData[] =
-    sortedMatchHistoryStats.map((match, index) => {
-      const {
-        mapname,
-        startgametime,
-        completiontime,
-        matchhistoryreportresults,
-        matchhistorymember,
-      } = match;
-
-      // map the match data
-      const parsedMapName = parseMapName(mapname);
-      const mapData = randomMapNameToData(parsedMapName);
-      const matchDuration = completiontime - startgametime;
-      const matchDate = startgametime * 1000;
-      const teams = groupAndReorderTeams(
-        matchhistoryreportresults,
-        profileMap,
-        playerId
-      );
-      const matchHistoryMap = createMatchHistoryMap(matchhistorymember);
-      const ratingChange =
-        matchHistoryMap[playerId][0].newrating -
-        matchHistoryMap[playerId][0].oldrating;
-      const gameMode =
-        getGameModeByMatchTypeId(match.matchtype_id) || "Unknown Game Mode";
-      const matchType = match.description;
-
-      return {
-        gameMode: gameMode,
-        matchType: matchType,
-        matchId: match.id,
-        mapData,
-        matchDate,
-        matchDuration,
-        teams,
-        matchHistoryMap,
-        ratingChange,
-      };
-    });
-  return { mappedMatchHistoryData, playerName };
+  // calculate the rating change for each match and map it to the match data
+  const mappedMatchData = sortedMatchData.map((match) => {
+    const playerMatch = match?.matchHistoryMap[playerId];
+    const ratingChange =
+      playerMatch?.[0].newrating - playerMatch?.[0].oldrating;
+    return {
+      ...match,
+      ratingChange,
+    };
+  });
+  return mappedMatchData;
 }
 
-export function getPlayerName(
-  profileMap: Record<string, Profile>,
-  playerId: string
-): string {
-  const playerName = profileMap[playerId].alias;
-  return playerName;
-}
 
-export function getProfileMap(profiles: Profile[]): Record<string, Profile> {
-  const profileMap = profiles.reduce((acc, profile) => {
-    acc[profile.profile_id] = profile;
-    return acc;
-  }, {} as Record<string, Profile>);
-  return profileMap;
-}
+// deprecated
+// export async function fetchMatchHistory(
+//   playerId: string
+// ): Promise<FetchMatchHistoryResponse> {
+//   const baseUrl =
+//     "https://athens-live-api.worldsedgelink.com/community/leaderboard/getRecentMatchHistory";
+//   const profileIds = JSON.stringify([playerId]);
+//   const url = `${baseUrl}?title=athens&profile_ids=${encodeURIComponent(
+//     profileIds
+//   )}`;
+
+//   const response = await fetch(url);
+//   if (!response.ok) {
+//     throw new Error("Failed to fetch profile data");
+//   }
+
+//   const data = await response.json();
+//   if (data.result.code !== 0) {
+//     // No match found for the playerId
+//     throw new Error(Errors.PLAYER_NOT_FOUND);
+//   }
+//   return {
+//     matchHistoryStats: data.matchHistoryStats,
+//     profiles: data.profiles,
+//   };
+// }

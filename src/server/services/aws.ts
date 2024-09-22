@@ -1,8 +1,8 @@
 "use server";
 import {
   RecordedGameMetadata,
-  RecordedGamePlayerMetadata,
 } from "@/types/recParser/RecordedGameParser";
+
 import {
   GetObjectCommand,
   ListObjectsV2Command,
@@ -37,6 +37,9 @@ type UploadS3RecResponse = {
   key: string;
 };
 
+/**
+ * @deprecated Using client side presigned URL upload instead
+ */
 export async function uploadRecToS3(
   uploadS3RecParams: UploadS3RecParams
 ): Promise<UploadS3RecResponse> {
@@ -112,7 +115,7 @@ export async function listS3Recs(
 export async function downloadS3RecFile(
   rec: IRecordedGame
 ): Promise<MythRecDownloadLink> {
-  let { gameTitle, gameGuid } = rec;
+  let { gameTitle, gameGuid, s3Key } = rec;
 
   const CURRENT_DATE = Date.now().toString();
   if (gameTitle === "") {
@@ -120,10 +123,11 @@ export async function downloadS3RecFile(
   }
   // URL-encode the gameTitle to handle special characters
   const encodedGameTitle = encodeURIComponent(gameTitle || CURRENT_DATE);
+  const key = s3Key || gameGuid + ".mythrec";
 
   const params = {
     Bucket: NEXT_PUBLIC_S3_REC_BUCKET_NAME || "",
-    Key: gameGuid + ".mythrec",
+    Key: key,
     ResponseContentDisposition: `attachment; filename="${encodedGameTitle}.mythrec"`,
   };
 

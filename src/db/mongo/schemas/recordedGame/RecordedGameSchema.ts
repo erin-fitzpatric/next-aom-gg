@@ -25,6 +25,7 @@ const RecordedGameSchema = new Schema(
     parsedAt: { type: Date, required: true},
     version: { type: Number, required: false, default: 0},
     gameLength: {type: Number, required: false, default: 0},
+    s3Key: { type: String, required: false }, // older recs don't have this
     teams: { type: [[Number]]},
     commandParserError: { type: String, required: false, default: "" },
     unresignedPlayers: { type: [[Number]], required: false },

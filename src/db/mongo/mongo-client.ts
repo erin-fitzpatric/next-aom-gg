@@ -1,18 +1,33 @@
-"use server"
-import mongoose, { Mongoose } from "mongoose";
+"use server";
+import mongoose, { ConnectOptions, Mongoose } from "mongoose";
 
 let mongoClient: Mongoose | null = null;
 export default async function getMongoClient() {
   if (mongoClient) {
     return mongoClient;
   }
-  const { MONGO_USER, MONGO_PASSWORD } = process.env;
-  if (!MONGO_USER || !MONGO_PASSWORD) {
+  const { MONGO_USER, MONGO_PASSWORD, MONGO_HOST, MONGO_APPNAME } = process.env;
+  if (!MONGO_USER || !MONGO_PASSWORD || !MONGO_HOST) {
     throw new Error("Mongo credentials not found in environment variables.");
   }
 
+  // These options can be moved to configuration if they are different across environments
+  const connectOptions: ConnectOptions = {
+    retryWrites: true,
+    writeConcern: {
+      w: "majority",
+    },
+  };
+
+  if (MONGO_APPNAME) {
+    connectOptions.appName = MONGO_APPNAME;
+  }
+
   try {
-    mongoClient = await mongoose.connect(`mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@cluster0.ecbmcuc.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0`);
+    mongoClient = await mongoose.connect(
+      `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}`,
+      connectOptions
+    );
     return mongoClient;
   } catch (err) {
     console.error(err);

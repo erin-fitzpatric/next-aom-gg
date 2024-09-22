@@ -1,10 +1,10 @@
 import "../styles/globals.css";
 import { cn } from "@/utils/utils";
 import { ThemeProvider } from "@/components/provider/theme-provider";
-
 import type { ReactNode } from "react";
 import { Toaster } from "@/components/ui/toaster";
 import Header from "@/components/header";
+import Footer from "@/components/footer"; // Import the Footer component
 import { WindowProvider } from "@/components/provider/window-provider";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { SessionProvider } from "next-auth/react";
@@ -26,7 +26,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
   return (
     <>
       <html lang="en" suppressHydrationWarning className="dark">
-        <body className={cn("min-h-screen bg-background antialiased p-4")}>
+        <body className={cn("min-h-screen bg-background antialiased")}>
           <SessionProvider>
             <TooltipProvider delayDuration={75}>
               <WindowProvider>
@@ -38,6 +38,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
                   <Header />
                   {children}
                   <Toaster />
+                  <Footer />
                 </ThemeProvider>
               </WindowProvider>
             </TooltipProvider>
@@ -45,7 +46,7 @@ export default function RootLayout({ children }: RootLayoutProps) {
           <Analytics />
           <SpeedInsights />
         </body>
-        <GoogleAdsense/>
+        <GoogleAdsense />
       </html>
     </>
   );

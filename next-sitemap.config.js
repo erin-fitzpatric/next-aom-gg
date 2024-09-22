@@ -3,6 +3,7 @@ module.exports = {
   generateRobotsTxt: true, // Generate robots.txt file
   changefreq: 'daily', // Default change frequency for all pages
   priority: 0.7, // Default priority for all pages
+  sitemapBaseFileName: 'sitemap-0',
 
   // Define specific options for pages if needed
   transform: async (config, path) => {
