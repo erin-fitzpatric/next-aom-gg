@@ -68,7 +68,7 @@ function LoadingSkeleton() {
   );
 }
 
-function ProfileHeader({
+function ProfileAvatar({
   steamProfile,
   loading,
 }: {
@@ -125,7 +125,7 @@ function PlayerInfo({
         </p>
       )}
       {playerStats.length > 0 && (
-        <div className="w-full my-4">
+        <div className=" my-4">
           {playerStats.map((stat) => (
             <div key={Number(stat.leaderboard_id)} className="w-full">
               <StatCard playerStats={stat} />
@@ -408,7 +408,7 @@ export default function Profile() {
 
   return (
     <div className="w-full text-2xl">
-      <ProfileHeader
+      <ProfileAvatar
         steamProfile={state.steamProfile}
         loading={state.loading}
       />
