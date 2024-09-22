@@ -9,8 +9,8 @@ export function Map({ mapData }: { mapData: MatchType["mapData"] }) {
         <Image
           src={mapData.imagePath}
           alt={mapData.name}
-          width={64}
-          height={64}
+          width={120}
+          height={120}
         />
       )}
     </div>
