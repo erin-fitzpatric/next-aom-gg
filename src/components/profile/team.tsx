@@ -1,5 +1,6 @@
 import { MatchHistoryMap, TeamResult } from "@/types/MatchHistory";
 import Player from "./player";
+import React from "react";
 
 interface IProps {
   teams: TeamResult[];
@@ -22,9 +23,9 @@ export default function Team({
   return (
     <div className={`grid grid-cols-[3fr,1fr,3fr] gap-1 ${className}`}>
       {teams.map((team: TeamResult, i) => (
-        <>
-          <div key={team.teamid} className="flex flex-col gap-1">
-            {team.results.map((player, i) => (
+        <React.Fragment key={`team-${team.teamid}-${i}`}>
+          <div className="flex flex-col gap-1">
+            {team.results.map((player) => (
               <Player
                 key={player.profile_id}
                 isActivePlayer={activePlayerId === player.profile_id.toString()}
@@ -40,7 +41,7 @@ export default function Team({
               x
             </div>
           )}
-        </>
+        </React.Fragment>
       ))}
     </div>
   );
