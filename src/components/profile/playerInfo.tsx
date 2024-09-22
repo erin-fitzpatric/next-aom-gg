@@ -4,6 +4,7 @@ import { Skeleton } from "../ui/skeleton";
 import StatCard from "./statCard";
 import { ProfileAvatar } from "./profileAvatar";
 import { SteamProfile } from "@/types/Steam";
+import { Card, CardContent } from "../ui/card";
 
 export function PlayerInfo({
   playerName,
@@ -21,34 +22,36 @@ export function PlayerInfo({
   error: boolean;
 }) {
   return (
-    <div className="flex flex-col items-start gap-2">
-      <div className="flex flex-col justify-center">
-        <ProfileAvatar steamProfile={steamProfile} loading={loading} />
-        {loading ? (
-          <Skeleton className="w-48 h-8 rounded-md mt-4" />
-        ) : (
-          <h1 className="text-4xl font-semibold text-gold">
-            {playerName ||
-              (dataFetched && !playerStats.length && error
-                ? "Player Not Found"
-                : "")}
-          </h1>
-        )}
-      </div>
-      {dataFetched && playerStats.length === 0 && !loading && error && (
-        <p className="text-center text-gray-500 mx-auto flex items-center justify-center h-full">
-          <Frown className="text-primary" size={100} />
-        </p>
-      )}
-      {playerStats.length > 0 && (
-        <div className="my-4">
-          {playerStats.map((stat) => (
-            <div key={Number(stat.leaderboard_id)}>
-              <StatCard playerStats={stat} />
-            </div>
-          ))}
+    <Card className="bg-gradient-to-br from-gray-900 to-gray-800 text-white shadow-xl">
+      <CardContent className="flex gap-3">
+        <div className="flex flex-col justify-center">
+          <ProfileAvatar steamProfile={steamProfile} loading={loading} />
+          {loading ? (
+            <Skeleton className="w-48 h-8 rounded-md mt-4" />
+          ) : (
+            <h1 className="text-4xl font-semibold text-gold">
+              {playerName ||
+                (dataFetched && !playerStats.length && error
+                  ? "Player Not Found"
+                  : "")}
+            </h1>
+          )}
         </div>
-      )}
-    </div>
+        {dataFetched && playerStats.length === 0 && !loading && error && (
+          <p className="text-center text-gray-500 mx-auto flex items-center justify-center h-full">
+            <Frown className="text-primary" size={100} />
+          </p>
+        )}
+        {playerStats.length > 0 && (
+          <div className="my-4">
+            {playerStats.map((stat) => (
+              <div key={Number(stat.leaderboard_id)}>
+                <StatCard playerStats={stat} />
+              </div>
+            ))}
+          </div>
+        )}
+      </CardContent>
+    </Card>
   );
 }
