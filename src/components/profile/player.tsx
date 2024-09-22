@@ -2,6 +2,7 @@ import { MappedTeam } from "@/app/api/matchHistory/matchHelpers";
 import { majorGodIndexToData } from "@/types/MajorGods";
 import { MatchHistoryMap } from "@/types/MatchHistory";
 import Image from "next/image";
+import { Card } from "@/components/ui/card";
 
 interface IProps {
   player: MappedTeam;
@@ -26,14 +27,15 @@ export default function Player({
   const ratingChangeColor = isWinner ? "primary" : "red-500";
 
   return (
-    <div className="grid grid-cols-[1fr,6fr] items-center w-full">
+    <Card className="p-1 grid grid-cols-[25px,6fr] items-center w-full">
       {/* Civ Image */}
       <Image
         src={portraitPath}
         alt={civName}
         width={24}
         height={24}
-        className={`shrink-0 rounded-full border-2 w-[24px] h-6 border-${ratingChangeColor}`}
+        layout="fixed"
+        className={`shrink-0 rounded-full border-2 w-6 h-6 border-${ratingChangeColor}`}
       />
       {/* Player Name and Rating */}
       <div className="flex justify-between items-center">
@@ -50,6 +52,6 @@ export default function Player({
           </div>
         )}
       </div>
-    </div>
+    </Card>
   );
 }
