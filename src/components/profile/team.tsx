@@ -17,21 +17,26 @@ export default function Team({
   className,
 }: IProps) {
   return (
-    <div className={`flex items-center gap-2 ${className}`}>
-      {teams.map((team: TeamResult, index: number) => (
-        <div key={team.teamid} className="flex flex-col items-center gap-1">
-          {/* versus
-          {teams.length > 1 && (
-            <div className="text-xl mx-4 flex items-center">vs</div>
-          )} */}
-          {/* player */}
-          <Player
-            team={team}
-            matchHistoryMap={matchHistoryMap}
-            handleNameClick={handleNameClick}
-            gameMode={gameMode}
-          />
-        </div>
+    <div className={`grid grid-cols-[3fr,1fr,3fr] gap-1 ${className}`}>
+      {teams.map((team: TeamResult, i) => (
+        <>
+          <div key={team.teamid} className="flex flex-col gap-1">
+            {team.results.map((player, i) => (
+              <Player
+                key={player.profile_id}
+                player={player}
+                matchHistoryMap={matchHistoryMap}
+                handleNameClick={handleNameClick}
+                gameMode={gameMode}
+              />
+            ))}
+          </div>
+          {i === 0 && (
+            <div className="flex flex-col align-middle justify-center text-center">
+              VS
+            </div>
+          )}
+        </>
       ))}
     </div>
   );

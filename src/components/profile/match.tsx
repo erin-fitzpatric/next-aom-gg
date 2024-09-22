@@ -29,7 +29,7 @@ export default function MatchComponent({ match }: IProps) {
   };
 
   return (
-    <div className="w-full grid grid-cols-12 items-center border-b py-4">
+    <div className="w-full grid grid-cols-8 items-center border-b py-4">
       <div className="col-span-2 justify-self-center">
         <Map mapData={mapData} />
       </div>
@@ -52,14 +52,14 @@ export default function MatchComponent({ match }: IProps) {
         matchHistoryMap={matchHistoryMap}
         handleNameClick={handleNameClick}
         gameMode={gameMode}
-        className="col-span-6"
+        className="col-span-2"
       />
       {/* Rating Change */}
       <RatingChange
         ratingChange={ratingChange}
         gameMode={gameMode}
         isWinner={isWinner}
-        className="col-span-1"
+        className="col-span-1 justify-center"
       />
     </div>
   );
