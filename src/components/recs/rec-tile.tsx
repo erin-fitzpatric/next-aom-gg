@@ -98,7 +98,7 @@ export default function RecTile({ id, rec, showMap = true }: RecTileProps) {
                         <SheetDescription>
                           <input
                             type="text"
-                            autoFocus="false"
+                            autoFocus={true}
                             value={fileName}
                             onChange={(e) => setFileName(e.target.value)}
                             placeholder="Enter file name"
@@ -182,7 +182,7 @@ export default function RecTile({ id, rec, showMap = true }: RecTileProps) {
                     <SheetDescription>
                       <input
                         type="text"
-                        autoFocus="false"
+                        autoFocus={true}
                         value={fileName}
                         onChange={(e) => setFileName(e.target.value)}
                         placeholder="Enter file name"
