@@ -1,3 +1,8 @@
+import { Match } from "@/types/Match";
+import { Frown } from "lucide-react";
+import Loading from "../loading";
+import MatchComponent from "./match";
+
 export function MatchHistory({
   loading,
   matchHistoryStats,

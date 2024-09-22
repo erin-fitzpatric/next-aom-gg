@@ -1,30 +1,17 @@
 "use client";
 import { useCallback, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
-import { useParams, useRouter, useSearchParams } from "next/navigation";
-import Image from "next/image";
-import { CardHeader } from "@/components/ui/card";
+import { useParams, useRouter } from "next/navigation";
 import { Skeleton } from "@/components/ui/skeleton";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-} from "../ui/pagination";
-import {
-  DoubleArrowLeftIcon,
-  DoubleArrowRightIcon,
-} from "@radix-ui/react-icons";
-import { Frown } from "lucide-react";
-import MatchComponent from "./match";
-import StatCard from "./statCard";
-import Loading from "../loading";
 import { LeaderboardTypeValues } from "@/types/LeaderBoard";
 import { SteamProfile } from "@/types/Steam";
 import { ILeaderboardPlayer } from "@/types/LeaderboardPlayer";
 import { Match } from "@/types/Match";
 import { usePagination } from "../leaderboard";
 import { MatchHistory } from "./matchHistory";
+import { PaginationComponent } from "./pagination";
+import { PlayerInfo } from "./playerInfo";
+import { ProfileAvatar } from "./profileAvatar";
 import PlayerGodStats from "./playerGodStats";
 
 function LoadingSkeleton() {
@@ -32,139 +19,6 @@ function LoadingSkeleton() {
     <div className="flex justify-center items-center w-full">
       <Skeleton className="w-full h-16 rounded-full" />
     </div>
-  );
-}
-
-function ProfileAvatar({
-  steamProfile,
-  loading,
-}: {
-  steamProfile?: SteamProfile;
-  loading: boolean;
-}) {
-  return (
-    <CardHeader className="w-full text-center">
-      {loading ? (
-        <Skeleton className="w-24 h-24 rounded-full mx-auto" />
-      ) : steamProfile ? (
-        <Image
-          src={steamProfile.avatarfull}
-          alt="Profile Picture"
-          width={84}
-          height={84}
-          className="rounded-full mx-auto"
-        />
-      ) : (
-        <div className="w-24 h-24 rounded-full mx-auto bg-gray-300"></div>
-      )}
-    </CardHeader>
-  );
-}
-
-function PlayerInfo({
-  playerName,
-  loading,
-  dataFetched,
-  playerStats,
-  error,
-}: {
-  playerName: string;
-  loading: boolean;
-  dataFetched: boolean;
-  playerStats: ILeaderboardPlayer[];
-  error: boolean;
-}) {
-  return (
-    <div className="w-full flex flex-col items-center">
-      {loading ? (
-        <Skeleton className="w-48 h-8 rounded-md mt-4" />
-      ) : (
-        <h1 className="text-4xl font-semibold text-gold">
-          {playerName ||
-            (dataFetched && !playerStats.length && error
-              ? "Player Not Found"
-              : "")}
-        </h1>
-      )}
-      {dataFetched && playerStats.length === 0 && !loading && error && (
-        <p className="text-center text-gray-500 mx-auto flex items-center justify-center h-full">
-          <Frown className="text-primary" size={100} />
-        </p>
-      )}
-      {playerStats.length > 0 && (
-        <div className="my-4">
-          {playerStats.map((stat) => (
-            <div key={Number(stat.leaderboard_id)} className="w-full">
-              <StatCard playerStats={stat} />
-            </div>
-          ))}
-        </div>
-      )}
-    </div>
-  );
-}
-
-function PaginationComponent({
-  totalPages,
-  pagination,
-  handleFirstPageClick,
-  handlePageClick,
-  handleLastPageClick,
-  showPages,
-}: {
-  totalPages: number;
-  pagination: { pageIndex: number };
-  handleFirstPageClick: () => void;
-  handlePageClick: (page: number) => void;
-  handleLastPageClick: () => void;
-  showPages: number[];
-}) {
-  if (totalPages <= 1) return null;
-
-  return (
-    <Pagination>
-      <PaginationContent>
-        <PaginationItem>
-          <PaginationLink
-            onClick={handleFirstPageClick}
-            className={`hover:cursor-pointer ${
-              pagination.pageIndex === 0 ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-            aria-label="First Page"
-          >
-            <DoubleArrowLeftIcon className="h-4 w-4" />
-          </PaginationLink>
-        </PaginationItem>
-
-        {showPages.map((page) => (
-          <PaginationItem key={page}>
-            <PaginationLink
-              onClick={() => handlePageClick(page - 1)}
-              aria-current={
-                pagination.pageIndex === page - 1 ? "page" : undefined
-              }
-              className="hover:cursor-pointer"
-            >
-              {page}
-            </PaginationLink>
-          </PaginationItem>
-        ))}
-
-        <PaginationItem>
-          <PaginationLink
-            onClick={handleLastPageClick}
-            className={`hover:cursor-pointer ${
-              pagination.pageIndex === totalPages - 1
-                ? "opacity-50 cursor-not-allowed"
-                : ""
-            }`}
-            aria-label="Last Page"
-          >
-            <DoubleArrowRightIcon className="h-4 w-4" />
-          </PaginationLink>
-        </PaginationItem>
-      </PaginationContent>
-    </Pagination>
   );
 }
 
@@ -203,8 +57,7 @@ export default function Profile() {
   const playerId = String(id);
 
   const { status } = useSession();
-  const { limit, onPaginationChange, skip, pagination, goToPage } =
-    usePagination();
+  const { limit, onPaginationChange, skip, pagination } = usePagination();
 
   const fetchProfileData = useCallback(
     async (playerId: string) => {
@@ -338,16 +191,13 @@ export default function Profile() {
   if (status === "loading") return <LoadingSkeleton />;
 
   return (
-    <div className="w-full text-2xl">
-      <ProfileAvatar
-        steamProfile={state.steamProfile}
-        loading={state.loading}
-      />
+    <div>
       <PlayerInfo
         playerName={state.playerName}
         loading={state.loading}
         dataFetched={state.dataFetched}
         playerStats={state.playerStats}
+        steamProfile={state.steamProfile}
         error={state.error}
       />
       <MatchHistory
