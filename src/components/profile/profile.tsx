@@ -1,8 +1,8 @@
 "use client";
-import { Card, CardHeader } from "@/components/ui/card";
+import { CardHeader } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
 import { useSession } from "next-auth/react";
-import { useParams, useRouter } from "next/navigation";
+import { useParams, useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useEffect, useState } from "react";
 import MatchComponent from "./match";
 import { LeaderboardTypeValues } from "@/types/LeaderBoard";
@@ -47,22 +47,36 @@ export default function Profile() {
   const { limit, onPaginationChange, skip, pagination } = usePagination();
 
   function usePagination() {
+    const router = useRouter();
+    const searchParams = useSearchParams();
+
     const [pagination, setPagination] = useState({
       pageSize: 50,
-      pageIndex:
-        parseInt(
-          new URLSearchParams(window.location.search).get("page") || "1",
-          10,
-        ) - 1,
+      pageIndex: 0,
     });
+
+    useEffect(() => {
+      // Update pageIndex based on the searchParams
+      const page = parseInt(searchParams.get("page") || "1", 10);
+      setPagination((prev) => ({ ...prev, pageIndex: page - 1 }));
+    }, [searchParams]);
+
     const { pageSize, pageIndex } = pagination;
 
-    const goToPage = (pageIndex: number) => {
-      setPagination((prev) => ({ ...prev, pageIndex }));
-      setLoading(true); // Set loading true when changing pages
-      window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to the top
-      router.push(`?page=${pageIndex + 1}`); // Update URL with the new page number
-    };
+    const goToPage = useCallback(
+      (newPageIndex: number) => {
+        setPagination((prev) => ({ ...prev, pageIndex: newPageIndex }));
+        setLoading(true); // Set loading true when changing pages
+
+        // Create a new URLSearchParams object
+        const newSearchParams = new URLSearchParams(searchParams);
+        newSearchParams.set("page", (newPageIndex + 1).toString());
+
+        // Use router.push with the new search params
+        router.push(`?${newSearchParams.toString()}`);
+      },
+      [router, searchParams],
+    );
 
     return {
       limit: pageSize,
