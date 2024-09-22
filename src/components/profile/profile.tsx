@@ -23,41 +23,8 @@ import { LeaderboardTypeValues } from "@/types/LeaderBoard";
 import { SteamProfile } from "@/types/Steam";
 import { ILeaderboardPlayer } from "@/types/LeaderboardPlayer";
 import { Match } from "@/types/Match";
-
-function usePagination() {
-  const router = useRouter();
-  const searchParams = useSearchParams();
-
-  const [pagination, setPagination] = useState({
-    pageSize: 50,
-    pageIndex: 0,
-  });
-
-  useEffect(() => {
-    const page = parseInt(searchParams.get("page") || "1", 10);
-    setPagination((prev) => ({ ...prev, pageIndex: page - 1 }));
-  }, [searchParams]);
-
-  const { pageSize, pageIndex } = pagination;
-
-  const goToPage = useCallback(
-    (newPageIndex: number) => {
-      setPagination((prev) => ({ ...prev, pageIndex: newPageIndex }));
-      const newSearchParams = new URLSearchParams(searchParams);
-      newSearchParams.set("page", (newPageIndex + 1).toString());
-      router.push(`?${newSearchParams.toString()}`);
-    },
-    [router, searchParams],
-  );
-
-  return {
-    limit: pageSize,
-    onPaginationChange: setPagination,
-    pagination,
-    skip: pageSize * pageIndex,
-    goToPage,
-  };
-}
+import { usePagination } from "../leaderboard";
+import { MatchHistory } from "./matchHistory";
 
 function LoadingSkeleton() {
   return (
@@ -124,49 +91,13 @@ function PlayerInfo({
         </p>
       )}
       {playerStats.length > 0 && (
-        <div className=" my-4">
+        <div className="my-4">
           {playerStats.map((stat) => (
             <div key={Number(stat.leaderboard_id)} className="w-full">
               <StatCard playerStats={stat} />
             </div>
           ))}
         </div>
-      )}
-    </div>
-  );
-}
-
-function MatchHistory({
-  loading,
-  matchHistoryStats,
-  dataFetched,
-  error,
-  playerId,
-}: {
-  loading: boolean;
-  matchHistoryStats: Match[];
-  dataFetched: boolean;
-  error: boolean;
-  playerId: string;
-}) {
-  return (
-    <div className="flex flex-col mx-auto max-w-[1600px] gap-4">
-      {loading ? (
-        <div className="p-4">
-          <Loading />
-        </div>
-      ) : matchHistoryStats.length === 0 && dataFetched && error ? (
-        <p className="text-center text-gray-500 mx-auto flex items-center justify-center h-full">
-          <Frown className="text-primary" size={100} />
-        </p>
-      ) : (
-        matchHistoryStats.map((match) => (
-          <MatchComponent
-            key={match.matchId}
-            match={match}
-            playerId={playerId}
-          />
-        ))
       )}
     </div>
   );
