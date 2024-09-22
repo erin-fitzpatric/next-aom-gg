@@ -289,7 +289,7 @@ export default function Profile() {
           </div>
         )}
       </div>
-      <div className="flex flex-col mx-auto gap-4">
+      <div className="flex flex-col mx-auto max-w-[1600px] gap-4">
         {loading ? (
           <div className="p-4">
             <Loading />
@@ -300,7 +300,11 @@ export default function Profile() {
           </p>
         ) : (
           matchHistoryStats.map((match) => (
-            <MatchComponent key={match.matchId} match={match} />
+            <MatchComponent
+              key={match.matchId}
+              match={match}
+              playerId={playerId}
+            />
           ))
         )}
       </div>

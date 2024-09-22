@@ -7,6 +7,7 @@ interface IProps {
   handleNameClick: (row: number) => void;
   gameMode: string;
   className: string;
+  activePlayerId: string;
 }
 
 export default function Team({
@@ -15,7 +16,9 @@ export default function Team({
   handleNameClick,
   gameMode,
   className,
+  activePlayerId,
 }: IProps) {
+  console.log({ activePlayerId, teams });
   return (
     <div className={`grid grid-cols-[3fr,1fr,3fr] gap-1 ${className}`}>
       {teams.map((team: TeamResult, i) => (
@@ -24,6 +27,7 @@ export default function Team({
             {team.results.map((player, i) => (
               <Player
                 key={player.profile_id}
+                isActivePlayer={activePlayerId === player.profile_id.toString()}
                 player={player}
                 matchHistoryMap={matchHistoryMap}
                 handleNameClick={handleNameClick}
@@ -33,7 +37,7 @@ export default function Team({
           </div>
           {i === 0 && (
             <div className="flex flex-col align-middle justify-center text-center">
-              VS
+              x
             </div>
           )}
         </>

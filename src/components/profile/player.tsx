@@ -8,6 +8,7 @@ interface IProps {
   matchHistoryMap: MatchHistoryMap;
   handleNameClick: (row: number) => void;
   gameMode: string;
+  isActivePlayer: boolean;
 }
 
 export default function Player({
@@ -15,6 +16,7 @@ export default function Player({
   matchHistoryMap,
   handleNameClick,
   gameMode,
+  isActivePlayer,
 }: IProps) {
   const isCustom = gameMode === "CUSTOM";
   const { portraitPath, name: civName } = majorGodIndexToData(
@@ -24,7 +26,7 @@ export default function Player({
   const ratingChangeColor = isWinner ? "primary" : "red-500";
 
   return (
-    <div className="grid grid-cols-[1fr,4fr] gap-x-1 items-center w-full">
+    <div className="grid grid-cols-[1fr,6fr] items-center w-full">
       {/* Civ Image */}
       <Image
         src={portraitPath}
@@ -36,14 +38,14 @@ export default function Player({
       {/* Player Name and Rating */}
       <div className="flex justify-between items-center">
         <div
-          className={`text-base cursor-pointer overflow-hidden truncate text-${ratingChangeColor}`}
+          className={`text-base cursor-pointer overflow-hidden truncate text-${ratingChangeColor} mr-1`}
           onClick={() => handleNameClick(player.profile_id)}
           title={player.playerName}
         >
-          {player.playerName}
+          {player.playerName} {isActivePlayer ? "✨" : ""}
         </div>
         {!isCustom && (
-          <div className="text-xs font-light">
+          <div className="text-xs font-light ">
             {matchHistoryMap[player.profile_id]?.[0]?.newrating}
           </div>
         )}
