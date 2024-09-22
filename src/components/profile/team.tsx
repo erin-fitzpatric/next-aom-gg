@@ -19,7 +19,6 @@ export default function Team({
   className,
   activePlayerId,
 }: IProps) {
-  console.log({ activePlayerId, teams });
   return (
     <div className={`grid grid-cols-[3fr,1fr,3fr] gap-1 ${className}`}>
       {teams.map((team: TeamResult, i) => (

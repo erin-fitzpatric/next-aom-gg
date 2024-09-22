@@ -20,7 +20,7 @@ export function ProfileAvatar({
           alt="Profile Picture"
           width={84}
           height={84}
-          className="rounded-full mx-auto"
+          className="rounded-md mx-auto"
         />
       ) : (
         <div className="w-24 h-24 rounded-full mx-auto bg-gray-300"></div>
