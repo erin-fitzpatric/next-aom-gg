@@ -2,7 +2,7 @@
 // a variant of the subset sum problem
 
 import { IRecordedGame } from "@/types/RecordedGame";
-import { RecordedGamePlayerMetadata } from "@/types/RecordedGameParser";
+import { RecordedGamePlayerMetadata } from "@/types/recParser/RecordedGameParser";
 
 // This is a modification (to find nearest, plus early bailing) of https://stackoverflow.com/questions/4355955/subset-sum-algorithm
 function subsetSumClosest(vals: number[], targ: number): number[]

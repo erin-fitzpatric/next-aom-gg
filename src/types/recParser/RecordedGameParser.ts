@@ -1,4 +1,6 @@
-// Types related to the parser and RecordedGameMetadata
+// Types of the parser's "clean" output: RecordedGameMetadata and things that are used to build it
+
+import { RecordedGameRefinedCommands } from "./GameCommands";
 
 // For consistency, parse keys to camelCase versions
 // Anything not in this list will be unchanged
@@ -17,6 +19,7 @@ export const RecordedGameRawKeysToCamelCase = new Map<string, string>([
     ["civishidden", "civIsHidden"],   
     ["aotgblessings", "aotgBlessings"],
     ["ugccheck", "ugcCheck"],
+    ["rlinkid", "rLinkId"],
     // Main data keys
     ["gamemapname", "gameMapName"],
     ["gamefilename", "gameFileName"],
@@ -125,13 +128,18 @@ export const RecordedGamePlayerMetadataStringsOptional = [
     "pfEntity",         // Unknown
     "aiPersonality",
     "avatarId",     
+    "rLinkId",          // Relic link id, not present in recs from the earliest betas
+    "civName",
+    "classicalAgeMinorGod", // These three are dependent on successful command parsing to be filled in
+    "heroicAgeMinorGod",    // Their name is derived from the tech, and should be the likes of "Hermes" "Sobek" "Artemis" etc
+    "mythicAgeMinorGod",    // As with techTimes, there is no guarantee that the player ever succeeded in researching these techs
 ] as const;
 
 export const RecordedGamePlayerMetadataNumbersRequired = [
     "teamId", 
-    "civ",
     "rating",           // 0 in beta
-    "color",         
+    "color",     
+    "civ",    
     "handicap",                
     "type",             // Unknown, so far all values 0
     "status",           // Unknown, so far all values 0
@@ -140,6 +148,7 @@ export const RecordedGamePlayerMetadataNumbersRequired = [
 ] as const;
 
 export const RecordedGamePlayerMetadataNumbersOptional = [ 
+    "approximateCommandsPerMinute" // Dependent on command list parsing successfully
 ] as const;
 
 export const RecordedGamePlayerMetadataBooleansRequired = [
@@ -158,7 +167,14 @@ export interface RecordedGamePlayerMetadata extends Record<typeof RecordedGamePl
                                                     Partial<Record<typeof RecordedGamePlayerMetadataStringsOptional[number], string>>,
                                                     Partial<Record<typeof RecordedGamePlayerMetadataNumbersOptional[number], number>>,
                                                     Partial<Record<typeof RecordedGamePlayerMetadataBooleansOptional[number], boolean>>
-{}
+{
+    /** 
+     * Dependent on command list parsing successfully.
+     * A mapping of tech names: the time of the last attempt (game time in seconds) that the player tried to queue them up.
+     * There's no guarantee that this attempt ever succeeded, though.
+     */
+    techTimes?: Record<string, number>;
+}
 
 export const RecordedGameMetadataStringsRequired = [
     "gameMapName",                          // A lowercase string for the map name
@@ -179,7 +195,7 @@ export const RecordedGameMetadataStringsOptional = [
     //"gameLastMapSetSelected",               // Unknown
     //"gameArenaSeason",                      // Arena of the gods?
     //"gameArenaMission",
-    "gamePlayFabPartyAddress",              // Unknown
+    "gamePlayFabPartyAddress",                // Base64 encoded zlib compressed data. I don't know what it contains.
     //"gameMainMenuScenarioName",             // No idea why this is here
     //"gameContinueMainFileName",             // Unknown
     //"gameContinueCampaignFileName",         // Unknown
@@ -261,7 +277,9 @@ export const RecordedGameMetadataBooleansRequired = [
     "usedEnforcedAgeSettings",
 ] as const;
 
-export const RecordedGameMetadataBooleansOptional = [] as const;
+export const RecordedGameMetadataBooleansOptional = [
+    "commandParserGeneratedWarnings",
+] as const;
 
 export interface RecordedGameMetadata extends Record<typeof RecordedGameMetadataStringsRequired[number], string>,
                                               Record<typeof RecordedGameMetadataNumbersRequired[number], number>,
@@ -291,18 +309,77 @@ export interface RecordedGameMetadata extends Record<typeof RecordedGameMetadata
     /**
      *  A string that lists the sizes of all the teams in the game. 
      *  Eg: "1v1", "3v3", "1v2v3"...
+     *  Should always be present if version >= 2
      */
     teamsFormatString?: string,
+
+    /**
+     * The game length, in seconds.
+     * This will most likely have a decimal component as well.
+     * Should always be present if version >= 2
+     */
+    gameLength?: number,
+
+    /**
+     * A list of game commands by player.
+     * Should probably be removed before saving to DB.
+     * If parsing the command list fails for any reason, this will be left undefined.
+     */
+    commands?: RecordedGameRefinedCommands
+
+    /**
+     * If parsing game commands failed, the error that occurred.
+     */
+    commandParserError?: string
+
+    /**
+     * If parsing game commands succeeded, any warnings (typically about invalid or unrecognised parts of commands) that generated.
+     */
+    commandParserWarnings?: string[]
+    
+    /**
+     * Whether or not there were warnings when parsing this.
+     * This is for saving to the db.
+     */
+    commandParserGeneratedWarnings?: boolean
+
+    /** 
+     * The player numbers that did not resign in this game.
+     * There's a reasonable chance that this is a list of players that won, but as there is no detection for full defeats that is not always true.
+     * Existence is dependent on command parsing without errors.
+     */
+    unresignedPlayers?: number[]
 
     /**
      * Version of this structure.
      * Undefined = earlier than its existence
      */
     version?: number,
-
-    /**
-     * The game length, in seconds.
-     * This will most likely have a decimal component as well.
-     */
-    gameLength?: number,
 }
+
+
+/*
+Version notes:
+    1:
+        added teamsFormatString, gameLength
+    2:
+        RecordedGamePlayerMetadata:
+            added civName (string form)
+                The name is resolved with the packed minor god data in the XMB section, so that any future DLC/mods/etc aren't reliant
+                on numbers which could potentially be volatile if the list is reordered.
+                This should be used in preference to civ (number form) if possible
+            added rLinkId
+            added techTimes
+            added approximateCommandsPerMinute
+            added classicalAgeMinorGod
+            added heroicAgeMinorGod
+            added mythicAgeMinorGod
+
+        RecordedGameMetadata:
+            added commands (would strongly recommend deleting this before saving to db)
+            added commandParserError
+            added commandParserWarnings
+            added commandParserGeneratedWarnings
+            added unresignedPlayers
+
+*/
