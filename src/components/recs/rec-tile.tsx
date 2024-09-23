@@ -99,7 +99,7 @@ export default function RecTile({ id, rec, showMap = true,refetchRecs, filters }
             </div>
             <div className="flex flex-col">
               <div className="flex justify-end mt-2 mr-2">
-                {!recGameAuthor && (
+                {recGameAuthor && (
                   <div className="flex space-x-2">
                     <Sheet open={isOpen} onOpenChange={setIsOpen}>
                       <SheetTrigger asChild>
@@ -188,7 +188,7 @@ export default function RecTile({ id, rec, showMap = true,refetchRecs, filters }
         <div className="flex flex-col items-center">
           <div className="relative w-full pl-5">
             <RecTitle gameTitle={rec.gameTitle || ""} />
-            {!recGameAuthor && (
+            {recGameAuthor && (
               <div className="absolute top-0 right-0 z-10 mt-1 mr-1">
                 <Sheet open={isOpen} onOpenChange={setIsOpen}>
                   <SheetTrigger asChild>
