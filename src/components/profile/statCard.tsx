@@ -23,7 +23,7 @@ export default function StatCard({ playerStats }: IStatCardProps) {
   const winPercentFormatted = (Number(winPercent) * 100).toFixed(1);
 
   return (
-    <div>
+    <div className="w-full max-w-md">
       <h2 className="text-2xl font-bold mb-4 text-gold">
         {LeaderboardTypeNames[Number(leaderboard_id)]}
       </h2>
@@ -37,7 +37,7 @@ export default function StatCard({ playerStats }: IStatCardProps) {
               <span className="text-xl font-semibold">
                 {winPercentFormatted}%
               </span>
-              <span className="text-sm text-gray-400">
+              <span className="text-sm text-gray-400 truncate">
                 ({String(wins)}W / {String(losses)}L)
               </span>
             </div>
@@ -77,9 +77,9 @@ interface StatItemProps {
 
 function StatItem({ label, value }: StatItemProps) {
   return (
-    <div className="flex flex-col">
-      <span className="text-sm text-gray-400">{label}</span>
-      <span className="text-lg font-semibold">{value}</span>
+    <div className="flex flex-col w-full overflow-hidden">
+      <span className="text-sm text-gray-400 truncate">{label}</span>
+      <span className="text-lg font-semibold truncate">{value}</span>
     </div>
   );
 }

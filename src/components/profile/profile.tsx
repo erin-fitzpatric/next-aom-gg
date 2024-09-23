@@ -12,6 +12,8 @@ import { MatchHistory } from "./matchHistory";
 import { PaginationComponent } from "./pagination";
 import { PlayerInfo } from "./playerInfo";
 import { ProfileAvatar } from "./profileAvatar";
+import { ChevronDown, ChevronUp } from "lucide-react";
+import { Button } from "../ui/button";
 import PlayerGodStats from "./playerGodStats";
 
 function LoadingSkeleton() {
@@ -50,6 +52,7 @@ export default function Profile() {
     dataFetched: false,
     error: false,
   });
+  const [currentCardIndex, setCurrentCardIndex] = useState(0);
 
   const params = useParams();
   const router = useRouter();
@@ -183,6 +186,18 @@ export default function Profile() {
       handlePageClick(state.totalPages - 1);
   };
 
+  const handlePrevCard = () => {
+    setCurrentCardIndex((prev) =>
+      prev > 0 ? prev - 1 : state.playerStats.length - 1,
+    );
+  };
+
+  const handleNextCard = () => {
+    setCurrentCardIndex((prev) =>
+      prev < state.playerStats.length - 1 ? prev + 1 : 0,
+    );
+  };
+
   const showPages = calculatePagesToShow(
     pagination.pageIndex + 1,
     state.totalPages,
@@ -192,14 +207,26 @@ export default function Profile() {
 
   return (
     <div>
-      <PlayerInfo
-        playerName={state.playerName}
-        loading={state.loading}
-        dataFetched={state.dataFetched}
-        playerStats={state.playerStats}
-        steamProfile={state.steamProfile}
-        error={state.error}
-      />
+      <div className="flex items-center">
+        <div className="flex flex-col h-32 justify-between m-3">
+          <Button onClick={handlePrevCard} variant="outline" size="icon">
+            <ChevronUp className="h-4 w-4" />
+          </Button>
+          <Button onClick={handleNextCard} variant="outline" size="icon">
+            <ChevronDown className="h-4 w-4" />
+          </Button>
+        </div>
+
+        <PlayerInfo
+          playerName={state.playerName}
+          loading={state.loading}
+          dataFetched={state.dataFetched}
+          playerStats={state.playerStats}
+          steamProfile={state.steamProfile}
+          error={state.error}
+          currentCardIndex={currentCardIndex}
+        />
+      </div>
       <MatchHistory
         loading={state.loading}
         matchHistoryStats={state.matchHistoryStats}
