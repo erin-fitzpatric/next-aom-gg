@@ -35,13 +35,15 @@ export default function RecordedGames() {
   const [buildNumbers, setBuildNumbers] = useState<number[]>([]);
   const [selectedBuild, setSelectedBuild] = useState<number | null>(null);
   const { data: session } = useSession() as { data: ExtendedSession | null };
-const loggedInUserId = session?.user?.userId;
+  const loggedInUserId = session?.user?.userId;
   const initialFetch = useRef(true);
   const searchParams = useSearchParams();
   
   const fetchRecs = useCallback(
     async (pageNum: number, filters?: Filters) => {
-      let mappedFilters = filters;
+      let mappedFilters = filters || {};
+      setRecs([]);
+      setIsLoading(true);
       if (initialFetch.current) {
         const builds = await getBuildNumbers();
         setBuildNumbers(builds);
@@ -57,7 +59,7 @@ const loggedInUserId = session?.user?.userId;
           setQuery(search);
           setSelectedBuild(parseInt(buildNumber));
         } else {
-          mappedFilters = { buildNumbers: [builds[0]] }; // filter by latest build on load
+          mappedFilters = { buildNumbers: [builds[1]] }; // filter by latest build on load
         }
         setFilters(mappedFilters);
       }
@@ -163,6 +165,8 @@ const loggedInUserId = session?.user?.userId;
                       key={`rec-tile-${rec.gameGuid}`}
                       id={loggedInUserId || ""}
                       rec={rec}
+                      refetchRecs={() => fetchRecs(0, filters)}
+                      filters={filters}
                     ></RecTile>
                   </div>
                 </Card>

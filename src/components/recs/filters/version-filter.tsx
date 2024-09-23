@@ -15,7 +15,7 @@ export function VersionFilter({
 }: FilterProps) {
   useEffect(() => {
     if (buildNumbers && buildNumbers.length > 0 && selectedBuild === null) {
-      setSelectedBuild(buildNumbers[0]);
+      setSelectedBuild(buildNumbers[1]);
     }
   }, [buildNumbers, selectedBuild, setSelectedBuild]);
 

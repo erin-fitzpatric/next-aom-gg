@@ -10,52 +10,70 @@ import { Sheet, SheetContent, SheetDescription, SheetHeader, SheetTitle, SheetTr
 import { Button } from "../ui/button";
 import { toast } from "../ui/use-toast";
 import { Dialog, DialogTrigger, DialogContent, DialogHeader, DialogFooter, DialogTitle, DialogDescription } from "../ui/dialog";
+import { Filters } from "@/types/Filters";
 
 interface RecTileProps {
   id: string;
   rec: IRecordedGame;
   showMap?: boolean;
+  refetchRecs: (filters: Filters) => void;
+  filters: Filters;
 }
 
-export default function RecTile({ id, rec, showMap = true }: RecTileProps) {
+export default function RecTile({ id, rec, showMap = true,refetchRecs, filters }: RecTileProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [fileName, setFileName] = useState(rec.gameTitle);
   const [dialogOpen, setDialogOpen] = useState(false);
   const windowSize = useContext(WindowContext);
   const { leftTeams, rightTeams } = useTeams(rec);
-
+  const [isProcessing, setIsProcessing] = useState(false);
   const recGameAuthor = id === rec.uploadedByUserId;
 
   async function handleEditGameTitle(fileName: string, gameGuid: string) {
+    setIsProcessing(true);
     const response = await fetch(`/api/recordedGames`, {
       method: "PUT",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ gameTitle: fileName, gameGuid }),
+      body: JSON.stringify({ gameTitle: fileName, gameGuid, userId: id }),
     });
     if (response.ok) {
       toast({
         title: "Game Title updated successfully",
         duration: 3000,
       });
-    } else {
+      refetchRecs(filters);
+    } else if (response.status === 402) {
+      toast({
+        title: "Wrong user",
+        duration: 3000,
+      });
+    }
+    else {
       toast({
         title: "Error updating the title",
         duration: 3000,
       });
     }
-    setFileName("");
+    setIsProcessing(false);
     setIsOpen(false);
   }
 
   async function handleDeleteGame(gameGuid: string) {
+    setIsProcessing(true);
     const response = await fetch(`/api/recordedGames`, {
       method: "DELETE",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ gameGuid }),
+      body: JSON.stringify({ gameGuid, userId: id }),
     });
     if (response.ok) {
       toast({
         title: "Game deleted successfully",
+        duration: 3000,
+      });
+      refetchRecs(filters);
+    } else if (response.status === 402) {
+      toast({
+        title: "Wrong user",
         duration: 3000,
       });
     } else {
@@ -64,6 +82,7 @@ export default function RecTile({ id, rec, showMap = true }: RecTileProps) {
         duration: 3000,
       });
     }
+    setIsProcessing(false);
     setIsOpen(false);
     setDialogOpen(false);
   }
@@ -80,7 +99,7 @@ export default function RecTile({ id, rec, showMap = true }: RecTileProps) {
             </div>
             <div className="flex flex-col">
               <div className="flex justify-end mt-2 mr-2">
-                {recGameAuthor && (
+                {!recGameAuthor && (
                   <div className="flex space-x-2">
                     <Sheet open={isOpen} onOpenChange={setIsOpen}>
                       <SheetTrigger asChild>
@@ -106,9 +125,11 @@ export default function RecTile({ id, rec, showMap = true }: RecTileProps) {
                           />
                         </SheetDescription>
                         <Button
+                          disabled={isProcessing}
                           type="submit"
                           className="mx-auto mt-4 flex"
-                          onClick={() => handleEditGameTitle(fileName || "", rec.gameGuid)}
+                          onClick={() =>
+                            handleEditGameTitle(fileName || "", rec.gameGuid)}
                         >
                           Confirm
                         </Button>
@@ -118,8 +139,9 @@ export default function RecTile({ id, rec, showMap = true }: RecTileProps) {
                         <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                           <DialogTrigger asChild>
                             <Button
+                              disabled={isProcessing}
                               type="submit"
-                              className="mx-auto mt-4 bg-red-500 flex"
+                              className="mx-auto mt-4 bg-red-500 hover:bg-red-600 flex"
                               onClick={() => setDialogOpen(true)}
                             >
                               Delete
@@ -134,12 +156,14 @@ export default function RecTile({ id, rec, showMap = true }: RecTileProps) {
                               </DialogDescription>
                             </DialogHeader>
                             <DialogFooter>
-                              <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                              <Button variant="outline"
+                               disabled={isProcessing} onClick={() => setDialogOpen(false)}>
                                 Cancel
                               </Button>
                               <Button
+                                disabled={isProcessing}
                                 type="submit"
-                                className="bg-red-500"
+                                className="bg-red-500 hover:bg-red-600"
                                 onClick={() => handleDeleteGame(rec.gameGuid)}
                               >
                                 Confirm
@@ -164,7 +188,7 @@ export default function RecTile({ id, rec, showMap = true }: RecTileProps) {
         <div className="flex flex-col items-center">
           <div className="relative w-full pl-5">
             <RecTitle gameTitle={rec.gameTitle || ""} />
-            {recGameAuthor && (
+            {!recGameAuthor && (
               <div className="absolute top-0 right-0 z-10 mt-1 mr-1">
                 <Sheet open={isOpen} onOpenChange={setIsOpen}>
                   <SheetTrigger asChild>
@@ -190,6 +214,7 @@ export default function RecTile({ id, rec, showMap = true }: RecTileProps) {
                       />
                     </SheetDescription>
                     <Button
+                      disabled={isProcessing}
                       type="submit"
                       className="mx-auto mt-4 flex"
                       onClick={() => handleEditGameTitle(fileName || "", rec.gameGuid)}
@@ -201,9 +226,10 @@ export default function RecTile({ id, rec, showMap = true }: RecTileProps) {
                     </SheetTitle>
                     <Dialog open={dialogOpen} onOpenChange={setDialogOpen}>
                       <DialogTrigger asChild>
-                        <Button
+                              <Button
+                                disabled={isProcessing}
                           type="submit"
-                          className="mx-auto mt-4 bg-red-500 flex"
+                          className="mx-auto mt-4 bg-red-500 hover:bg-red-600 flex"
                           onClick={() => setDialogOpen(true)}
                         >
                           Delete
@@ -218,12 +244,17 @@ export default function RecTile({ id, rec, showMap = true }: RecTileProps) {
                           </DialogDescription>
                         </DialogHeader>
                         <DialogFooter>
-                          <Button variant="outline" onClick={() => setDialogOpen(false)}>
+                          <Button
+                            variant="outline"
+                            disabled={isProcessing}
+                            onClick={() => setDialogOpen(false)}
+                          >
                             Cancel
                           </Button>
                           <Button
+                            disabled={isProcessing}
                             type="submit"
-                            className="bg-red-500"
+                            className="bg-red-500 hover:bg-red-600"
                             onClick={() => handleDeleteGame(rec.gameGuid)}
                           >
                             Confirm

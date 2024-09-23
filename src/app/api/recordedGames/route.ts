@@ -56,7 +56,15 @@ export async function PUT(request: Request) {
     }
     const userId = session.user.id;
     const body = await request.json();
-    const { gameTitle, gameGuid } = body;
+    const { gameTitle, gameGuid, id } = body;
+    if (userId !== id) {
+      return Response.json(
+        {
+          error: "Wrong user ID",
+        },
+        { status: 402 }
+      )
+    }
     await editGameTitle({ gameTitle, gameGuid });
     return Response.json(
       { message: "Game title updated successfully" },
@@ -89,7 +97,15 @@ export async function DELETE(request: Request) {
     }
     const userId = session.user.id;
     const body = await request.json();
-    const { gameGuid } = body;
+    const { gameGuid, id } = body;
+    if (userId !== id) {
+      return Response.json(
+        {
+          error: "Wrong user ID",
+        },
+        { status: 402 }
+      )
+    }
     await deleteRecGame(gameGuid);
     return Response.json(
       { message: "Rec game deleted successfully" },
