@@ -21,6 +21,7 @@ export function PlayerInfo({
   playerStats,
   steamProfile,
   error,
+  currentCardIndex,
 }: {
   playerName: string;
   loading: boolean;
@@ -28,32 +29,11 @@ export function PlayerInfo({
   playerStats: ILeaderboardPlayer[];
   steamProfile?: SteamProfile | undefined;
   error: boolean;
+  currentCardIndex: number;
 }) {
-  const [currentCardIndex, setCurrentCardIndex] = useState(0);
-
-  const handlePrevCard = () => {
-    setCurrentCardIndex((prevIndex) =>
-      prevIndex > 0 ? prevIndex - 1 : playerStats.length - 1,
-    );
-  };
-
-  const handleNextCard = () => {
-    setCurrentCardIndex((prevIndex) =>
-      prevIndex < playerStats.length - 1 ? prevIndex + 1 : 0,
-    );
-  };
-
   return (
-    <Card className="bg-gradient-to-br from-gray-900 to-gray-800 text-white shadow-xl w-[600px]">
+    <Card className="bg-gradient-to-br from-gray-900 to-gray-800 text-white shadow-xl">
       <CardContent className="flex gap-20 py-0">
-        <div className="flex flex-col justify-between">
-          <Button onClick={handlePrevCard} variant="outline" size="icon">
-            <ChevronUp className="h-4 w-4" />
-          </Button>
-          <Button onClick={handleNextCard} variant="outline" size="icon">
-            <ChevronDown className="h-4 w-4" />
-          </Button>
-        </div>
         <div className="flex flex-col justify-center items-center">
           <ProfileAvatar steamProfile={steamProfile} loading={loading} />
           {loading ? (
