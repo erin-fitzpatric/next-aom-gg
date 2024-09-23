@@ -8,7 +8,7 @@ export default function Socials() {
     const [twitchUrl, setTwitchUrl] = useState("");
     const { data: session } = useSession();
     const loggedInUserId = session?.userId;
-    async function handleSubmit(e) {
+    async function handleSubmit(e:React.FormEvent<HTMLFormElement>):Promise<void> {
         e.preventDefault();
         const response = await fetch("/api/socials", {
             method: "POST",
