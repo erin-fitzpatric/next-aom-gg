@@ -59,7 +59,7 @@ export default function RecordedGames() {
           setQuery(search);
           setSelectedBuild(parseInt(buildNumber));
         } else {
-          mappedFilters = { buildNumbers: [builds[1]] }; // filter by latest build on load
+          mappedFilters = { buildNumbers: [builds[0]] }; // filter by latest build on load
         }
         setFilters(mappedFilters);
       }
