@@ -23,6 +23,7 @@ import {
 } from "@radix-ui/react-icons";
 import Loading from "../loading";
 import { Frown } from "lucide-react";
+import PlayerGodStats from "./playerGodStats";
 
 export default function Profile() {
   const [matchHistoryStats, setMatchHistoryStats] = useState<Match[]>([]);
@@ -253,6 +254,21 @@ export default function Profile() {
         )}
       </div>
 
+      <div className="w-full my-4">
+        {loading ? (
+          <div className="space-y-4">
+            <Skeleton className="w-full h-12" />
+            <Skeleton className="w-full h-64" />
+          </div>
+        ) : dataFetched ? (
+          <PlayerGodStats playerId={playerId} />
+        ) : (
+          <div className="text-center text-gray-500 flex flex-col items-center justify-center h-64">
+            <Frown className="text-primary mb-4" size={64} />
+            <p>Failed to load god stats</p>
+          </div>
+        )}
+      </div>
       <Card className="w-full">
         {loading ? (
           <div className="p-4">
