@@ -362,7 +362,6 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
                       </TableCell>
                       <TableCell>{(god.play_rate * 100).toFixed(2)}%</TableCell>
                       <TableCell>{god.number_of_games}</TableCell>
-                      {patch && <TableCell>{god.patch}</TableCell>}
                     </TableRow>
                   ))}
                 </TableBody>
