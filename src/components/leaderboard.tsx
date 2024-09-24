@@ -38,6 +38,21 @@ export default function Leaderboard() {
 
   const { limit, onPaginationChange, skip, pagination } = usePagination();
 
+  const getLiveStatus = async (userId:string) => {
+    try {
+    const abc = "66e2cc127feec120c8fa955f"
+    const response = await fetch(`/api/twitch?userId=${abc}`);
+    if (!response.ok) {
+      throw new Error(`Error: ${response.statusText}`);
+    }
+    const { isLive } = await response.json();
+    return isLive;
+  } catch (error) {
+    console.error(`Failed to fetch live status for userId ${userId}:`, error);
+    return false; // Default to false if there's an error
+  }
+  };
+  
   const getLeaderboardData = useCallback(
     async (searchQuery: string) => {
       try {
@@ -63,6 +78,9 @@ export default function Leaderboard() {
         }
 
         const { leaderboardPlayers, totalRecords } = await response.json();
+
+  
+        
         setLeaderboardData(leaderboardPlayers);
         setTotalRecords(totalRecords);
       } catch (error) {

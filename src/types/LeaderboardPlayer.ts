@@ -24,4 +24,5 @@ export interface ILeaderboardPlayer {
   country: String;
   winPercent: Number;
   totalGames: Number;
+  isLive: Boolean;
 }

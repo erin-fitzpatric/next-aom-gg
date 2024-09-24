@@ -64,8 +64,7 @@ export function DataTable<TData, TValue>({
   });
 
   const handleRowClick = (row: any) => {
-    const route = `/profile/${row.original.profile_id}`;
-    router.push(route);
+    console.log(data)
   };
 
   return (

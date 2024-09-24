@@ -26,4 +26,5 @@ export const LeaderboardPlayerSchema = new Schema({
   country: { type: String, required: true },
   winPercent: { type: Number, required: true },
   totalGames: { type: Number, required: true },
+  isLive: { type: Boolean, required: true },
 });

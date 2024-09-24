@@ -1,4 +1,4 @@
-import SocialsModel from "@/db/mongo/model/SocialsModel";
+import { SocialsModel } from "@/db/mongo/model/SocialsModel";
 import getMongoClient from "@/db/mongo/mongo-client";
 import { Socials } from "@/types/Socials";
 
