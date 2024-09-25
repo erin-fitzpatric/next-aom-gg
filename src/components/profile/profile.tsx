@@ -210,7 +210,7 @@ export default function Profile() {
   }
 
   return (
-    <div className="w-full text-2xl">
+    <div className="w-full text-2xl px-4">
       <CardHeader className="w-full text-center">
         {loading ? (
           <Skeleton className="w-24 h-24 rounded-full mx-auto" />
