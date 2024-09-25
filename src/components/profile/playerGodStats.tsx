@@ -335,9 +335,6 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
                       #Games
                       <SortIcon column="number_of_games" />
                     </TableHead>
-                    {patch && (
-                      <TableHead className="text-gold text-sm">Patch</TableHead>
-                    )}
                   </TableRow>
                 </TableHeader>
                 <TableBody>
