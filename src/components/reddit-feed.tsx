@@ -19,7 +19,9 @@ const REDDIT_GET_URL = `/api/reddit`
 export default function RedditFeed() {
   const [redditPosts, setRedditPosts] = useState<RedditPost[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [galleryImages, setGalleryImages] = useState<{ [key: string]: string[] }>({});
+  const [galleryImages, setGalleryImages] = useState<{
+    [key: string]: string[];
+  }>({});
 
   function getRedditPosts() {
     fetch(REDDIT_GET_URL)
@@ -71,7 +73,7 @@ export default function RedditFeed() {
         if (items) {
           const images = Object.keys(items).map((key) => {
             const media = items[key];
-            const ext = media?.m?.split('/').pop();
+            const ext = media?.m?.split("/").pop();
             return `https://i.redd.it/${key}.${ext}`;
           });
           setGalleryImages((prev) => ({ ...prev, [postId]: images }));
@@ -86,19 +88,23 @@ export default function RedditFeed() {
     <>
       <Card className="p-4">
         <div className="flex justify-center">
-          <Image
-            src="/reddit-logo.png"
-            alt="Reddit Logo"
-            width={42}
-            height={42}
-          />
-        </div>
-        <a href="https://www.reddit.com/r/AgeofMythology/">
-          <div className="flex justify-center text-gold cursor-pointer hover:underline">
-            r/AgeOfMythology
+          <div className="flex justify-center p-1">
+            <Image
+              src="/reddit-logo.png"
+              alt="Reddit Logo"
+              width={52}
+              height={52}
+            />
           </div>
-        </a>
-        <h2 className="card-header">Top Reddit Posts</h2>
+          <div>
+            <a href="https://www.reddit.com/r/AgeofMythology/">
+              <div className="flex justify-center text-gold cursor-pointer hover:underline">
+                r/AgeOfMythology
+              </div>
+            </a>
+            <h2 className="card-header">Top Reddit Posts</h2>
+          </div>
+        </div>
         <Carousel className="pt-4">
           <CarouselContent className="flex items-center">
             {loading
@@ -123,79 +129,81 @@ export default function RedditFeed() {
               ))
               : redditPosts.map((post: RedditPost) => (
                 <CarouselItem
-                  key={post.id}
-                  className="bg-secondary h-full rounded-3xl mx-2 sm:basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4 hover:opacity-75 transition-opacity duration-200 ease-in-out overflow-hidden"
-                >
-                  <a
-                    href={`https://www.reddit.com${post.permalink}`}
-                    target="_blank"
-                    rel="noopener noreferrer"
-                    className="flex flex-col justify-between p-4 h-full"
+                    key={post.id}
+                    className="bg-secondary h-full rounded-3xl mx-2 sm:basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4 hover:opacity-75 transition-opacity duration-200 ease-in-out overflow-hidden"
                   >
-                    <div className="flex h-32">
-                      <div className="m-2">
-                        {post.url &&
-                          !post.url.startsWith("https://twitter.com") && (
-                            <div className="h-32 w-32 overflow-hidden rounded-lg">
-                              {galleryImages[post.id] ? (
-                                galleryImages[post.id].map((imgUrl, index) => (
+                    <a
+                      href={`https://www.reddit.com${post.permalink}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex flex-col justify-between p-4 h-full"
+                    >
+                      <div className="flex h-32">
+                        <div className="m-2">
+                          {post.url &&
+                            !post.url.startsWith("https://twitter.com") && (
+                              <div className="h-32 w-32 overflow-hidden rounded-lg">
+                                {galleryImages[post.id] ? (
+                                  galleryImages[post.id].map(
+                                    (imgUrl, index) => (
+                                      <Image
+                                        key={index}
+                                        src={imgUrl}
+                                        alt={post.title}
+                                        width={128}
+                                        height={128}
+                                        className="object-cover w-full h-full"
+                                      />
+                                    )
+                                  )
+                                ) : post.url.includes("youtube.com") ||
+                                  post.url.includes("youtu.be") ? (
                                   <Image
-                                    key={index}
-                                    src={imgUrl}
+                                    src={`https://img.youtube.com/vi/${getYouTubeVideoId(
+                                      post.url
+                                    )}/mqdefault.jpg`}
                                     alt={post.title}
                                     width={128}
                                     height={128}
                                     className="object-cover w-full h-full"
                                   />
-                                ))
-                              ) : post.url.includes("youtube.com") ||
-                                post.url.includes("youtu.be") ? (
-                                <Image
-                                  src={`https://img.youtube.com/vi/${getYouTubeVideoId(
-                                    post.url
-                                  )}/mqdefault.jpg`}
-                                  alt={post.title}
-                                  width={128}
-                                  height={128}
-                                  className="object-cover w-full h-full"
-                                />
-                              ) : isValidImageUrl(post.url) ? (
-                                <Image
-                                  src={post.url}
-                                  alt={post.title}
-                                  width={128}
-                                  height={128}
-                                  className="object-cover w-full h-full"
-                                />
-                              ) : (
-                                <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500">
-                                  No image available
-                                </div>
-                              )}
-                            </div>
-                          )}
-                      </div>
-                      <div className="flex-1 ml-4">
-                        <h2 className="text-xl text-primary text-wrap line-clamp-2 leading-2">
-                          {post.title}
-                        </h2>
-                        <p className="whitespace-normal truncate">
-                          {post.author}
-                        </p>
-                        <div className="flex flex-row space-x-4 justify-start text-center">
-                          <p>
-                            <ThickArrowUpIcon className="text-gold" />
-                            {post.ups}
+                                ) : isValidImageUrl(post.url) ? (
+                                  <Image
+                                    src={post.url}
+                                    alt={post.title}
+                                    width={128}
+                                    height={128}
+                                    className="object-cover w-full h-full"
+                                  />
+                                ) : (
+                                  <div className="w-full h-full flex items-center justify-center bg-gray-200 text-gray-500">
+                                    No image available
+                                  </div>
+                                )}
+                              </div>
+                            )}
+                        </div>
+                        <div className="flex-1 ml-4">
+                          <h2 className="text-xl text-primary text-wrap line-clamp-2 leading-2">
+                            {post.title}
+                          </h2>
+                          <p className="whitespace-normal truncate">
+                            {post.author}
                           </p>
-                          <p>
-                            <ChatBubbleIcon className="text-gold" />
-                            {post.num_comments}
-                          </p>
+                          <div className="flex flex-row space-x-4 justify-start text-center">
+                            <p>
+                              <ThickArrowUpIcon className="text-gold" />
+                              {post.ups}
+                            </p>
+                            <p>
+                              <ChatBubbleIcon className="text-gold" />
+                              {post.num_comments}
+                            </p>
+                          </div>
                         </div>
                       </div>
-                    </div>
-                  </a>
-                </CarouselItem>
+                    </a>
+                  </CarouselItem>
               ))}
           </CarouselContent>
           <CarouselPrevious />

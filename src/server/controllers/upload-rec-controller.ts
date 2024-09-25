@@ -1,5 +1,5 @@
-import { parseRecordedGameMetadata } from "../recParser";
-import { RecordedGameMetadata } from "@/types/RecordedGameParser";
+import { parseRecordedGameMetadata } from "../recParser/recParser";
+import { RecordedGameMetadata } from "@/types/recParser/RecordedGameParser";
 import getMongoClient from "@/db/mongo/mongo-client";
 import RecordedGameModel from "@/db/mongo/model/RecordedGameModel";
 import { BuildModel } from "@/db/mongo/model/BuildNumber";
@@ -24,6 +24,9 @@ export function mapRecGameMetadata(data: RecordedGameMetadata) {
   mappedData.playerData = mappedData.playerData.filter(
     (_player, idx) => idx !== 0
   );
+  delete mappedData.commands;
+  delete mappedData.commandParserWarnings;
+  mappedData.playerData.forEach((playerData) => delete playerData.techTimes);
   return mappedData;
 }
 

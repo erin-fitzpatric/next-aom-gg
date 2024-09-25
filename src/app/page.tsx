@@ -12,13 +12,13 @@ export const metadata: Metadata = {
 
 export default function Home() {
   return (
-    <main className="min-h-screen p-4 space-y-4">
+    <div className="min-h-screen lg:px-44">
       {/* Reddit API */}
       <div>
         <RedditFeed />
       </div>
 
-      <div className="grid grid-cols-1 xl:grid-cols-4 gap-5">
+      <div className="grid grid-cols-1 xl:grid-cols-4 gap-5 pt-4">
         <div className="xl:col-span-3 order-1">
           <Leaderboard />
         </div>
@@ -31,6 +31,6 @@ export default function Home() {
           </div>
         </div>
       </div>
-    </main>
+    </div>
   );
 }

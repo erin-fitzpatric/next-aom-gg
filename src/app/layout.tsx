@@ -11,6 +11,7 @@ import { SessionProvider } from "next-auth/react";
 import { Analytics } from "@vercel/analytics/react";
 import { SpeedInsights } from "@vercel/speed-insights/next";
 import GoogleAdsense from "@/components/googleAdsense";
+import { Separator } from "@/components/ui/separator";
 
 type RootLayoutProps = {
   children: ReactNode;
@@ -36,7 +37,8 @@ export default function RootLayout({ children }: RootLayoutProps) {
                   disableTransitionOnChange
                 >
                   <Header />
-                  {children}
+                  <Separator />
+                  <main>{children}</main>
                   <Toaster />
                   <Footer />
                 </ThemeProvider>

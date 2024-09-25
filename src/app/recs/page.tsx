@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function Recs() {
   return (
-    <main className="flex min-h-screen flex-col space-y-4">
+    <div className="flex min-h-screen flex-col space-y-4 lg:px-44">
       <div>
         <Suspense
           fallback={
@@ -23,6 +23,6 @@ export default function Recs() {
           <RecordedGames />
         </Suspense>
       </div>
-    </main>
+    </div>
   );
 }

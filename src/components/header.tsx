@@ -78,7 +78,7 @@ const navigation: NavigationItem[] = [
 
 export default function Header() {
   return (
-    <header className="w-full bg-white/5 p-4 grid grid-cols-2 md:grid-cols-[auto_1fr_auto] items-center gap-x-4 text-xl text-white">
+    <header className="w-full p-4 grid grid-cols-2 md:grid-cols-[auto_1fr_auto] items-center gap-x-4 text-xl text-white">
       {/* Logo */}
       <Link
         href={"/"}
@@ -94,7 +94,7 @@ export default function Header() {
       </Link>
 
       {/* Desktop Navigation Menu */}
-      <NavigationMenu className="items-center justify-start w-full hidden md:flex font-semibold">
+      <NavigationMenu className="items-center justify-start w-full hidden lg:flex font-semibold">
         <NavigationMenuList className="gap-2">
           {navigation.map((v) => (
             <NavigationItem key={v.label} item={v} />
@@ -103,7 +103,7 @@ export default function Header() {
       </NavigationMenu>
 
       {/* Container for SignIn and Social Links */}
-      <div className="hidden md:flex items-center space-x-4">
+      <div className="hidden lg:flex items-center space-x-4">
         {/* Social Links (hidden on mobile) */}
         <div className="flex items-center space-x-2">
           <Link href="https://ko-fi.com/fitzbro">
@@ -129,7 +129,7 @@ export default function Header() {
       </div>
 
       {/* Mobile Hamburger Menu (shown on mobile) */}
-      <div className="block md:hidden self-center place-self-end">
+      <div className="block lg:hidden self-center place-self-end">
         <Sheet>
           <SheetTrigger asChild>
             <HamburgerMenuIcon className="w-8 h-8" />
