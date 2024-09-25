@@ -44,6 +44,13 @@ export async function getUserGodStats(params: IFetchUserGodStatsParams) {
     };
   }
 
+  if (gameMode) {
+    matchQuery.gameMode = gameMode;
+  }
+
+  // Separate query for total games (without civilization filter)
+  const totalGamesQuery = { ...matchQuery };
+
   if (civilization) {
     matchQuery["teams.results"] = {
       $elemMatch: {
@@ -53,11 +60,8 @@ export async function getUserGodStats(params: IFetchUserGodStatsParams) {
     };
   }
 
-  if (gameMode) {
-    matchQuery.gameMode = gameMode;
-  }
-
   const matches = await MatchModel.find(matchQuery);
+  const totalMatches = await MatchModel.find(totalGamesQuery);
 
   const godStatsMap = new Map<
     string,
@@ -69,6 +73,27 @@ export async function getUserGodStats(params: IFetchUserGodStatsParams) {
       number_of_games: number;
     }
   >();
+
+  const totalGamesMap = new Map<number, number>();
+
+  for (const match of totalMatches) {
+    for (const team of match.teams) {
+      for (const result of team.results) {
+        if (result.profile_id === playerId) {
+          const { civilization_id } = result;
+          totalGamesMap.set(
+            civilization_id,
+            (totalGamesMap.get(civilization_id) || 0) + 1
+          );
+        }
+      }
+    }
+  }
+
+  const totalGames = Array.from(totalGamesMap.values()).reduce(
+    (acc, count) => acc + count,
+    0
+  );
 
   for (const match of matches) {
     const gameMode = match.gameMode;
@@ -97,11 +122,6 @@ export async function getUserGodStats(params: IFetchUserGodStatsParams) {
       }
     }
   }
-
-  const totalGames = Array.from(godStatsMap.values()).reduce(
-    (acc, stat) => acc + stat.number_of_games,
-    0
-  );
 
   const combinedGodStats = new Map<
     number,
@@ -136,7 +156,7 @@ export async function getUserGodStats(params: IFetchUserGodStatsParams) {
       civilization_id: stat.civilization_id,
       race_id: stat.race_id,
       win_rate: stat.total_wins / stat.total_games,
-      play_rate: stat.total_games / totalGames,
+      play_rate: totalGamesMap.get(stat.civilization_id)! / totalGames,
       number_of_games: stat.total_games,
     };
   });
