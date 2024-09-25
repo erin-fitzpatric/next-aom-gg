@@ -14,7 +14,8 @@ import { useEffect, useState } from "react";
 import { Card } from "./ui/card";
 import { Skeleton } from "./ui/skeleton";
 
-const REDDIT_GET_URL = `/api/reddit`
+const REDDIT_GET_URL = `/api/reddit`;
+const TIMEOUT_RETRY = 500;
 
 export default function RedditFeed() {
   const [redditPosts, setRedditPosts] = useState<RedditPost[]>([]);
@@ -31,11 +32,12 @@ export default function RedditFeed() {
       })
       .then((response) => {
         setRedditPosts(response);
+        setLoading(false);
       })
       .catch((error) => {
         console.error("Failed to fetch reddit posts", error);
+        setTimeout(() => getRedditPosts(), TIMEOUT_RETRY);
       })
-      .finally(() => setLoading(false));
   }
 
   useEffect(() => {
