@@ -94,32 +94,38 @@ export default function BarChart<T, K extends Extract<keyof T, string>>({
       classNamesScheme[
         Math.floor((index / array.length) * classNamesScheme.length)
       ],
-    ...(rightDataKey && rightDataFormatter &&{ [rightDataKey]: rightDataFormatter(value[rightDataKey] as number) }),
+    ...(rightDataKey &&
+      rightDataFormatter && {
+        [rightDataKey]: rightDataFormatter(value[rightDataKey] as number),
+      }),
   }));
 
   // State for dynamic chart size
   const [chartSize, setChartSize] = useState({
     width: window.innerWidth,
-    height: sortedData.length * 60,
+    height: sortedData.length * 20,
   }); // Default size
 
   // Resize the chart based on container size and data
-  const refCallback = useCallback((node: HTMLDivElement) => {
-    const handleResize = () => {
-      if (node) {
-        const containerWidth = node.offsetWidth;
-        setChartSize({
-          width: containerWidth,
-          height: sortedData.length * (containerWidth < chartSizes.sm ? 40 : 60),
-        });
-      }
-    };
+  const refCallback = useCallback(
+    (node: HTMLDivElement) => {
+      const handleResize = () => {
+        if (node) {
+          const containerWidth = node.offsetWidth;
+          setChartSize({
+            width: containerWidth,
+            height: sortedData.length * 60,
+          });
+        }
+      };
 
-    window.addEventListener("resize", handleResize);
-    handleResize(); // Initial resize on mount
+      window.addEventListener("resize", handleResize);
+      handleResize(); // Initial resize on mount
 
-    return () => window.removeEventListener("resize", handleResize);
-  }, [data]); // Re-run when data changes
+      return () => window.removeEventListener("resize", handleResize);
+    },
+    [data]
+  ); // Re-run when data changes
 
   const getFontSize = () => {
     if (chartSize.width < chartSizes.sm) {
@@ -136,10 +142,10 @@ export default function BarChart<T, K extends Extract<keyof T, string>>({
       return { left: 30, right: 30 };
     }
     return { left: 40, right: 40 };
-  }
+  };
 
   return (
-    <Card style={{ minHeight: "600px" }}>
+    <>
       {" "}
       {/* Ensures the card has a minimum height */}
       <CardHeader>
@@ -154,10 +160,7 @@ export default function BarChart<T, K extends Extract<keyof T, string>>({
         {" "}
         {/* Ensures content area has minimum height */}
         <ChartContainer config={chartConfig}>
-          <div
-            className="w-100 gap-20 h-fit"
-            ref={refCallback}
-          >
+          <div className="w-100 gap-20 h-fit" ref={refCallback}>
             <RechartsBarChart
               margin={getMargin()}
               accessibilityLayer
@@ -173,9 +176,8 @@ export default function BarChart<T, K extends Extract<keyof T, string>>({
                 tickLine={false}
                 axisLine={false}
                 fontSize={getFontSize()}
-
               />
-              <XAxis dataKey={xAxisKey} type="number" hide/>
+              <XAxis dataKey={xAxisKey} type="number" hide />
               <ChartTooltip
                 content={<ChartTooltipContent indicator="line" />}
                 formatter={tooltipFormatter}
@@ -199,42 +201,11 @@ export default function BarChart<T, K extends Extract<keyof T, string>>({
                   fontSize={getFontSize()}
                   formatter={xAxisFormatter}
                 />
-                {/* <LabelList
+                <LabelList
                   dataKey={leftDataKey}
-                  position="insideLeft"
+                  position="bottom"
                   fontSize={getFontSize()}
                   formatter={leftDataFormatter}
-                /> */}
-                {/* <LabelList
-                  dataKey={rightDataKey}
-                  position="insideLeft"
-                  className={cn("fill-foreground text-black", {
-                    "translate-x-[55%] hidden": chartSize.width < chartSizes.sm,
-                    "translate-x-[40%]": chartSize.width >= chartSizes.sm,
-                  })}
-                  fontSize={getFontSize()}
-                  formatter={rightDataFormatter}
-                /> */}
-              </Bar>
-              <Bar
-                type="grouped"
-                dataKey={rightDataKey || ""}
-                layout="vertical"
-                fill="var(--color-mobile)"
-                radius={8}
-                barSize={20}
-              >
-                     <LabelList
-                  dataKey={rightDataKey}
-                  position={
-                    chartSize && chartSize.width >= chartSizes.sm
-                      ? "right"
-                      : "insideRight"
-                  }
-                  offset={8}
-                  className="fill-foreground"
-                  fontSize={getFontSize()}
-                  formatter={xAxisFormatter}
                 />
               </Bar>
             </RechartsBarChart>
@@ -244,6 +215,6 @@ export default function BarChart<T, K extends Extract<keyof T, string>>({
       <CardFooter className="flex-col items-start gap-2 text-sm">
         {footerContent}
       </CardFooter>
-    </Card>
+    </>
   );
 }

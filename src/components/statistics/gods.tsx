@@ -7,7 +7,8 @@ import { Skeleton } from "../ui/skeleton";
 import BuildFilter from "./build-filter";
 import BarChart from "./bar-chart";
 import { Build } from "@/types/Build";
-import UnderConstruction from "./under-construction";
+import { Card } from "../ui/card";
+import { MajorGods } from "@/types/MajorGods";
 
 export interface IFilterOptions {
   eloRange: string;
@@ -19,7 +20,6 @@ export default function Gods() {
     null
   );
   const [builds, setBuilds] = useState<Build[]>([]);
-  const [title, setTitle] = useState("Major God Win Rates");
   const [filterOptions, setFilterOptions] = useState<IFilterOptions>({
     eloRange: "All",
     patch: null, // Initialize with null
@@ -108,34 +108,58 @@ export default function Gods() {
               filterOptions={filterOptions}
             />
           </div>
-          <BarChart
-            yAxisKey="godName"
-            xAxisKey="Winrate"
-            xAxisFormatter={(value: number) => `${(value * 100).toFixed(1)}%`}
-            leftDataKey="totalGames"
-            leftDataFormatter={(value: number) => `${value} games`}
-            rightDataKey="Pickrate"
-            rightDataFormatter={(value: number) => value}
-            tooltipFormatter={(value, name, item) => {
-              if (name === "Winrate") {
+          {/* Win Rate */}
+          <Card style={{ minHeight: "600px" }}>
+            <BarChart
+              yAxisKey="godName"
+              xAxisKey="Winrate"
+              xAxisFormatter={(value: number) => `${(value * 100).toFixed(1)}%`}
+              leftDataKey="totalGames"
+              leftDataFormatter={(value: number) => `${value} plays`}
+              rightDataKey="Pickrate"
+              rightDataFormatter={(value: number) => value}
+              tooltipFormatter={(value, name, item) => {
                 return `Winrate ${(value * 100).toFixed(1)}%`;
-              }
-              if (name === "Pickrate") {
-                return `Pickrate ${(value * 100).toFixed(1)}%`;
-              }
-              return value;
-            }}
-            title={title}
-            data={statisticsData.civStats.map(
-              ({ winRate, pickRate, ...civ }) => ({
-                ...civ,
-                Pickrate: pickRate,
-                Winrate: winRate,
-              })
-            )}
-            compareFn={(a, b) => b.Winrate - a.Winrate}
-            totalGamesAnalyzed={statisticsData.totalGamesAnalyzed}
-          />
+              }}
+              title={"Major God Win Rates"}
+              data={statisticsData.civStats.map(
+                ({ winRate, pickRate, ...civ }) => ({
+                  ...civ,
+                  Pickrate: pickRate,
+                  Winrate: winRate,
+                })
+              )}
+              compareFn={(a, b) => b.Winrate - a.Winrate}
+              totalGamesAnalyzed={statisticsData.totalGamesAnalyzed}
+            />
+          </Card>
+          {/* Pick Rate */}
+          <Card style={{ minHeight: "600px" }} className="mt-4">
+            <BarChart
+              yAxisKey="godName"
+              // yAxisImage="godImage" // TODO
+              xAxisKey="Pickrate"
+              xAxisFormatter={(value: number) => `${(value * 100).toFixed(1)}%`}
+              leftDataKey="totalGames"
+              leftDataFormatter={(value: number) => `${value} plays`}
+              rightDataKey="Pickrate"
+              rightDataFormatter={(value: number) => value}
+              tooltipFormatter={(value, name, item) => {
+                return `Winrate ${(value * 100).toFixed(1)}%`;
+              }}
+              title={"Major God Pick Rates"}
+              data={statisticsData.civStats.map(
+                ({ winRate, pickRate, ...civ }) => ({
+                  ...civ,
+                  Pickrate: pickRate,
+                  Winrate: winRate,
+                  // GodImage: // TODO
+                })
+              )}
+              compareFn={(a, b) => b.Pickrate - a.Pickrate}
+              totalGamesAnalyzed={statisticsData.totalGamesAnalyzed}
+            />
+          </Card>
         </>
       )}
     </>
