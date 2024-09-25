@@ -36,17 +36,18 @@ export default function RootLayout({ children }: RootLayoutProps) {
                   disableTransitionOnChange
                 >
                   <Header />
-                  {children}
-                  <Toaster />
+                  <GoogleAdsense /> {/* Ad at the top of the page */}
+                  <main>{children}</main>
+                  <GoogleAdsense /> {/* Ad between content and footer */}
                   <Footer />
                 </ThemeProvider>
               </WindowProvider>
             </TooltipProvider>
           </SessionProvider>
+          <Toaster />
           <Analytics />
           <SpeedInsights />
         </body>
-        <GoogleAdsense />
       </html>
     </>
   );
