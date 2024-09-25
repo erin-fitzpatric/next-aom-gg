@@ -111,7 +111,7 @@ export default function RecordedGames() {
         />
       </div>
       {/* Help Text */}
-      <div className="flex justify-center mb-4">
+      <div className="flex justify-center pb-2">
         <Card className="p-4 w-full bg-secondary flex flex-col items-center justify-center">
           <div className="card-header">
             <p className="text-gold text-center">How to Watch Recorded Games</p>
@@ -126,7 +126,7 @@ export default function RecordedGames() {
             enjoy!
           </p>
           <p className="flex font-semibold underline italic flex-wrap text-center text-primary">
-            Replays only work on the Steam version of the game it was recorded - Red bull was played on a beta branch. It is build 486925...access is private as of uploading this.
+            Replays only work on the patch they were recorded on.
           </p>
         </Card>
       </div>

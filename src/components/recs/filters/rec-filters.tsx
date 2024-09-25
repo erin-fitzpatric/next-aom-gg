@@ -27,7 +27,7 @@ export default function RecFilters({
   setSelectedBuild: Dispatch<SetStateAction<number | null>>;
 }) {
   return (
-    <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 justify-end text-primary p-4 w-full">
+    <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 justify-end text-primary py-2 bg-pm w-full">
       <RecSearch
         setRecs={setRecs}
         setIsLoading={setIsLoading}

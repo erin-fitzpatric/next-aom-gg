@@ -11,7 +11,7 @@ export const metadata: Metadata = {
 
 export default function Resources() {
   return (
-    <main className="flex min-h-screen flex-col space-y-4">
+    <div className="flex min-h-screen flex-col space-y-4">
       <div>
         <Suspense
           fallback={
@@ -23,6 +23,6 @@ export default function Resources() {
           <ResourcesPage />
         </Suspense>
       </div>
-    </main>
+    </div>
   );
 }
