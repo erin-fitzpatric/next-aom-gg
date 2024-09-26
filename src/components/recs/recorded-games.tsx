@@ -160,8 +160,7 @@ export default function RecordedGames() {
                     <RecTile
                       key={`rec-tile-${rec.gameGuid}`}
                       rec={rec}
-                      refetchRecs={() => fetchRecs(0, filters)}
-                      filters={filters}
+                      setRecs={setRecs}
                     ></RecTile>
                   </div>
                 </Card>
