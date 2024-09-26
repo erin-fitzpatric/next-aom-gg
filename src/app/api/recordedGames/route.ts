@@ -54,10 +54,10 @@ export async function PUT(request: Request) {
         { status: 401 }
       );
     }
-    const userId = session.user.id;
+    const sessionId = session.user.id;
     const body = await request.json();
-    const { gameTitle, gameGuid, id } = body;
-    if (userId !== id) {
+    const { gameTitle, gameGuid, userId } = body;
+    if (userId !== sessionId) {
       return Response.json(
         {
           error: "Wrong user ID",
@@ -95,10 +95,10 @@ export async function DELETE(request: Request) {
         { status: 401 }
       );
     }
-    const userId = session.user.id;
+    const sessionId = session.user.id;
     const body = await request.json();
-    const { gameGuid, id } = body;
-    if (userId !== id) {
+    const { gameGuid, userId } = body;
+    if (sessionId !== userId) {
       return Response.json(
         {
           error: "Wrong user ID",
