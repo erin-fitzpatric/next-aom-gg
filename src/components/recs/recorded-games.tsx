@@ -17,7 +17,7 @@ import { useSession } from "next-auth/react";
 import { DefaultSession, User } from "next-auth";
 
 export interface ExtendedUser extends User {
-  userId?: string; 
+  userId?: string;
 }
 
 export interface ExtendedSession extends DefaultSession {
@@ -38,11 +38,10 @@ export default function RecordedGames() {
   const loggedInUserId = session?.user?.userId;
   const initialFetch = useRef(true);
   const searchParams = useSearchParams();
-  
+
   const fetchRecs = useCallback(
     async (pageNum: number, filters?: Filters) => {
       let mappedFilters = filters || {};
-      setRecs([]);
       setIsLoading(true);
       if (initialFetch.current) {
         const builds = await getBuildNumbers();
