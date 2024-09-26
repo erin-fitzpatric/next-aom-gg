@@ -28,6 +28,7 @@ export function SignInDialog({ triggerButton }: SignInDialogProps) {
         {triggerButton}
       </DialogTrigger>
       <DialogContent
+        customOverlayClass="bg-black/80"
         className="sm:max-w-[300px]"
         aria-describedby="sign-in-modal"
       >

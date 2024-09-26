@@ -1,6 +1,8 @@
 import uploadRec from "@/server/controllers/upload-rec-controller";
 import { Errors } from "@/utils/errors";
 import { auth } from "@/auth";
+import editGameTitle from "@/server/controllers/editGameTitle";
+import deleteRecGame from "@/server/controllers/deleteRecGame";
 
 export const POST = async function POST(request: Request) {
   try {
@@ -16,7 +18,7 @@ export const POST = async function POST(request: Request) {
     if (!s3Key) {
       return Response.json(
         { error: "Missing required fields" },
-        { status: 400 },
+        { status: 400 }
       );
     }
 
@@ -27,12 +29,12 @@ export const POST = async function POST(request: Request) {
     if (error.message === Errors.UNIQUE_KEY_VIOLATION) {
       return Response.json(
         { error: Errors.UNIQUE_KEY_VIOLATION },
-        { status: 400 },
+        { status: 400 }
       );
     } else if (error.message === Errors.UNSUPPORTED_GAME_SIZE) {
       return Response.json(
         { error: Errors.UNSUPPORTED_GAME_SIZE },
-        { status: 400 },
+        { status: 400 }
       );
     } else {
       console.error("Error uploading rec", error);
@@ -40,3 +42,82 @@ export const POST = async function POST(request: Request) {
     }
   }
 };
+
+export async function PUT(request: Request) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return Response.json(
+        {
+          error: "Not authenticated",
+        },
+        { status: 401 }
+      );
+    }
+    const userId = session.user.id;
+    const body = await request.json();
+    const { gameTitle, gameGuid, id } = body;
+    if (userId !== id) {
+      return Response.json(
+        {
+          error: "Wrong user ID",
+        },
+        { status: 402 }
+      )
+    }
+    await editGameTitle({ gameTitle, gameGuid });
+    return Response.json(
+      { message: "Game title updated successfully" },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.error("Error editing game title:", error);
+
+    if (error.message.includes("not found")) {
+      return Response.json({ error: error.message }, { status: 404 });
+    }
+
+    return Response.json(
+      { error: "Error editing game title" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(request: Request) {
+  try {
+    const session = await auth();
+    if (!session?.user?.id) {
+      return Response.json(
+        {
+          error: "Not authenticated",
+        },
+        { status: 401 }
+      );
+    }
+    const userId = session.user.id;
+    const body = await request.json();
+    const { gameGuid, id } = body;
+    if (userId !== id) {
+      return Response.json(
+        {
+          error: "Wrong user ID",
+        },
+        { status: 402 }
+      )
+    }
+    await deleteRecGame(gameGuid);
+    return Response.json(
+      { message: "Rec game deleted successfully" },
+      { status: 200 }
+    );
+  } catch (error: any) {
+    console.error("Error deleting rec game:", error);
+
+    if (error.message.includes("not found")) {
+      return Response.json({ error: error.message }, { status: 404 });
+    }
+
+    return Response.json({ error: "Error deleting rec game" }, { status: 500 });
+  }
+}

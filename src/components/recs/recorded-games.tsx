@@ -13,6 +13,16 @@ import { Filters } from "@/types/Filters";
 import Loading from "../loading";
 import RecUploadForm from "./rec-upload-form";
 import { useSearchParams } from "next/navigation";
+import { useSession } from "next-auth/react";
+import { DefaultSession, User } from "next-auth";
+
+export interface ExtendedUser extends User {
+  userId?: string;
+}
+
+export interface ExtendedSession extends DefaultSession {
+  user?: ExtendedUser;
+}
 
 export default function RecordedGames() {
   // Set state
@@ -24,13 +34,15 @@ export default function RecordedGames() {
   const [filters, setFilters] = useState<Filters>({});
   const [buildNumbers, setBuildNumbers] = useState<number[]>([]);
   const [selectedBuild, setSelectedBuild] = useState<number | null>(null);
-
+  const { data: session } = useSession() as { data: ExtendedSession | null };
+  const loggedInUserId = session?.user?.userId;
   const initialFetch = useRef(true);
   const searchParams = useSearchParams();
 
   const fetchRecs = useCallback(
     async (pageNum: number, filters?: Filters) => {
-      let mappedFilters = filters;
+      let mappedFilters = filters || {};
+      setIsLoading(true);
       if (initialFetch.current) {
         const builds = await getBuildNumbers();
         setBuildNumbers(builds);
@@ -150,7 +162,10 @@ export default function RecordedGames() {
                   <div>
                     <RecTile
                       key={`rec-tile-${rec.gameGuid}`}
+                      id={loggedInUserId || ""}
                       rec={rec}
+                      refetchRecs={() => fetchRecs(0, filters)}
+                      filters={filters}
                     ></RecTile>
                   </div>
                 </Card>
