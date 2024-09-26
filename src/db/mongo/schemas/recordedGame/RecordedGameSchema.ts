@@ -8,7 +8,7 @@ import {
   RecordedGameMetadataNumbersRequired,
   RecordedGameMetadataStringsOptional,
   RecordedGameMetadataStringsRequired,
-} from "@/types/RecordedGameParser";
+} from "@/types/recParser/RecordedGameParser";
 
 const Schema = mongoose.Schema;
 
@@ -27,6 +27,8 @@ const RecordedGameSchema = new Schema(
     gameLength: {type: Number, required: false, default: 0},
     s3Key: { type: String, required: false }, // older recs don't have this
     teams: { type: [[Number]]},
+    commandParserError: { type: String, required: false, default: "" },
+    unresignedPlayers: { type: [[Number]], required: false },
     ...recMetadataSchemaHelper(RecordedGameMetadataBooleansRequired, Boolean, false, true),
     ...recMetadataSchemaHelper(RecordedGameMetadataStringsRequired, String, "", true),
     ...recMetadataSchemaHelper(RecordedGameMetadataNumbersRequired, Number, 0, true),

@@ -15,8 +15,3 @@ const GoogleAdsense: React.FC = () => {
 };
 
 export default GoogleAdsense;
-
-{
-  /* <script async src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-5753721803474857"
-     crossorigin="anonymous"></script> */
-}

@@ -18,7 +18,9 @@ import { Skeleton } from "./ui/skeleton";
 export default function RedditFeed() {
   const [redditPosts, setRedditPosts] = useState<RedditPost[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const [galleryImages, setGalleryImages] = useState<{ [key: string]: string[] }>({});
+  const [galleryImages, setGalleryImages] = useState<{
+    [key: string]: string[];
+  }>({});
 
   function getRedditPosts() {
     // TODO -move this to a serverless function in the /api folder and call it from the client
@@ -67,7 +69,7 @@ export default function RedditFeed() {
         if (items) {
           const images = Object.keys(items).map((key) => {
             const media = items[key];
-            const ext = media?.m?.split('/').pop();
+            const ext = media?.m?.split("/").pop();
             return `https://i.redd.it/${key}.${ext}`;
           });
           setGalleryImages((prev) => ({ ...prev, [postId]: images }));
@@ -82,19 +84,23 @@ export default function RedditFeed() {
     <>
       <Card className="p-4">
         <div className="flex justify-center">
-          <Image
-            src="/reddit-logo.png"
-            alt="Reddit Logo"
-            width={42}
-            height={42}
-          />
-        </div>
-        <a href="https://www.reddit.com/r/AgeofMythology/">
-          <div className="flex justify-center text-gold cursor-pointer hover:underline">
-            r/AgeOfMythology
+          <div className="flex justify-center p-1">
+            <Image
+              src="/reddit-logo.png"
+              alt="Reddit Logo"
+              width={52}
+              height={52}
+            />
           </div>
-        </a>
-        <h2 className="card-header">Top Reddit Posts</h2>
+          <div>
+            <a href="https://www.reddit.com/r/AgeofMythology/">
+              <div className="flex justify-center text-gold cursor-pointer hover:underline">
+                r/AgeOfMythology
+              </div>
+            </a>
+            <h2 className="card-header">Top Reddit Posts</h2>
+          </div>
+        </div>
         <Carousel className="pt-4">
           <CarouselContent className="flex items-center">
             {loading
@@ -134,16 +140,18 @@ export default function RedditFeed() {
                             !post.url.startsWith("https://twitter.com") && (
                               <div className="h-32 w-32 overflow-hidden rounded-lg">
                                 {galleryImages[post.id] ? (
-                                  galleryImages[post.id].map((imgUrl, index) => (
-                                    <Image
-                                      key={index}
-                                      src={imgUrl}
-                                      alt={post.title}
-                                      width={128}
-                                      height={128}
-                                      className="object-cover w-full h-full"
-                                    />
-                                  ))
+                                  galleryImages[post.id].map(
+                                    (imgUrl, index) => (
+                                      <Image
+                                        key={index}
+                                        src={imgUrl}
+                                        alt={post.title}
+                                        width={128}
+                                        height={128}
+                                        className="object-cover w-full h-full"
+                                      />
+                                    )
+                                  )
                                 ) : post.url.includes("youtube.com") ||
                                   post.url.includes("youtu.be") ? (
                                   <Image
