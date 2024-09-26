@@ -16,5 +16,5 @@ export interface FilterProps {
   query: string;
   setQuery: Dispatch<SetStateAction<string>>;
   selectedBuild: number | null;
-  setSelectedBuild: Dispatch<SetStateAction<number | null>>;
+  setSelectedBuild: Dispatch<SetStateAction<number | "All Builds" | null>>;
 }
