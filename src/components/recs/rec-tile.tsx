@@ -1,4 +1,6 @@
-import { SquarePen, Trash2 } from "lucide-react";
+"use client";
+
+import { SquarePen } from "lucide-react";
 import RecTitle from "./rec-title";
 import RecMap from "./rec-map";
 import RecFooter from "./rec-footer";
@@ -26,9 +28,10 @@ import {
   DialogDescription,
 } from "../ui/dialog";
 import { Filters } from "@/types/Filters";
+import { ExtendedSession } from "./recorded-games";
+import { useSession } from "next-auth/react";
 
 interface RecTileProps {
-  id: string;
   rec: IRecordedGame;
   showMap?: boolean;
   refetchRecs: (filters: Filters) => void;
@@ -36,7 +39,6 @@ interface RecTileProps {
 }
 
 export default function RecTile({
-  id,
   rec,
   showMap = true,
   refetchRecs,
@@ -48,14 +50,16 @@ export default function RecTile({
   const windowSize = useContext(WindowContext);
   const { leftTeams, rightTeams } = useTeams(rec);
   const [isProcessing, setIsProcessing] = useState(false);
-  const recGameAuthor = id === rec.uploadedByUserId;
+  const { data: session } = useSession() as { data: ExtendedSession | null };
+  const loggedInUserId = session?.userId;
+  const isRecGameAuthor = rec.uploadedByUserId == session?.userId;
 
   async function handleEditGameTitle(fileName: string, gameGuid: string) {
     setIsProcessing(true);
     const response = await fetch(`/api/recordedGames`, {
       method: "PUT",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ gameTitle: fileName, gameGuid, userId: id }),
+      body: JSON.stringify({ gameTitle: fileName, gameGuid, userId: loggedInUserId }),
     });
     if (response.ok) {
       toast({
@@ -83,7 +87,7 @@ export default function RecTile({
     const response = await fetch(`/api/recordedGames`, {
       method: "DELETE",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ gameGuid, userId: id }),
+      body: JSON.stringify({ gameGuid, userId: loggedInUserId }),
     });
     if (response.ok) {
       toast({
@@ -119,7 +123,7 @@ export default function RecTile({
             </div>
             <div className="flex flex-col">
               <div className="flex justify-end mt-2 mr-2">
-                {recGameAuthor && (
+                {isRecGameAuthor && (
                   <div className="flex space-x-2">
                     <Sheet open={isOpen} onOpenChange={setIsOpen}>
                       <SheetTrigger asChild>
@@ -215,7 +219,7 @@ export default function RecTile({
             <div className="flex flex-col items-center">
               <div className="relative w-full pl-5">
                 <RecTitle gameTitle={rec.gameTitle || ""} />
-                {recGameAuthor && (
+                {isRecGameAuthor && (
                   <div className="absolute top-0 right-0 z-10 mt-1 mr-1">
                     <Sheet open={isOpen} onOpenChange={setIsOpen}>
                       <SheetTrigger asChild>
