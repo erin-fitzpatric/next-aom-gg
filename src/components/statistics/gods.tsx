@@ -145,7 +145,7 @@ export default function Gods() {
               rightDataKey="Pickrate"
               rightDataFormatter={(value: number) => value}
               tooltipFormatter={(value, name, item) => {
-                return `Winrate ${(value * 100).toFixed(1)}%`;
+                return `Pickrate ${(value * 100).toFixed(1)}%`;
               }}
               title={"Major God Pick Rates"}
               data={statisticsData.civStats.map(
