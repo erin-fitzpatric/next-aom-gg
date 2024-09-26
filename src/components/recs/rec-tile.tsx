@@ -27,22 +27,19 @@ import {
   DialogTitle,
   DialogDescription,
 } from "../ui/dialog";
-import { Filters } from "@/types/Filters";
 import { ExtendedSession } from "./recorded-games";
 import { useSession } from "next-auth/react";
 
 interface RecTileProps {
   rec: IRecordedGame;
+  setRecs: React.Dispatch<React.SetStateAction<IRecordedGame[]>>;
   showMap?: boolean;
-  refetchRecs: (filters: Filters) => void;
-  filters: Filters;
 }
 
 export default function RecTile({
   rec,
+  setRecs,
   showMap = true,
-  refetchRecs,
-  filters,
 }: RecTileProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [fileName, setFileName] = useState(rec.gameTitle);
@@ -59,14 +56,22 @@ export default function RecTile({
     const response = await fetch(`/api/recordedGames`, {
       method: "PUT",
       headers: { "content-type": "application/json" },
-      body: JSON.stringify({ gameTitle: fileName, gameGuid, userId: loggedInUserId }),
+      body: JSON.stringify({
+        gameTitle: fileName,
+        gameGuid,
+        userId: loggedInUserId,
+      }),
     });
     if (response.ok) {
       toast({
         title: "Game Title updated successfully",
         duration: 3000,
       });
-      refetchRecs(filters);
+      setRecs((prevRecs) =>
+        prevRecs.map((rec) =>
+          rec.gameGuid === gameGuid ? { ...rec, gameTitle: fileName } : rec
+        )
+      );
     } else if (response.status === 402) {
       toast({
         title: "Wrong user",
@@ -94,7 +99,9 @@ export default function RecTile({
         title: "Game deleted successfully",
         duration: 3000,
       });
-      refetchRecs(filters);
+      setRecs((prevRecs) =>
+        prevRecs.filter((rec) => rec.gameGuid !== gameGuid)
+      );
     } else if (response.status === 402) {
       toast({
         title: "Wrong user",
