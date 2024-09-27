@@ -21,6 +21,21 @@ export const metadata = {
   title: "Home - AoM.gg",
   description:
     "AoM.gg is your home for Age of Mythology Retold leaderboards, stats, recorded games, and more. Built by FitzBro for the AoM Retold community.",
+  openGraph: {
+    title: "Home - AoM.gg",
+    description:
+      "AoM.gg is your home for Age of Mythology Retold leaderboards, stats, recorded games, and more. Built by FitzBro for the AoM Retold community.",
+    url: "https://www.aom.gg/",
+    images: [
+      {
+        url: "/aom-gg-logo.png",
+        width: 1200,
+        height: 630,
+        alt: "AOM GG Logo",
+      },
+    ],
+    type: "website",
+  },
 };
 
 export default function RootLayout({ children }: RootLayoutProps) {
