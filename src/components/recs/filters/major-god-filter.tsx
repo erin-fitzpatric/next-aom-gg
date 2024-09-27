@@ -14,6 +14,7 @@ export function MajorGodFilter({
     const updatedFilters = { ...filters, godIds: godName };
     setFilters(updatedFilters);
     setIsLoading(true);
+    setRecs([]);
     const filteredRecs = await getMythRecs(0, updatedFilters);
     setRecs(filteredRecs);
     setIsLoading(false);

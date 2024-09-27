@@ -32,6 +32,7 @@ export function VersionFilter({
     };
     setFilters(updatedFilters);
     setIsLoading(true);
+    setRecs([]);
     const filteredRecs = await getMythRecs(0, updatedFilters);
     setRecs(filteredRecs);
     setIsLoading(false);
