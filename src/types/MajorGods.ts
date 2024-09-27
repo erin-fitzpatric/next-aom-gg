@@ -19,7 +19,7 @@ export enum MajorGods {
   Kronos = 10,
   Oranos = 11,
   Gaia = 12,
-  Freyr = 13
+  Freyr = 13,
 }
 
 const MajorGodsByIndex = new Map<number, MajorGodData>([
@@ -139,4 +139,13 @@ export function majorGodIndexToData(index: number): MajorGodData {
     };
   }
   return data;
+}
+
+export function majorGodNameToIndex(name: string): number {
+  for (const [index, data] of Array.from(MajorGodsByIndex.entries())) {
+    if (data.name === name) {
+      return index;
+    }
+  }
+  return -1;
 }

@@ -33,7 +33,10 @@ const taunts = [
   { number: 30, text: "Wololo" },
   { number: 31, text: "You’re very brave when you’re killing unarmed farmers" },
   { number: 32, text: "Turn back now, mortal" },
-  { number: 33, text: "You may feel less like fighting after I pull off your head" },
+  {
+    number: 33,
+    text: "You may feel less like fighting after I pull off your head",
+  },
   { number: 34, text: "If you give up now, we’ll grant you a quick death" },
   { number: 35, text: "Coward" },
   { number: 36, text: "Did I mention that I’m a god now" },
@@ -50,7 +53,7 @@ const taunts = [
 
 export default function TauntsList() {
   return (
-    <Card className="p-4 mx-4 sm:mx-8 md:mx-16 lg:mx-32 mt-4">
+    <Card className="mt-4">
       {/* header */}
       <div className="card-header text-gold">
         <h2>Age of Mythology Taunts</h2>
@@ -68,7 +71,10 @@ export default function TauntsList() {
             </thead>
             <tbody>
               {taunts.map((taunt) => (
-                <tr key={taunt.number} className="hover:bg-muted transition duration-200">
+                <tr
+                  key={taunt.number}
+                  className="hover:bg-muted transition duration-200"
+                >
                   <td className="p-2 align-middle">{taunt.number}</td>
                   <td className="p-2 align-middle">{taunt.text}</td>
                 </tr>

@@ -4,7 +4,7 @@ import { Card } from "./ui/card";
 export default function Hotkeys() {
   return (
     <>
-      <Card className="p-4 mx-4 sm:mx-8 md:mx-16 lg:mx-32 mt-4">
+      <Card className="p-4 ">
         {/* header */}
         <div className="card-header text-gold">
           <h2>Hotkeys</h2>
@@ -31,11 +31,13 @@ export default function Hotkeys() {
                         <li className="mb-2">
                           Save the hotkey file to:
                           <code className="block mt-1 whitespace-pre-wrap break-words">
-                            C:\Users\yourUserName\Games\Age of Mythology Retold\yourSteamIdHere\users
+                            C:\Users\yourUserName\Games\Age of Mythology
+                            Retold\yourSteamIdHere\users
                           </code>
                         </li>
                         <li>
-                          Rename the file to <code>LocalKeybindings.xml</code> before saving.
+                          Rename the file to <code>LocalKeybindings.xml</code>{" "}
+                          before saving.
                         </li>
                       </ol>
                     </div>

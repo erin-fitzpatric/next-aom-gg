@@ -25,7 +25,7 @@ export function VersionFilter({
     const buildString = event.target.value;
     const isAllBuilds = buildString === "ALL_BUILDS";
     const buildFilter = isAllBuilds ? [] : [parseInt(buildString)];
-    const buildNum = isAllBuilds ? null : parseInt(buildString);
+    const buildNum = isAllBuilds ? "All Builds" : parseInt(buildString);
     const updatedFilters = {
       ...filters,
       buildNumbers: buildFilter,

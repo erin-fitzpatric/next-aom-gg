@@ -30,5 +30,10 @@ export const {
           ]
         : []),
     ],
+  callbacks: {
+    async session({session}) {
+        return session
+      }
+    }
   };
 });

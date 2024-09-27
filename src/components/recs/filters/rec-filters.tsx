@@ -23,8 +23,8 @@ export default function RecFilters({
   buildNumbers: number[];
   query: string;
   setQuery: Dispatch<SetStateAction<string>>;
-  selectedBuild: number | null;
-  setSelectedBuild: Dispatch<SetStateAction<number | null>>;
+  selectedBuild: number | string | null;
+  setSelectedBuild: Dispatch<SetStateAction<number | "All Builds" | null>>;
 }) {
   return (
     <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 justify-end text-primary py-2 bg-pm w-full">
@@ -33,7 +33,7 @@ export default function RecFilters({
         setIsLoading={setIsLoading}
         filters={filters}
         setFilters={setFilters}
-        query={query|| ""}
+        query={query || ""}
         setQuery={setQuery}
         selectedBuild={selectedBuild}
         setSelectedBuild={setSelectedBuild}

@@ -13,6 +13,15 @@ import { Filters } from "@/types/Filters";
 import Loading from "../loading";
 import RecUploadForm from "./rec-upload-form";
 import { useSearchParams } from "next/navigation";
+import { DefaultSession, User } from "next-auth";
+
+export interface ExtendedUser extends User {
+  userId?: string;
+}
+
+export interface ExtendedSession extends DefaultSession {
+  userId?: ExtendedUser;
+}
 
 export default function RecordedGames() {
   // Set state
@@ -23,14 +32,16 @@ export default function RecordedGames() {
   const [query, setQuery] = useState<string>("");
   const [filters, setFilters] = useState<Filters>({});
   const [buildNumbers, setBuildNumbers] = useState<number[]>([]);
-  const [selectedBuild, setSelectedBuild] = useState<number | null>(null);
-
+  const [selectedBuild, setSelectedBuild] = useState<
+    number | "All Builds" | null
+  >(null);
   const initialFetch = useRef(true);
   const searchParams = useSearchParams();
 
   const fetchRecs = useCallback(
     async (pageNum: number, filters?: Filters) => {
-      let mappedFilters = filters;
+      let mappedFilters = filters || {};
+      setIsLoading(true);
       if (initialFetch.current) {
         const builds = await getBuildNumbers();
         setBuildNumbers(builds);
@@ -151,6 +162,7 @@ export default function RecordedGames() {
                     <RecTile
                       key={`rec-tile-${rec.gameGuid}`}
                       rec={rec}
+                      setRecs={setRecs}
                     ></RecTile>
                   </div>
                 </Card>
