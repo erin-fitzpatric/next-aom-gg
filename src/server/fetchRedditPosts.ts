@@ -1,27 +1,14 @@
-"use server";
+'use server';
 
-import { RedditPost } from "@/types/RedditPost";
-import querystring from "querystring";
+import { RedditPost } from '@/types/RedditPost';
+import querystring from 'querystring';
 
 let mappedPosts: RedditPost[];
 export default async function fetchRedditPosts(): Promise<RedditPost[]> {
-  if (mappedPosts) return mappedPosts; // return cached posts
-  const { USER_AGENT } = process.env;
-  const accessToken = await getAccessToken();
-  if (!USER_AGENT) {
-    throw new Error("USER_AGENT environment variable is required");
-  }
   try {
     const response = await fetch(
-      `https://oauth.reddit.com/r/ageofmythology/hot`,
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          "User-Agent": USER_AGENT,
-        },
-      }
+      `https://www.reddit.com/r/ageofmythology/hot.json`
     );
-
     const data = await response.json();
     const posts: any[] = data.data.children.map((child: any) => child.data);
     mappedPosts = posts
@@ -48,19 +35,19 @@ export default async function fetchRedditPosts(): Promise<RedditPost[]> {
 async function getAccessToken(): Promise<string> {
   const { REDDIT_CLIENT_ID, REDDIT_SECRET } = process.env;
   const auth = Buffer.from(`${REDDIT_CLIENT_ID}:${REDDIT_SECRET}`).toString(
-    "base64"
+    'base64'
   );
   const response: any = await fetch(
-    "https://www.reddit.com/api/v1/access_token",
+    'https://www.reddit.com/api/v1/access_token',
     {
-      method: "POST",
+      method: 'POST',
       headers: {
         Authorization: `Basic ${auth}`,
-        "Content-Type": "application/x-www-form-urlencoded",
-        "User-Agent": "aom-stats/1.0 by FitzBro",
+        'Content-Type': 'application/x-www-form-urlencoded',
+        'User-Agent': 'aom-stats/1.0 by FitzBro',
       },
       body: querystring.stringify({
-        grant_type: "client_credentials",
+        grant_type: 'client_credentials',
       }),
     }
   );
