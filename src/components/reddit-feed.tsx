@@ -16,10 +16,12 @@ import { Skeleton } from "./ui/skeleton";
 
 const REDDIT_GET_URL = `/api/reddit`;
 const TIMEOUT_RETRY = 500;
+const MAX_RETRY = 2;
 
 export default function RedditFeed() {
   const [redditPosts, setRedditPosts] = useState<RedditPost[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [countRetry, setCountRetry] = useState(0);
   const [galleryImages, setGalleryImages] = useState<{
     [key: string]: string[];
   }>({});
@@ -36,11 +38,13 @@ export default function RedditFeed() {
       })
       .catch((error) => {
         console.error("Failed to fetch reddit posts", error);
-        setTimeout(() => getRedditPosts(), TIMEOUT_RETRY);
+        if (countRetry <= MAX_RETRY )setTimeout(() => getRedditPosts(), TIMEOUT_RETRY);
+        setCountRetry(countRetry + 1);
       })
   }
 
   useEffect(() => {
+    setCountRetry(0);
     getRedditPosts();
   }, []);
 
