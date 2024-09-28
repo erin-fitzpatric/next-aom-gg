@@ -35,7 +35,7 @@ export function VersionFilter({
     buildNumbers &&
     buildNumbers.length > 0 && (
       <select
-        className="w-full sm:w-[180px] border border-gray-300 rounded-md p-2"
+        className="w-full sm:w-[180px] lg:w-[220px] border border-gray-300 rounded-md p-2"
         value={selectedBuild?.toString() || "ALL_BUILDS"}
         onChange={handleFilterChange}
       >

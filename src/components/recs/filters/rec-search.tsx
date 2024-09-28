@@ -44,7 +44,7 @@ export default function RecSearch({
   }
 
   return (
-    <div className="w-full sm:w-[240px] text-primary">
+    <div className="w-full sm:w-[240px] lg:w-[300px] text-primary">
       <Input
         type="text"
         placeholder="Search..."
