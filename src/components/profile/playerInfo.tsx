@@ -1,4 +1,7 @@
 import React from "react";
+
+import { LeaderboardType, LeaderboardTypeNames } from "@/types/LeaderBoard";
+
 import { ILeaderboardPlayer } from "@/types/LeaderboardPlayer";
 import { Frown } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
@@ -23,8 +26,8 @@ export function PlayerInfo({
   steamProfile?: SteamProfile | undefined;
   error: boolean;
 }) {
-  const hasBothStats = playerStats.length === 2;
-  const defaultTab = "single"; // Always default to single, as it's the first item if present
+  const gameTypes = playerStats.map((stat) => stat.leaderboard_id);
+  const defaultTab = gameTypes[0]?.toString() || "1";
 
   return (
     <Tabs defaultValue={defaultTab} className="w-full">
@@ -52,10 +55,10 @@ export function PlayerInfo({
               )}
               {playerStats.length > 0 && (
                 <div className="w-full">
-                  {playerStats.map((stats, index) => (
+                  {playerStats.map((stats) => (
                     <TabsContent
-                      key={index}
-                      value={index === 0 ? "single" : "team"} // Ensure that single maps to the first tab and team to the second
+                      key={stats.leaderboard_id.toString()}
+                      value={stats.leaderboard_id.toString()}
                     >
                       <StatCard playerStats={stats} />
                     </TabsContent>
@@ -65,14 +68,15 @@ export function PlayerInfo({
             </div>
           </div>
         </CardContent>
-        {hasBothStats && (
-          <CardFooter className="w-full lg:w-96 m-0 p-0">
-            <TabsList className="grid w-full grid-cols-2">
-              <TabsTrigger value="single">1v1</TabsTrigger>
-              <TabsTrigger value="team">Team</TabsTrigger>
-            </TabsList>
-          </CardFooter>
-        )}
+        <CardFooter className="w-full lg:w-96 m-0 p-0">
+          <TabsList className={`grid w-full grid-cols-${gameTypes.length}`}>
+            {gameTypes.map((type) => (
+              <TabsTrigger key={type?.toString()} value={type.toString()}>
+                {LeaderboardTypeNames[type]}
+              </TabsTrigger>
+            ))}
+          </TabsList>
+        </CardFooter>
       </Card>
     </Tabs>
   );
