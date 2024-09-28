@@ -55,7 +55,7 @@ export function PlayerInfo({
                   {playerStats.map((stats, index) => (
                     <TabsContent
                       key={index}
-                      value={index === 0 ? "single" : "team"}
+                      value={index === 0 ? "team" : "single"}
                     >
                       <StatCard playerStats={stats} />
                     </TabsContent>
