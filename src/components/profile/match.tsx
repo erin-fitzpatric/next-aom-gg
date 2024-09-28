@@ -35,7 +35,7 @@ export default function MatchComponent({ match, playerId }: IProps) {
         <Map mapData={mapData} />
       </div>
       {/* Details */}
-      <div className="col-span-2 flex flex-col justify-center space-y-2 px-2">
+      <div className="col-span-1 flex flex-col justify-center space-y-2 px-2">
         <div className="text-sm font-semibold">{mapData.name}</div>
         <div className="text-xs text-gray-600">{gameMode}</div>
         <div className="text-xs text-gray-600">
@@ -54,7 +54,7 @@ export default function MatchComponent({ match, playerId }: IProps) {
         matchHistoryMap={matchHistoryMap}
         handleNameClick={handleNameClick}
         gameMode={gameMode}
-        className="col-span-2"
+        className="col-span-3"
       />
       {/* Rating Change */}
       <RatingChange
