@@ -16,7 +16,7 @@ export function MapFilter({
 
   return (
     <select
-      className="w-full sm:w-[180px] border border-gray-300 rounded-md p-2"
+      className="w-full sm:w-[180px] lg:w-[220px] border border-gray-300 rounded-md p-2"
       onChange={(e) => handleFilterChange(e.target.value)}
       defaultValue="ALL_MAPS"
     >
