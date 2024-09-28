@@ -36,14 +36,14 @@ export default function MatchComponent({ match, playerId }: IProps) {
       {/* Details */}
       <div className="col-span-1 md:col-span-1 flex flex-col justify-center space-y-2 px-2 order-2">
         <div className="text-sm font-semibold">{mapData.name}</div>
-        <div className="text-xs text-gray-600">{makeReadable(gameMode)}</div>
-        <div className="text-xs text-gray-600">
+        <div className="text-sm text-gray-200">{makeReadable(gameMode)}</div>
+        <div className="text-sm text-gray-200">
           {formatTime(Math.floor(matchDuration))}
         </div>
-        <div className="text-xs text-gray-600">
+        <div className="text-xs text-gray-200">
           {new Date(matchDate).toLocaleDateString()}
         </div>
-        <div className="text-xs text-gray-600">{matchType}</div>
+        <div className="text-xs text-gray-200">{matchType}</div>
       </div>
 
       {/* Teams */}
