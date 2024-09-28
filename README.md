@@ -1,17 +1,13 @@
 ## Getting Started
 
-### Step 1: Install MongoDB
 
-1. Go to the [MongoDB Download Center](https://www.mongodb.com/try/download/community).
-2. Select your operating system and download the installer.
-3. Follow the installation instructions for your OS.
 
-### Step 2: Install MongoDB Compass (GUI)
+### Step 1: Install MongoDB Compass (GUI)
 
 1. Download MongoDB Compass from the [MongoDB Compass Download Page](https://www.mongodb.com/try/download/compass).
 2. Install Compass by following the provided instructions.
 
-### Step 3: Connect to MongoDB using Compass
+### Step 2: Connect to MongoDB using Compass
 
 1. Open MongoDB Compass.
 2. In the connection window, enter your connection string:
@@ -20,7 +16,7 @@
 3. Click "Connect" to establish the connection.
 4. Once connected, you can create a new database by clicking on "Create Database" and entering the database name and collection name.
 
-### Step 4: Install Required Packages
+### Step 3: Install Required Packages
 
 ```bash
 npm install
