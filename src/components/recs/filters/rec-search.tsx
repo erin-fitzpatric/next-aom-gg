@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { getMythRecs } from "@/server/controllers/mongo-controller";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { FilterProps } from "@/types/Filters";
 import { debounce } from "lodash";
 
@@ -20,6 +20,7 @@ export default function RecSearch({
   ).current;
 
   // Effect to handle API call when filters change
+  // TODO - this should probably be refactored to be called from recorded-games.tsx when the query changes as a dependency
   useEffect(() => {
     const fetchRecs = async () => {
       setIsLoading(true);
