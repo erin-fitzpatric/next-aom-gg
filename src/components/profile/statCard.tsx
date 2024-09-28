@@ -2,13 +2,13 @@ import { ILeaderboardPlayer } from "@/types/LeaderboardPlayer";
 import { LeaderboardTypeNames } from "@/types/LeaderBoard";
 import { Card, CardContent } from "../ui/card";
 import { formatTimeAgoInMs } from "@/utils/dateHelpers";
+import { ArrowUp, ArrowDown } from "lucide-react";
 
 interface IStatCardProps {
   playerStats: ILeaderboardPlayer;
 }
 
 export default function StatCard({ playerStats }: IStatCardProps) {
-  // Destructure playerStats for cleaner code
   const {
     leaderboard_id,
     rank,
@@ -20,52 +20,66 @@ export default function StatCard({ playerStats }: IStatCardProps) {
     lastmatchdate,
   } = playerStats;
 
-  // Format the streak
-  const formattedStreak = Number(streak) > 0 ? `+${streak}` : streak;
-  const streakClass = Number(streak) > 0 ? "text-primary" : "text-red-500";
-
-  // Convert winPercent to percentage format
   const winPercentFormatted = (Number(winPercent) * 100).toFixed(1);
 
   return (
-    <Card className="w-full shadow-lg">
-      <div className="text-xl font-semibold p-2">
+    <div className="w-full max-w-md">
+      <h2 className="text-2xl font-bold mb-4 text-gold">
         {LeaderboardTypeNames[Number(leaderboard_id)]}
+      </h2>
+      <div className="grid grid-cols-2 gap-4">
+        <StatItem label="Rank" value={`#${rank}`} />
+        <StatItem label="Elo" value={String(rating)} />
+        <StatItem
+          label="Win Rate"
+          value={
+            <div className="flex items-center space-x-2">
+              <span className="text-xl font-semibold">
+                {winPercentFormatted}%
+              </span>
+              <span className="text-sm text-gray-400 truncate">
+                ({String(wins)}W / {String(losses)}L)
+              </span>
+            </div>
+          }
+        />
+        <StatItem
+          label="Streak"
+          value={
+            <div className="flex items-center space-x-1">
+              {Number(streak) > 0 ? (
+                <ArrowUp className="text-green-500" size={16} />
+              ) : (
+                <ArrowDown className="text-red-500" size={16} />
+              )}
+              <span
+                className={
+                  Number(streak) > 0 ? "text-green-500" : "text-red-500"
+                }
+              >
+                {Math.abs(Number(streak))}
+              </span>
+            </div>
+          }
+        />
       </div>
-      <CardContent>
-        <table className="w-full table-auto border-separate border-spacing-0">
-          <thead className="text-gold text-left text-lg font-semibold">
-            <tr>
-              <th className="px-4 w-1/5">Rank</th>
-              <th className="px-4 w-1/5">Elo</th>
-              <th className="px-4 w-1/5">Win %</th>
-              <th className="px-4 w-1/5 sm:table-cell hidden">
-                Current Streak
-              </th>
-              <th className="px-4 w-1/5 sm:table-cell hidden">
-                Last Match
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td className="px-4 py-2">#{String(rank)}</td>
-              <td className="px-4 py-2">{String(rating)}</td>
-              <td className="px-4 py-2 flex items-center space-x-2">
-                <div>{winPercentFormatted}%</div>
-                <div className="text-primary">W {String(wins)}</div>
-                <div className="text-red-500">L {String(losses)}</div>
-              </td>
-              <td className={`px-4 py-2 ${streakClass} sm:table-cell hidden`}>
-                {String(formattedStreak)}
-              </td>
-              <td className="px-4 py-2 sm:table-cell hidden">
-                {formatTimeAgoInMs(Number(lastmatchdate))}
-              </td>
-            </tr>
-          </tbody>
-        </table>
-      </CardContent>
-    </Card>
+      <div className="mt-4 text-sm text-gray-400">
+        Last match: {formatTimeAgoInMs(Number(lastmatchdate))}
+      </div>
+    </div>
+  );
+}
+
+interface StatItemProps {
+  label: string;
+  value: React.ReactNode;
+}
+
+function StatItem({ label, value }: StatItemProps) {
+  return (
+    <div className="flex flex-col w-full overflow-hidden">
+      <span className="text-sm text-gray-400 truncate">{label}</span>
+      <span className="text-lg font-semibold truncate">{value}</span>
+    </div>
   );
 }
