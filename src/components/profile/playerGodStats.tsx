@@ -110,7 +110,7 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
         }
 
         const response = await fetch(
-          `/api/stats/user/gods?${params.toString()}`
+          `/api/stats/user/gods?${params.toString()}`,
         );
         if (!response.ok) {
           console.log("Failed to fetch user god stats");
@@ -293,7 +293,7 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
           </div>
         </div>
 
-        <div className="w-[90vw] overflow-x-auto">
+        <div className="overflow-x-auto">
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <p>Loading...</p>

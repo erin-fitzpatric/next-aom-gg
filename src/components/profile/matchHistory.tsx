@@ -17,7 +17,7 @@ export function MatchHistory({
   playerId: string;
 }) {
   return (
-    <div className="flex flex-col mx-auto max-w-[1600px] gap-4">
+    <div className="flex flex-col mx-auto gap-4">
       {loading ? (
         <div className="p-4">
           <Loading />

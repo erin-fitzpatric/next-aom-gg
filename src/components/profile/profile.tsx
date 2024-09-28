@@ -191,7 +191,7 @@ export default function Profile() {
   if (status === "loading") return <LoadingSkeleton />;
 
   return (
-    <div>
+    <div className="max-w-[1600px] mx-auto">
       <div className="flex items-center">
         <PlayerInfo
           playerName={state.playerName}
