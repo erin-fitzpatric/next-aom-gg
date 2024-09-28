@@ -26,9 +26,7 @@ export function PlayerInfo({
   steamProfile?: SteamProfile | undefined;
   error: boolean;
 }) {
-  const gameTypes = playerStats.map(
-    (stat) => stat.leaderboard_id as unknown as LeaderboardType,
-  );
+  const gameTypes = playerStats.map((stat) => stat.leaderboard_id);
   const defaultTab = gameTypes[0]?.toString() || "1";
 
   return (
@@ -73,7 +71,7 @@ export function PlayerInfo({
         <CardFooter className="w-full lg:w-96 m-0 p-0">
           <TabsList className={`grid w-full grid-cols-${gameTypes.length}`}>
             {gameTypes.map((type) => (
-              <TabsTrigger key={type} value={type.toString()}>
+              <TabsTrigger key={type?.toString()} value={type.toString()}>
                 {LeaderboardTypeNames[type]}
               </TabsTrigger>
             ))}
