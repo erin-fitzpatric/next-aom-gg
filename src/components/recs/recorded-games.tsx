@@ -32,6 +32,7 @@ export default function RecordedGames() {
   const [query, setQuery] = useState<string>("");
   const [filters, setFilters] = useState<Filters>({});
   const [buildNumbers, setBuildNumbers] = useState<number[]>([]);
+  // TODO - This can probably be refactored to be part of the filters state
   const [selectedBuild, setSelectedBuild] = useState<
     number | "All Builds" | null
   >(null);
