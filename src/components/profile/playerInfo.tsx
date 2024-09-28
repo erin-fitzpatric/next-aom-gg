@@ -1,12 +1,6 @@
-import React, { useState } from "react";
+import React from "react";
 import { ILeaderboardPlayer } from "@/types/LeaderboardPlayer";
-import {
-  Frown,
-  ChevronLeft,
-  ChevronRight,
-  ChevronUp,
-  ChevronDown,
-} from "lucide-react";
+import { Frown } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
 import StatCard from "./statCard";
 import { ProfileAvatar } from "./profileAvatar";
@@ -29,8 +23,11 @@ export function PlayerInfo({
   steamProfile?: SteamProfile | undefined;
   error: boolean;
 }) {
+  const hasBothStats = playerStats.length === 2;
+  const defaultTab = "single"; // Always default to single, as it's the first item if present
+
   return (
-    <Tabs defaultValue="single" className="w-full">
+    <Tabs defaultValue={defaultTab} className="w-full">
       <Card className="border-0 w-full bg-gradient-to-br from-gray-900 to-gray-800 text-white shadow-xl min-w-96 ">
         <CardContent className="p-4">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
@@ -55,23 +52,27 @@ export function PlayerInfo({
               )}
               {playerStats.length > 0 && (
                 <div className="w-full">
-                  <TabsContent value="single">
-                    <StatCard playerStats={playerStats[1]} />
-                  </TabsContent>
-                  <TabsContent value="team">
-                    <StatCard playerStats={playerStats[0]} />
-                  </TabsContent>
+                  {playerStats.map((stats, index) => (
+                    <TabsContent
+                      key={index}
+                      value={index === 0 ? "single" : "team"}
+                    >
+                      <StatCard playerStats={stats} />
+                    </TabsContent>
+                  ))}
                 </div>
               )}
             </div>
           </div>
         </CardContent>
-        <CardFooter className="w-full lg:w-96 m-0 p-0">
-          <TabsList className="grid w-full grid-cols-2">
-            <TabsTrigger value="single">1v1</TabsTrigger>
-            <TabsTrigger value="team">Team</TabsTrigger>
-          </TabsList>
-        </CardFooter>
+        {hasBothStats && (
+          <CardFooter className="w-full lg:w-96 m-0 p-0">
+            <TabsList className="grid w-full grid-cols-2">
+              <TabsTrigger value="single">1v1</TabsTrigger>
+              <TabsTrigger value="team">Team</TabsTrigger>
+            </TabsList>
+          </CardFooter>
+        )}
       </Card>
     </Tabs>
   );
