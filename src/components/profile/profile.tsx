@@ -7,13 +7,6 @@ import { LeaderboardTypeValues } from "@/types/LeaderBoard";
 import { SteamProfile } from "@/types/Steam";
 import { ILeaderboardPlayer } from "@/types/LeaderboardPlayer";
 import { Match } from "@/types/Match";
-import { usePagination } from "../leaderboard";
-import { MatchHistory } from "./matchHistory";
-import { PaginationComponent } from "./pagination";
-import { PlayerInfo } from "./playerInfo";
-import { ProfileAvatar } from "./profileAvatar";
-import { ChevronDown, ChevronUp } from "lucide-react";
-import { Button } from "../ui/button";
 import PlayerGodStats from "./playerGodStats";
 
 function LoadingSkeleton() {
