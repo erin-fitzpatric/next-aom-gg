@@ -20,7 +20,10 @@ export function ProfileAvatar({
           alt="Profile Picture"
           width={84}
           height={84}
-          className="rounded-md w-[84px] h-[84px] shrink-0"
+          priority
+          style={{ width: "84px", height: "84px" }}
+          className="rounded-md"
+          objectFit="cover"
         />
       ) : (
         <div className="w-[84px] h-[84px] rounded-full mx-auto bg-gray-300"></div>
