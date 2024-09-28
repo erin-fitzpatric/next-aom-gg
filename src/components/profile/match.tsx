@@ -54,7 +54,7 @@ export default function MatchComponent({ match, playerId }: IProps) {
         matchHistoryMap={matchHistoryMap}
         handleNameClick={handleNameClick}
         gameMode={gameMode}
-        className="col-span-3"
+        className="col-span-4"
       />
       {/* Rating Change */}
       <RatingChange

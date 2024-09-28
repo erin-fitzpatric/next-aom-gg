@@ -36,7 +36,7 @@ export default function Team({
             ))}
           </div>
           {i === 0 && (
-            <div className="md:hidden flex flex-col align-middle justify-center text-center">
+            <div className="hidden md:flex flex-col align-middle justify-center text-center">
               x
             </div>
           )}

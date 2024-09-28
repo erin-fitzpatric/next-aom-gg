@@ -1,7 +1,8 @@
 import { SteamProfile } from "@/types/Steam";
-import { CardHeader } from "../ui/card";
+
 import { Skeleton } from "../ui/skeleton";
-import Image from "next/image";
+
+import { Avatar, AvatarImage, AvatarFallback } from "../ui/avatar";
 
 export function ProfileAvatar({
   steamProfile,
@@ -11,23 +12,16 @@ export function ProfileAvatar({
   loading: boolean;
 }) {
   return (
-    <>
+    <Avatar className="w-[84px] h-[84px]">
       {loading ? (
-        <Skeleton className="w-[84px] h-[84px] rounded-full" />
+        <AvatarFallback>
+          <Skeleton className="w-full h-full rounded-full" />
+        </AvatarFallback>
       ) : steamProfile ? (
-        <Image
-          src={steamProfile.avatarfull}
-          alt="Profile Picture"
-          width={84}
-          height={84}
-          priority
-          style={{ width: "84px", height: "84px" }}
-          className="rounded-md"
-          objectFit="cover"
-        />
+        <AvatarImage src={steamProfile.avatarfull} alt="Profile Picture" />
       ) : (
-        <div className="w-[84px] h-[84px] rounded-full mx-auto bg-gray-300"></div>
+        <AvatarFallback className="bg-gray-300" />
       )}
-    </>
+    </Avatar>
   );
 }
