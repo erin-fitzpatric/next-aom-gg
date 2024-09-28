@@ -1,8 +1,6 @@
 import { parseRecordedGameMetadata } from "../recParser/recParser";
 import { RecordedGameMetadata } from "@/types/recParser/RecordedGameParser";
-import getMongoClient from "@/db/mongo/mongo-client";
 import RecordedGameModel from "@/db/mongo/model/RecordedGameModel";
-import { BuildModel } from "@/db/mongo/model/BuildNumber";
 import { GetObjectCommand, S3Client } from "@aws-sdk/client-s3";
 
 const s3Client = new S3Client({

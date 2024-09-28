@@ -38,26 +38,8 @@ export default function RecFilters({
         selectedBuild={selectedBuild}
         setSelectedBuild={setSelectedBuild}
       />
-      <MajorGodFilter
-        setRecs={setRecs}
-        setIsLoading={setIsLoading}
-        filters={filters}
-        setFilters={setFilters}
-        query={query || ""}
-        setQuery={setQuery}
-        selectedBuild={selectedBuild}
-        setSelectedBuild={setSelectedBuild}
-      />
-      <MapFilter
-        setRecs={setRecs}
-        setIsLoading={setIsLoading}
-        filters={filters}
-        setFilters={setFilters}
-        query={query || ""}
-        setQuery={setQuery}
-        selectedBuild={selectedBuild}
-        setSelectedBuild={setSelectedBuild}
-      />
+      <MajorGodFilter filters={filters} setFilters={setFilters} />
+      <MapFilter filters={filters} setFilters={setFilters} />
       <VersionFilter
         setRecs={setRecs}
         setIsLoading={setIsLoading}

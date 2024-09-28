@@ -1,6 +1,6 @@
 import { Input } from "@/components/ui/input";
 import { getMythRecs } from "@/server/controllers/mongo-controller";
-import React, { useEffect, useRef, useState } from "react";
+import React, { useEffect, useRef } from "react";
 import { FilterProps } from "@/types/Filters";
 import { debounce } from "lodash";
 
@@ -15,14 +15,16 @@ export default function RecSearch({
   // Create a ref to store the debounced function
   const debouncedHandleInputChange = useRef(
     debounce((searchQueryString: string) => {
-      setFilters(prevFilters => ({ ...prevFilters, searchQueryString }));
+      setFilters((prevFilters) => ({ ...prevFilters, searchQueryString }));
     }, 500) // Debounce delay
   ).current;
 
   // Effect to handle API call when filters change
+  // TODO - this should probably be refactored to be called from recorded-games.tsx when the query changes as a dependency
   useEffect(() => {
     const fetchRecs = async () => {
       setIsLoading(true);
+      setRecs([]);
       const recs = await getMythRecs(0, filters);
       if (recs) {
         setRecs(recs);
