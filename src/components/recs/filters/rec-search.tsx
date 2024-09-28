@@ -15,7 +15,7 @@ export default function RecSearch({
   // Create a ref to store the debounced function
   const debouncedHandleInputChange = useRef(
     debounce((searchQueryString: string) => {
-      setFilters(prevFilters => ({ ...prevFilters, searchQueryString }));
+      setFilters((prevFilters) => ({ ...prevFilters, searchQueryString }));
     }, 500) // Debounce delay
   ).current;
 
@@ -23,6 +23,7 @@ export default function RecSearch({
   useEffect(() => {
     const fetchRecs = async () => {
       setIsLoading(true);
+      setRecs([]);
       const recs = await getMythRecs(0, filters);
       if (recs) {
         setRecs(recs);
