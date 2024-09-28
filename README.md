@@ -31,9 +31,9 @@ bun install
 You will need to set up the following environment variables in your `.env` file for MongoDB:
 
 ```
-MONGO_USER= sharedDevReader
-MONGO_PASSWORD= QqPqkj27BDTqymuT
-MONGODB_URI="mongodb+srv://sharedDevReader:QqPqkj27BDTqymuT@>@dev.yjhvu.mongodb.net/"
+MONGO_USER= ask in discord
+MONGO_PASSWORD= ask in discord
+MONGODB_URI="ask in discord"
 MONGO_APPNAME= Dev
 MONGO_HOST= "dev.yjhvu.mongodb.net/"
 ```
