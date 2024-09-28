@@ -1,22 +1,17 @@
-import { getMythRecs } from "@/server/controllers/mongo-controller";
 import { FilterProps } from "@/types/Filters";
 import { getAllMaps } from "@/types/RandomMap";
 
 export function MapFilter({
-  setRecs,
-  setIsLoading,
   setFilters,
   filters,
-}: FilterProps) {
+}: {
+  setFilters: FilterProps["setFilters"];
+  filters: FilterProps["filters"];
+}) {
   async function handleFilterChange(mapKey: string) {
     const mapName = mapKey === "ALL_MAPS" ? [] : [mapKey];
     const updatedFilters = { ...filters, mapNames: mapName };
     setFilters(updatedFilters);
-    setIsLoading(true);
-    setRecs([]);
-    const filteredRecs = await getMythRecs(0, updatedFilters);
-    setRecs(filteredRecs);
-    setIsLoading(false);
   }
 
   return (

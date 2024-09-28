@@ -1,12 +1,9 @@
 "use client";
 
-import { getMythRecs } from "@/server/controllers/mongo-controller";
 import { FilterProps } from "@/types/Filters";
 import { useEffect } from "react";
 
 export function VersionFilter({
-  setRecs,
-  setIsLoading,
   setFilters,
   filters,
   buildNumbers,
@@ -31,11 +28,6 @@ export function VersionFilter({
       buildNumbers: buildFilter,
     };
     setFilters(updatedFilters);
-    setIsLoading(true);
-    setRecs([]);
-    const filteredRecs = await getMythRecs(0, updatedFilters);
-    setRecs(filteredRecs);
-    setIsLoading(false);
     setSelectedBuild(buildNum);
   }
 
