@@ -55,7 +55,7 @@ export function PlayerInfo({
                   {playerStats.map((stats, index) => (
                     <TabsContent
                       key={index}
-                      value={index === 0 ? "team" : "single"}
+                      value={index === 0 ? "single" : "team"} // Ensure that single maps to the first tab and team to the second
                     >
                       <StatCard playerStats={stats} />
                     </TabsContent>
