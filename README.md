@@ -35,7 +35,7 @@ MONGO_USER= ask in discord
 MONGO_PASSWORD= ask in discord
 MONGODB_URI="ask in discord"
 MONGO_APPNAME= Dev
-MONGO_HOST= "dev.yjhvu.mongodb.net/"
+MONGO_HOST= " ask in discord"
 ```
 
 Then, run the development server:
