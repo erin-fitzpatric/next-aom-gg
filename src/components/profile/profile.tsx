@@ -8,6 +8,12 @@ import { SteamProfile } from "@/types/Steam";
 import { ILeaderboardPlayer } from "@/types/LeaderboardPlayer";
 import { Match } from "@/types/Match";
 import PlayerGodStats from "./playerGodStats";
+import { ChevronUp, ChevronDown } from "lucide-react";
+import { usePagination } from "../leaderboard";
+import { Button } from "../ui/button";
+import { MatchHistory } from "./matchHistory";
+import { PaginationComponent } from "./pagination";
+import { PlayerInfo } from "./playerInfo";
 
 function LoadingSkeleton() {
   return (
@@ -235,7 +241,7 @@ export default function Profile() {
         handleLastPageClick={handleLastPageClick}
         showPages={showPages}
       />
-          <PlayerGodStats playerId={playerId} />
+      <PlayerGodStats playerId={playerId} />
     </div>
   );
 }
