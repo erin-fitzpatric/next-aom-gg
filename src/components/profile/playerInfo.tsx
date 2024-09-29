@@ -31,8 +31,8 @@ export function PlayerInfo({
 
   return (
     <Tabs defaultValue={defaultTab} className="w-full">
-      <Card className="border-0 w-full bg-gradient-to-br from-gray-900 to-gray-800 text-white shadow-xl min-w-96 ">
-        <CardContent className="p-4">
+      <Card className="pt-5 sm:pt-0 border-0 w-full bg-gradient-to-br from-gray-900 to-gray-800 text-white shadow-xl min-w-96 ">
+        <CardContent className="sm:p-4">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
             <div className="flex-shrink-0 flex flex-col items-center self-center">
               <ProfileAvatar steamProfile={steamProfile} loading={loading} />
