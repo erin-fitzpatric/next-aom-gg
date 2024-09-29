@@ -27,7 +27,7 @@ export default function StatCard({ playerStats }: IStatCardProps) {
       <h2 className="text-2xl font-bold mb-4 text-gold">
         {LeaderboardTypeNames[Number(leaderboard_id)]}
       </h2>
-      <div className="grid grid-cols-2 gap-4">
+      <div className="grid grid-cols-2 md:gap-4">
         <StatItem label="Rank" value={`#${rank}`} />
         <StatItem label="Elo" value={String(rating)} />
         <StatItem

@@ -175,7 +175,7 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
   return (
     <Card>
       <CardContent className="space-y-4 p-6">
-        <div className="flex space-x-4 justify-start">
+        <div className="flex flex-wrap space-x-2 justify-start">
           <div className="flex flex-col">
             <Label htmlFor="patch-dropdown" className="mb-1 text-gold">
               Patch
@@ -303,7 +303,7 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
               <p>No Games Played</p>
             </div>
           ) : (
-            <div style={{ maxHeight: "25vh", overflowY: "auto" }}>
+            <div>
               <Table>
                 <TableHeader>
                   <TableRow>
