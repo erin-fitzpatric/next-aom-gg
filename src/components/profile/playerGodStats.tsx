@@ -293,7 +293,7 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
           </div>
         </div>
 
-        <div className="overflow-x-auto">
+        <div>
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <p>Loading...</p>
