@@ -30,7 +30,7 @@ export function PlayerInfo({
   const defaultTab = gameTypes[0]?.toString() || "1";
 
   return (
-    <Tabs defaultValue={defaultTab}>
+    <Tabs defaultValue={defaultTab} className="w-full">
       <Card className="border-0 w-full bg-gradient-to-br from-gray-900 to-gray-800 text-white shadow-xl min-w-96 ">
         <CardContent className="sm:p-4">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
