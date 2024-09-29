@@ -8,11 +8,11 @@ import BuildFilter from "./build-filter";
 import BarChart from "./bar-chart";
 import { Build } from "@/types/Build";
 import { Card } from "../ui/card";
-import { MajorGods } from "@/types/MajorGods";
 
 export interface IFilterOptions {
   eloRange: string;
   patch: number | null;
+  godId: number | null;
 }
 
 export default function Gods() {
@@ -23,6 +23,7 @@ export default function Gods() {
   const [filterOptions, setFilterOptions] = useState<IFilterOptions>({
     eloRange: "All",
     patch: null, // Initialize with null
+    godId: null, // Initialize with null
   });
   const eloBins = [
     "All",
