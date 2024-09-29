@@ -174,8 +174,8 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
 
   return (
     <Card>
-      <CardContent className="space-y-4 p-6">
-        <div className="flex flex-wrap space-x-2 justify-start">
+      <CardContent className="p-6 sm:space-x-2">
+        <div className="flex flex-wrap  justify-start gap-2">
           <div className="flex flex-col">
             <Label htmlFor="patch-dropdown" className="mb-1 text-gold">
               Patch

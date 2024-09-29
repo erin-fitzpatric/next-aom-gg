@@ -20,7 +20,9 @@ export default function Team({
   activePlayerId,
 }: IProps) {
   return (
-    <div className={`grid grid-cols-[3fr,1fr,3fr] gap-1 ${className}`}>
+    <div
+      className={`flex flex-col flex-wrap sm:grid sm:grid-cols-[3fr,1fr,3fr] gap-1 ${className}`}
+    >
       {teams.map((team: TeamResult, i) => (
         <React.Fragment key={`team-${team.teamid}-${i}`}>
           <div className="flex flex-col gap-1">
@@ -36,7 +38,7 @@ export default function Team({
             ))}
           </div>
           {i === 0 && (
-            <div className="hidden md:flex flex-col align-middle justify-center text-center">
+            <div className=" md:flex flex-col align-middle justify-center text-center">
               x
             </div>
           )}
