@@ -69,24 +69,31 @@ export default function RedditFeed() {
 }
 
 async function GalleryItems() {
-  const redditPosts = await fetchRedditPosts();
+  const redditPosts = await fetchRedditPosts().catch(() => null);
+
+  if (!redditPosts) return null;
 
   const gallery = await Promise.all(
     redditPosts.map(async (post) => {
-      if (post.url && isRedditGalleryUrl(post.url)) {
-        const response = await fetch(
-          `https://www.reddit.com${post.permalink}.json`
-        );
-        const json = await response.json();
-        const items = json[0]?.data?.children[0]?.data?.media_metadata;
-        if (items) {
-          const images = Object.keys(items).map((key) => {
-            const media = items[key];
-            const ext = media?.m?.split('/').pop();
-            return `https://i.redd.it/${key}.${ext}`;
-          });
-          return { ...post, images };
+      try {
+        if (post.url && isRedditGalleryUrl(post.url)) {
+          const response = await fetch(
+            `https://www.reddit.com${post.permalink}.json`
+          );
+          const json = await response.json();
+          const items = json[0]?.data?.children[0]?.data?.media_metadata;
+          if (items) {
+            const images = Object.keys(items).map((key) => {
+              const media = items[key];
+              const ext = media?.m?.split('/').pop();
+              return `https://i.redd.it/${key}.${ext}`;
+            });
+            return { ...post, images };
+          }
         }
+      } catch (error) {
+        console.error(error);
+        return { ...post, images: [] };
       }
       return { ...post, images: [] };
     })

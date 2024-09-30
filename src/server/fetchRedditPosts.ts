@@ -5,31 +5,27 @@ import querystring from 'querystring';
 
 let mappedPosts: RedditPost[];
 export default async function fetchRedditPosts(): Promise<RedditPost[]> {
-  try {
-    const response = await fetch(
-      `https://www.reddit.com/r/ageofmythology/hot.json`
-    );
-    const data = await response.json();
-    const posts: any[] = data.data.children.map((child: any) => child.data);
-    mappedPosts = posts
-      .filter((post) => !post.stickied)
-      .map((post) => ({
-        id: post.id,
-        thumbnail_height: post.thumbnail_height,
-        ups: post.ups,
-        thumbnail_width: post.thumbnail_width,
-        url: post.is_self || post.is_video ? null : post.url,
-        author: post.author,
-        title: post.title,
-        permalink: post.permalink,
-        total_awards_received: post.total_awards_received,
-        num_comments: post.num_comments,
-      }));
+  const response = await fetch(
+    `https://www.reddit.com/r/ageofmythology/hot.json`
+  );
+  const data = await response.json();
+  const posts: any[] = data.data.children.map((child: any) => child.data);
+  mappedPosts = posts
+    .filter((post) => !post.stickied)
+    .map((post) => ({
+      id: post.id,
+      thumbnail_height: post.thumbnail_height,
+      ups: post.ups,
+      thumbnail_width: post.thumbnail_width,
+      url: post.is_self || post.is_video ? null : post.url,
+      author: post.author,
+      title: post.title,
+      permalink: post.permalink,
+      total_awards_received: post.total_awards_received,
+      num_comments: post.num_comments,
+    }));
 
-    return mappedPosts;
-  } catch (error) {
-    throw new Error(`Failed to fetch reddit posts: ${error}`);
-  }
+  return mappedPosts;
 }
 
 async function getAccessToken(): Promise<string> {
