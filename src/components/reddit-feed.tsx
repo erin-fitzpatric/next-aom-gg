@@ -36,27 +36,7 @@ export default function RedditFeed() {
         </div>
         <Carousel className='pt-4'>
           <CarouselContent className='flex items-center'>
-            <Suspense
-              fallback={Array.from({ length: 4 }).map((_, index) => (
-                <CarouselItem
-                  key={index}
-                  className='bg-secondary h-full rounded-3xl mx-2 sm:basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4 hover:opacity-75 transition-opacity duration-200 ease-in-out overflow-hidden'
-                >
-                  <div className='flex h-32'>
-                    <div className='m-2'>
-                      <div className='h-32 w-32 overflow-hidden rounded-lg'>
-                        <Skeleton className='w-full h-full' />
-                      </div>
-                    </div>
-                    <div className='flex-1 ml-4'>
-                      <Skeleton className='w-full h-6 mb-2' />
-                      <Skeleton className='w-3/4 h-4 mb-2' />
-                      <Skeleton className='w-1/2 h-4' />
-                    </div>
-                  </div>
-                </CarouselItem>
-              ))}
-            >
+            <Suspense fallback={<PlaceHolder />}>
               <GalleryItems />
             </Suspense>
           </CarouselContent>
@@ -68,10 +48,36 @@ export default function RedditFeed() {
   );
 }
 
+function PlaceHolder() {
+  return (
+    <>
+      {Array.from({ length: 4 }).map((_, index) => (
+        <CarouselItem
+          key={index}
+          className='bg-secondary h-full rounded-3xl mx-2 sm:basis-full md:basis-1/2 lg:basis-1/3 xl:basis-1/4 hover:opacity-75 transition-opacity duration-200 ease-in-out overflow-hidden'
+        >
+          <div className='flex h-32'>
+            <div className='m-2'>
+              <div className='h-32 w-32 overflow-hidden rounded-lg'>
+                <Skeleton className='w-full h-full' />
+              </div>
+            </div>
+            <div className='flex-1 ml-4'>
+              <Skeleton className='w-full h-6 mb-2' />
+              <Skeleton className='w-3/4 h-4 mb-2' />
+              <Skeleton className='w-1/2 h-4' />
+            </div>
+          </div>
+        </CarouselItem>
+      ))}
+    </>
+  );
+}
+
 async function GalleryItems() {
   const redditPosts = await fetchRedditPosts().catch(() => null);
 
-  if (!redditPosts) return null;
+  if (!redditPosts) return <PlaceHolder />;
 
   const gallery = await Promise.all(
     redditPosts.map(async (post) => {
