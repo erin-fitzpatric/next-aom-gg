@@ -1,144 +1,145 @@
 "use client";
-import { Card, CardHeader } from "@/components/ui/card";
-import { Skeleton } from "@/components/ui/skeleton";
+import { useCallback, useEffect, useState } from "react";
 import { useSession } from "next-auth/react";
 import { useParams, useRouter } from "next/navigation";
-import { useEffect, useState } from "react";
-import MatchComponent from "./match";
+import { Skeleton } from "@/components/ui/skeleton";
 import { LeaderboardTypeValues } from "@/types/LeaderBoard";
 import { SteamProfile } from "@/types/Steam";
-import Image from "next/image";
-import StatCard from "./statCard";
 import { ILeaderboardPlayer } from "@/types/LeaderboardPlayer";
 import { Match } from "@/types/Match";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationItem,
-  PaginationLink,
-} from "../ui/pagination";
-import {
-  DoubleArrowLeftIcon,
-  DoubleArrowRightIcon,
-} from "@radix-ui/react-icons";
-import Loading from "../loading";
-import { Frown } from "lucide-react";
 import PlayerGodStats from "./playerGodStats";
+import { usePagination } from "../leaderboard";
+import { MatchHistory } from "./matchHistory";
+import { PaginationComponent } from "./pagination";
+import { PlayerInfo } from "./playerInfo";
+
+function LoadingSkeleton() {
+  return (
+    <div className="flex justify-center items-center w-full">
+      <Skeleton className="w-full h-16 rounded-full" />
+    </div>
+  );
+}
+
+function calculatePagesToShow(
+  currentPage: number,
+  totalPages: number,
+): number[] {
+  if (totalPages <= 3) {
+    return Array.from({ length: totalPages }, (_, i) => i + 1);
+  }
+  if (currentPage <= 2) {
+    return [1, 2, 3];
+  }
+  if (currentPage >= totalPages - 1) {
+    return [totalPages - 2, totalPages - 1, totalPages];
+  }
+  return [currentPage - 1, currentPage, currentPage + 1];
+}
 
 export default function Profile() {
-  const [matchHistoryStats, setMatchHistoryStats] = useState<Match[]>([]);
-  const [playerStats, setPlayerStats] = useState<ILeaderboardPlayer[]>([]);
-  const [playerName, setPlayerName] = useState<string>("");
-  const [steamProfile, setSteamProfile] = useState<SteamProfile>();
-  const [leaderboardId, setLeaderboardId] = useState<number>(
-    LeaderboardTypeValues["1v1Supremacy"]
-  );
-  const [totalPages, setTotalPages] = useState<number>(1); // To manage total pages
-  const [loading, setLoading] = useState<boolean>(false); // Loading state
-  const [dataFetched, setDataFetched] = useState<boolean>(false); // Track if data has been fetched
-  const [error, setError] = useState<boolean>(false); // Track if an error occurred
-
+  const [state, setState] = useState({
+    matchHistoryStats: [] as Match[],
+    playerStats: [] as ILeaderboardPlayer[],
+    playerName: "",
+    steamProfile: undefined as SteamProfile | undefined,
+    leaderboardId: LeaderboardTypeValues["1v1Supremacy"],
+    totalPages: 1,
+    loading: false,
+    dataFetched: false,
+    error: false,
+  });
   const params = useParams();
-  const router = useRouter(); // For updating URL
+  const router = useRouter();
   const { id } = params;
   const playerId = String(id);
 
-  const { status } = useSession(); // get the client session status
+  const { status } = useSession();
   const { limit, onPaginationChange, skip, pagination } = usePagination();
 
-  function usePagination() {
-    const [pagination, setPagination] = useState({
-      pageSize: 50,
-      pageIndex:
-        parseInt(
-          new URLSearchParams(window.location.search).get("page") || "1",
-          10
-        ) - 1,
-    });
-    const { pageSize, pageIndex } = pagination;
+  const fetchProfileData = useCallback(
+    async (playerId: string) => {
+      const baseUrl = "/api/matchHistory";
+      const params = new URLSearchParams({
+        playerId,
+        skip: skip.toString(),
+        limit: limit.toString(),
+      });
+      const url = `${baseUrl}?${params.toString()}`;
 
-    const goToPage = (pageIndex: number) => {
-      setPagination((prev) => ({ ...prev, pageIndex }));
-      setLoading(true); // Set loading true when changing pages
-      window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to the top
-      router.push(`?page=${pageIndex + 1}`); // Update URL with the new page number
-    };
+      setState((prev) => ({ ...prev, loading: true }));
 
-    return {
-      limit: pageSize,
-      onPaginationChange: setPagination,
-      pagination,
-      skip: pageSize * pageIndex,
-      goToPage,
-    };
-  }
-
-  const fetchProfileData = async (playerId: string) => {
-    const baseUrl = "/api/matchHistory";
-    const params = new URLSearchParams({
-      playerId,
-      skip: skip.toString(),
-      limit: limit.toString(),
-    });
-    const url = `${baseUrl}?${params.toString()}`;
-
-    setLoading(true); // Set loading true when fetching data
-
-    try {
-      const response = await fetch(url);
-      if (!response.ok) throw new Error("Failed to fetch profile data");
-      const { matches, total } = await response.json();
-      setMatchHistoryStats(matches);
-      setTotalPages(Math.ceil(total / limit)); // Update total pages based on total matches
-      setDataFetched(true); // Set dataFetched to true after fetching data
-      setError(false); // Reset error state on successful fetch
-    } catch (error: any) {
-      console.error("Error fetching profile data:", error);
-      setMatchHistoryStats([]);
-      setDataFetched(true); // Ensure dataFetched is true even if there is an error
-      setError(true); // Set error state if an error occurs
-    } finally {
-      setLoading(false); // Set loading false after fetching data
-    }
-  };
-
-  const fetchPlayerStats = async (playerId: string) => {
-    const baseUrl = `/api/leaderboards/[${playerId}]`;
-    const params = new URLSearchParams({
-      leaderboardId: leaderboardId.toString(),
-      playerId,
-    });
-    const url = `${baseUrl}?${params.toString()}`;
-    setLoading(true); // Set loading true when fetching data
-    try {
-      const response = await fetch(url);
-      if (!response.ok) throw new Error("Failed to fetch player stats");
-      const data: ILeaderboardPlayer[] = await response.json();
-      setPlayerStats(data);
-
-      if (data.length > 0) {
-        setPlayerName(String(data[0].name));
-        const steamId = data[0].profileUrl.split("/").pop();
-        if (steamId) {
-          fetchSteamProfile(steamId);
-        }
-      } else {
-        setPlayerName(""); // Clear playerName if no player stats found
-        setSteamProfile(undefined); // Clear steamProfile if no player stats found
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Failed to fetch profile data");
+        const { matches, total } = await response.json();
+        setState((prev) => ({
+          ...prev,
+          matchHistoryStats: matches,
+          totalPages: Math.ceil(total / limit),
+          dataFetched: true,
+          error: false,
+        }));
+      } catch (error) {
+        console.error("Error fetching profile data:", error);
+        setState((prev) => ({
+          ...prev,
+          matchHistoryStats: [],
+          dataFetched: true,
+          error: true,
+        }));
+      } finally {
+        setState((prev) => ({ ...prev, loading: false }));
       }
+    },
+    [skip, limit],
+  );
 
-      setError(false); // Reset error state on successful fetch
-    } catch (error: any) {
-      console.error("Error fetching player stats:", error);
-      setPlayerStats([]);
-      setPlayerName(""); // Clear playerName if an error occurs
-      setSteamProfile(undefined); // Clear steamProfile if an error occurs
-      setError(true); // Set error state if an error occurs
-    } finally {
-      setLoading(false); // Set loading false after fetching data
-      setDataFetched(true); // Set dataFetched to true after fetching player stats
-    }
-  };
+  const fetchPlayerStats = useCallback(
+    async (playerId: string) => {
+      const baseUrl = `/api/leaderboards/[${playerId}]`;
+      const params = new URLSearchParams({
+        leaderboardId: state.leaderboardId.toString(),
+        playerId,
+      });
+      const url = `${baseUrl}?${params.toString()}`;
+      setState((prev) => ({ ...prev, loading: true }));
+      try {
+        const response = await fetch(url);
+        if (!response.ok) throw new Error("Failed to fetch player stats");
+        const data: ILeaderboardPlayer[] = await response.json();
+        setState((prev) => ({ ...prev, playerStats: data }));
+
+        if (data.length > 0) {
+          setState((prev) => ({ ...prev, playerName: String(data[0].name) }));
+          const steamId = data[0].profileUrl.split("/").pop();
+          if (steamId) {
+            fetchSteamProfile(steamId);
+          }
+        } else {
+          setState((prev) => ({
+            ...prev,
+            playerName: "",
+            steamProfile: undefined,
+          }));
+        }
+
+        setState((prev) => ({ ...prev, error: false }));
+      } catch (error) {
+        console.error("Error fetching player stats:", error);
+        setState((prev) => ({
+          ...prev,
+          playerStats: [],
+          playerName: "",
+          steamProfile: undefined,
+          error: true,
+        }));
+      } finally {
+        setState((prev) => ({ ...prev, loading: false, dataFetched: true }));
+      }
+    },
+    [state.leaderboardId],
+  );
 
   const fetchSteamProfile = async (steamId: string) => {
     const url = `/api/steam/${steamId}`;
@@ -146,195 +147,75 @@ export default function Profile() {
       const response = await fetch(url);
       if (!response.ok) throw new Error("Failed to fetch Steam profile");
       const data: SteamProfile = await response.json();
-      setSteamProfile(data);
-      setError(false); // Reset error state on successful fetch
-    } catch (error: any) {
+      setState((prev) => ({ ...prev, steamProfile: data, error: false }));
+    } catch (error) {
       console.error("Error fetching Steam profile:", error);
-      setSteamProfile(undefined);
-      setError(true); // Set error state if an error occurs
+      setState((prev) => ({ ...prev, steamProfile: undefined, error: true }));
     }
   };
 
   useEffect(() => {
     fetchProfileData(playerId);
     fetchPlayerStats(playerId);
-  }, [playerId, pagination.pageIndex]); // Re-fetch on page index change
+  }, [playerId, pagination.pageIndex, fetchProfileData, fetchPlayerStats]);
 
   useEffect(() => {
-    // Update pageIndex from query parameter on component mount
     const queryParams = new URLSearchParams(window.location.search);
     const page = parseInt(queryParams.get("page") || "1", 10) - 1;
     onPaginationChange((prev) => ({ ...prev, pageIndex: page }));
-  }, []);
+  }, [onPaginationChange]);
 
   const handlePageClick = (pageIndex: number) => {
     onPaginationChange((prev) => ({ ...prev, pageIndex }));
-    setLoading(true); // Set loading true when changing pages
-    window.scrollTo({ top: 0, behavior: "smooth" }); // Scroll to the top
-    router.push(`?page=${pageIndex + 1}`); // Update URL with the new page number
+    setState((prev) => ({ ...prev, loading: true }));
+    window.scrollTo({ top: 0, behavior: "smooth" });
+    router.push(`?page=${pageIndex + 1}`);
   };
 
   const handleFirstPageClick = () => {
-    if (pagination.pageIndex > 0) {
-      handlePageClick(0);
-    }
+    if (pagination.pageIndex > 0) handlePageClick(0);
   };
 
   const handleLastPageClick = () => {
-    if (pagination.pageIndex < totalPages - 1) {
-      handlePageClick(totalPages - 1);
-    }
+    if (pagination.pageIndex < state.totalPages - 1)
+      handlePageClick(state.totalPages - 1);
   };
 
-  // Determine which pages to show
-  const currentPage = pagination.pageIndex + 1; // Adjust to 1-based page index
+  const showPages = calculatePagesToShow(
+    pagination.pageIndex + 1,
+    state.totalPages,
+  );
 
-  const showPages = (() => {
-    if (totalPages <= 3) {
-      return Array.from({ length: totalPages }, (_, i) => i + 1);
-    }
-    if (currentPage <= 2) {
-      return [1, 2, 3];
-    }
-    if (currentPage >= totalPages - 1) {
-      return [totalPages - 2, totalPages - 1, totalPages];
-    }
-    return [currentPage - 1, currentPage, currentPage + 1];
-  })();
-
-  if (status === "loading") {
-    return (
-      <div className="flex justify-center items-center w-full">
-        <Skeleton className="w-full h-16 rounded-full" />
-      </div>
-    );
-  }
+  if (status === "loading") return <LoadingSkeleton />;
 
   return (
-    <div className="w-full text-2xl px-4">
-      <CardHeader className="w-full text-center">
-        {loading ? (
-          <Skeleton className="w-24 h-24 rounded-full mx-auto" />
-        ) : steamProfile ? (
-          <Image
-            src={steamProfile.avatarfull}
-            alt="Profile Picture"
-            width={84}
-            height={84}
-            className="rounded-full mx-auto"
-          />
-        ) : (
-          <div className="w-24 h-24 rounded-full mx-auto bg-gray-300"></div>
-        )}
-      </CardHeader>
-      <div className="w-full flex flex-col items-center">
-        {loading ? (
-          <Skeleton className="w-48 h-8 rounded-md mt-4" />
-        ) : (
-          <h1 className="text-4xl font-semibold text-gold">
-            {playerName ||
-              (dataFetched && !playerStats.length && error
-                ? "Player Not Found"
-                : "")}
-          </h1>
-        )}
-        {dataFetched && playerStats.length === 0 && !loading && error && (
-          <p className="text-center text-gray-500 mx-auto flex items-center justify-center h-full">
-            <Frown className="text-primary" size={100} />
-          </p>
-        )}
-        {playerStats.length > 0 && (
-          <div className="w-full my-4">
-            {playerStats.map((stat) => (
-              <div key={Number(stat.leaderboard_id)} className="w-full">
-                <StatCard playerStats={stat} />
-              </div>
-            ))}
-          </div>
-        )}
+    <div className="max-w-[1600px] mx-auto">
+      <div className="flex items-center">
+        <PlayerInfo
+          playerName={state.playerName}
+          loading={state.loading}
+          dataFetched={state.dataFetched}
+          playerStats={state.playerStats}
+          steamProfile={state.steamProfile}
+          error={state.error}
+        />
       </div>
-
-      <div className="w-full my-4">
-        {loading ? (
-          <div className="space-y-4">
-            <Skeleton className="w-full h-12" />
-            <Skeleton className="w-full h-64" />
-          </div>
-        ) : dataFetched ? (
-          <PlayerGodStats playerId={playerId} />
-        ) : (
-          <div className="text-center text-gray-500 flex flex-col items-center justify-center h-64">
-            <Frown className="text-primary mb-4" size={64} />
-            <p>Failed to load god stats</p>
-          </div>
-        )}
-      </div>
-      <Card className="w-full">
-        {loading ? (
-          <div className="p-4">
-            <Loading />
-          </div>
-        ) : matchHistoryStats.length === 0 && dataFetched && error ? (
-          <p className="text-center text-gray-500 mx-auto flex items-center justify-center h-full">
-            <Frown className="text-primary" size={100} />
-          </p>
-        ) : (
-          matchHistoryStats.map((match) => (
-            <MatchComponent key={match.matchId} match={match} />
-          ))
-        )}
-      </Card>
-
-      {totalPages > 1 && (
-        <Pagination>
-          <PaginationContent>
-            {/* First Page Button */}
-            <PaginationItem>
-              <PaginationLink
-                onClick={handleFirstPageClick}
-                className={`hover:cursor-pointer ${
-                  pagination.pageIndex === 0
-                    ? "opacity-50 cursor-not-allowed"
-                    : ""
-                }`}
-                aria-label="First Page"
-              >
-                <DoubleArrowLeftIcon className="h-4 w-4" />
-              </PaginationLink>
-            </PaginationItem>
-
-            {/* Page Numbers */}
-            {showPages.map((page) => (
-              <PaginationItem key={page}>
-                <PaginationLink
-                  onClick={() => handlePageClick(page - 1)}
-                  aria-current={
-                    pagination.pageIndex === page - 1 ? "page" : undefined
-                  }
-                  className="hover:cursor-pointer"
-                >
-                  {page}
-                </PaginationLink>
-              </PaginationItem>
-            ))}
-
-            {/* Last Page Button */}
-            <PaginationItem>
-              <PaginationLink
-                onClick={handleLastPageClick}
-                className={`hover:cursor-pointer ${
-                  pagination.pageIndex === totalPages - 1
-                    ? "opacity-50 cursor-not-allowed"
-                    : ""
-                }`}
-                aria-label="Last Page"
-              >
-                <DoubleArrowRightIcon className="h-4 w-4" />
-              </PaginationLink>
-            </PaginationItem>
-          </PaginationContent>
-        </Pagination>
-      )}
+      <PlayerGodStats playerId={playerId} />
+      <MatchHistory
+        loading={state.loading}
+        matchHistoryStats={state.matchHistoryStats}
+        dataFetched={state.dataFetched}
+        error={state.error}
+        playerId={playerId}
+      />
+      <PaginationComponent
+        totalPages={state.totalPages}
+        pagination={pagination}
+        handleFirstPageClick={handleFirstPageClick}
+        handlePageClick={handlePageClick}
+        handleLastPageClick={handleLastPageClick}
+        showPages={showPages}
+      />
     </div>
   );
 }

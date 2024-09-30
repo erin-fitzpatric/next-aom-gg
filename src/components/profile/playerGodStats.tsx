@@ -110,7 +110,7 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
         }
 
         const response = await fetch(
-          `/api/stats/user/gods?${params.toString()}`
+          `/api/stats/user/gods?${params.toString()}`,
         );
         if (!response.ok) {
           console.log("Failed to fetch user god stats");
@@ -174,8 +174,8 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
 
   return (
     <Card>
-      <CardContent className="space-y-4 p-6">
-        <div className="flex space-x-4 justify-start">
+      <CardContent className="p-6 sm:space-x-2">
+        <div className="flex flex-wrap  justify-start gap-2">
           <div className="flex flex-col">
             <Label htmlFor="patch-dropdown" className="mb-1 text-gold">
               Patch
@@ -293,7 +293,7 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
           </div>
         </div>
 
-        <div className="w-[90vw] overflow-x-auto">
+        <div>
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <p>Loading...</p>
@@ -303,7 +303,7 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
               <p>No Games Played</p>
             </div>
           ) : (
-            <div style={{ maxHeight: "25vh", overflowY: "auto" }}>
+            <div>
               <Table>
                 <TableHeader>
                   <TableRow>
