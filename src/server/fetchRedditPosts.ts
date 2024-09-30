@@ -6,7 +6,12 @@ import querystring from 'querystring';
 let mappedPosts: RedditPost[];
 export default async function fetchRedditPosts(): Promise<RedditPost[]> {
   const response = await fetch(
-    `https://www.reddit.com/r/ageofmythology/hot.json`
+    `https://www.reddit.com/r/ageofmythology/hot.json`,
+    {
+      headers: {
+        'User-Agent': 'aom-stats/1.0 by FitzBro',
+      }
+    }
   );
   const data = await response.json();
   const posts: any[] = data.data.children.map((child: any) => child.data);
