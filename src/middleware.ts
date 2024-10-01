@@ -13,7 +13,7 @@ export async function middleware(request: NextRequest) {
   console.log(`[Middleware] Processing request for: ${request.url}`);
 
   // Only apply caching in development mode
-  if (process.env.NODE_ENV !== "development") {
+  if (process.env.NODE_ENV == "development") {
     console.log("[Middleware] Not in development mode. Skipping cache.");
     return NextResponse.next();
   }
