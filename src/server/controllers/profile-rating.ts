@@ -14,9 +14,15 @@ export async function getMatchRatings(req: Request) {
       startDate,
       endDate,
     });
-    return Response.json(ratings);
+
+    return new Response(JSON.stringify(ratings), {
+      headers: { "Content-Type": "application/json" },
+    });
   } catch (error: any) {
     console.error("Error fetching matches:", error);
-    return Response.json({ error: error.message }, { status: 500 });
+    return new Response(JSON.stringify({ error: error.message }), {
+      status: 500,
+      headers: { "Content-Type": "application/json" },
+    });
   }
 }

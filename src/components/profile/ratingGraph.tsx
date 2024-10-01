@@ -1,34 +1,36 @@
-import { fetchMatchRatings } from "@/server/services/profile-rating-service";
+"use client";
 
-interface MatchRatingsProps {
-  profile_id: number;
-  game_mode: string;
-  startDate: number;
-  endDate: number;
+import {
+  LineChart,
+  Line,
+  XAxis,
+  YAxis,
+  CartesianGrid,
+  Tooltip,
+  ResponsiveContainer,
+} from "recharts";
+
+interface RatingLineChartProps {
+  data: { date: string; rating: number }[];
 }
 
-export default async function MatchRatings({
-  profile_id,
-  game_mode,
-  startDate,
-  endDate,
-}: MatchRatingsProps) {
-  try {
-    const ratings = await fetchMatchRatings({
-      profile_id,
-      game_mode,
-      startDate,
-      endDate,
-    });
+const RatingLineChart: React.FC<RatingLineChartProps> = ({ data }) => {
+  return (
+    <ResponsiveContainer width="100%" height={400}>
+      <LineChart data={data}>
+        <CartesianGrid strokeDasharray="3 3" />
+        <XAxis dataKey="date" />
+        <YAxis />
+        <Tooltip />
+        <Line
+          type="monotone"
+          dataKey="rating"
+          stroke="#8884d8"
+          activeDot={{ r: 8 }}
+        />
+      </LineChart>
+    </ResponsiveContainer>
+  );
+};
 
-    return (
-      <div>
-        <h1>Profile Ratings</h1>
-        <pre>{JSON.stringify(ratings, null, 2)}</pre>
-      </div>
-    );
-  } catch (error: any) {
-    console.error("Error fetching match ratings:", error);
-    return <div>Error: {error.message}</div>;
-  }
-}
+export default RatingLineChart;
