@@ -4,6 +4,7 @@ import getMongoClient from "@/db/mongo/mongo-client";
 import { GetMatchupDataParams } from "../controllers/stats/matchups";
 import { StatsCivsModel } from "@/db/mongo/model/stats/StatsCivsModel";
 import { GodStats, MatchData, MatchupStats } from "@/types/CivStats";
+import { ALL_ELO_RANGES } from "@/utils/consts";
 
 export async function fetchMatchupData(
   params: GetMatchupDataParams
@@ -15,7 +16,7 @@ export async function fetchMatchupData(
   let matchQuery: any = {};
 
   // elo range
-  if (eloRange && eloRange !== "All") {
+  if (eloRange && eloRange !== "All" && eloRange !== ALL_ELO_RANGES) {
     matchQuery["metaField.elo_bin"] = eloRange;
   }
 

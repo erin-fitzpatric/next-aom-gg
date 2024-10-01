@@ -1,6 +1,10 @@
 import { Dispatch, SetStateAction } from "react";
 import { IFilterOptions } from "./gods";
 
+/**
+ * @deprecated This function is deprecated and will be removed in future releases.
+ * Use `filters/elo-range-filter.tsx` instead.
+ */
 export default function EloFilter({
   setFilterOptions,
   eloFilter,

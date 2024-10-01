@@ -12,7 +12,7 @@ import { Card } from "../ui/card";
 export interface IFilterOptions {
   eloRange: string;
   patch: number | null;
-  godId: number | null;
+  godId: number | undefined;
 }
 
 export default function Gods() {
@@ -23,7 +23,7 @@ export default function Gods() {
   const [filterOptions, setFilterOptions] = useState<IFilterOptions>({
     eloRange: "All",
     patch: null, // Initialize with null
-    godId: null, // Initialize with null
+    godId: undefined, // Initialize with null
   });
   const eloBins = [
     "All",
