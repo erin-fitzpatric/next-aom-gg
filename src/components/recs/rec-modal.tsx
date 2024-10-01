@@ -41,7 +41,7 @@ const RecModal = ({ rec, mapData }: IRecMapParams) => {
           <button className="btn btn-primary text-primary">Results</button>
         </DialogTrigger>
       </div>
-      <DialogContent className="fixed inset-0 flex items-center justify-center bg-black/50">
+      <DialogContent className="fixed inset-0 flex items-center justify-center bg-black/50 z-10">
         <div className="bg-secondary p-4 rounded-lg shadow-lg w-full sm:w-1/3 relative mx-auto max-w-md">
           <button
             className="absolute top-2 right-2 text-green font-bold text-xl"

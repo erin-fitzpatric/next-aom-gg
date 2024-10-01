@@ -80,7 +80,6 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
           throw new Error("Failed to fetch game modes");
         }
         const data = await response.json();
-        console.log("TEST", data);
         setGameModes(data);
       } catch (error) {
         console.error("Error fetching game modes:", error);
@@ -110,14 +109,13 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
         }
 
         const response = await fetch(
-          `/api/stats/user/gods?${params.toString()}`,
+          `/api/stats/user/gods?${params.toString()}`
         );
         if (!response.ok) {
           console.log("Failed to fetch user god stats");
           throw new Error("Failed to fetch user god stats");
         }
         const data = await response.json();
-        console.log("TEST", data);
         const mappedData = data.map((item: any) => {
           const godData = majorGodIndexToData(item.civilization_id);
           return {

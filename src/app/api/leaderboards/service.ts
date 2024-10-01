@@ -95,7 +95,6 @@ export interface OfficialApiResponse {
  * @deprecated This function is deprecated and will be removed in future releases.
  * Use `getMythLeaderboard` instead.
  */
-
 export async function getAgeOfEmpiresMythLeaderboard(
   req: IGetMythLeaderboard
 ): Promise<OfficialApiResponse> {

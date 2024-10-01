@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useRef, useCallback } from "react";
+import { useState, useCallback } from "react";
 import {
   Bar,
   BarChart as RechartsBarChart,
@@ -11,7 +11,6 @@ import {
 } from "recharts";
 
 import {
-  Card,
   CardContent,
   CardDescription,
   CardFooter,
@@ -24,7 +23,6 @@ import {
   ChartTooltip,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { cn } from "@/utils/utils";
 import { Formatter } from "recharts/types/component/DefaultTooltipContent";
 
 const chartConfig = {

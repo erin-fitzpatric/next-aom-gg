@@ -59,7 +59,6 @@ const navigation: NavigationItem[] = [
         label: "Matchups",
         href: "/stats/matchups",
         icon: Axe,
-        disabled: true,
       },
       {
         label: "Maps",

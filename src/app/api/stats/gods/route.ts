@@ -1,3 +1,4 @@
+import { ALL_ELO_RANGES } from "@/utils/consts";
 import { fetchCivStats, IFetchCivStatsParams, mapCivStats } from "./service";
 
 function toUTCDate(date: Date): Date {
@@ -11,7 +12,7 @@ export const GET = async function GET(req: Request) {
   try {
     const { searchParams } = new URL(req.url);
     const params: IFetchCivStatsParams = {
-      eloRange: searchParams.get("eloRange") || "All",
+      eloRange: searchParams.get("eloRange") || ALL_ELO_RANGES,
       startDate: searchParams?.get("startDate")
         ? new Date(searchParams.get("startDate")!)
         : toUTCDate(new Date("2024-08-27")), // default startDate to 8/27/2024 in UTC
