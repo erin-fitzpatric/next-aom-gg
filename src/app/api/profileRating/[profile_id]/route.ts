@@ -15,28 +15,33 @@ export async function GET(req: Request) {
       gameMode: "1V1_SUPREMACY",
       [`matchHistoryMap.${profileId}`]: { $exists: true },
     });
-
     if (matches.length > 0) {
-      const matchHistoryMapData = matches[0].matchHistoryMap;
-      const arrayOfArrays = Array.from(matchHistoryMapData).map(
-        ([key, value]) => [key, ...value]
-      );
-      const profileData = arrayOfArrays.find(
-        (arr) => Number(arr[0]) === profileId
-      );
-      console.log(profileData);
-      if (profileData) {
-        const matchHistoryEntry = profileData[1] as MatchHistoryMember;
-        const oldRating1 = matchHistoryEntry.oldrating;
-        const newRating1 = matchHistoryEntry.newrating;
-        console.log(`Old Rating: ${oldRating1}`);
-        console.log(`New Rating: ${newRating1}`);
-      } else {
-        console.log(`No data found for profile ID: ${profileId}`);
-      }
+      const allNewRatings: any = [];
+
+      matches.forEach((match) => {
+        const matchHistoryMapData = match.matchHistoryMap;
+        // Convert matchHistoryMapData into an array of arrays
+        const arrayOfArrays = Array.from(matchHistoryMapData).map(
+          ([key, value]) => [key, ...value]
+        );
+
+        // Find the profile data for the given profileId
+        const profileData = arrayOfArrays.find(
+          (arr) => Number(arr[0]) === profileId
+        );
+
+        // If profile data exists, push the newRating to the array
+        if (profileData) {
+          const matchHistoryEntry = profileData[1] as MatchHistoryMember; // Type assertion if needed
+          allNewRatings.push(matchHistoryEntry.newrating); // Collecting newRating
+        }
+      });
+
+      console.log(allNewRatings);
     } else {
-      console.log("No matches found.");
+      console.log(`No data found for profile ID: ${profileId}`);
     }
+
     return Response.json({ Message: "Hi" });
   } catch (error) {
     console.error("Error fetching matches:", error);
