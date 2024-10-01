@@ -23,7 +23,6 @@ import {
   majorGodNameToIndex,
 } from "@/types/MajorGods";
 import Image from "next/image";
-import { MajorGodFilter } from "../filters/major-gods-filter";
 
 interface GodStats {
   godData: any;
@@ -52,6 +51,8 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
   const [builds, setBuilds] = useState<string[]>([]);
   const [gameModes, setGameModes] = useState<string[]>([]);
 
+  const MAJOR_GODS = listMajorGods();
+
   useEffect(() => {
     const fetchBuilds = async () => {
       try {
@@ -79,7 +80,6 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
           throw new Error("Failed to fetch game modes");
         }
         const data = await response.json();
-        console.log("TEST", data);
         setGameModes(data);
       } catch (error) {
         console.error("Error fetching game modes:", error);
@@ -109,14 +109,13 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
         }
 
         const response = await fetch(
-          `/api/stats/user/gods?${params.toString()}`,
+          `/api/stats/user/gods?${params.toString()}`
         );
         if (!response.ok) {
           console.log("Failed to fetch user god stats");
           throw new Error("Failed to fetch user god stats");
         }
         const data = await response.json();
-        console.log("TEST", data);
         const mappedData = data.map((item: any) => {
           const godData = majorGodIndexToData(item.civilization_id);
           return {
@@ -169,6 +168,8 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
     return "";
   };
 
+  const selectedGod = MAJOR_GODS.find((god) => god.name === civilization);
+
   return (
     <Card>
       <CardContent className="p-6 sm:space-x-2">
@@ -204,7 +205,59 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
               </DropdownMenuContent>
             </DropdownMenu>
           </div>
-<MajorGodFilter setCivilization={setCivilization} civilization={civilization} />
+          <div className="flex flex-col">
+            <Label htmlFor="civilization-dropdown" className="mb-1 text-gold">
+              Major God
+            </Label>
+            <DropdownMenu>
+              <DropdownMenuTrigger asChild>
+                <Button
+                  id="civilization-dropdown"
+                  variant="outline"
+                  className="bg-gray-100 dark:bg-gray-700 flex justify-between items-center"
+                >
+                  {selectedGod ? (
+                    <div className="flex items-center">
+                      <Image
+                        src={selectedGod.portraitPath}
+                        alt={selectedGod.name}
+                        width={24}
+                        height={24}
+                        className="mr-2"
+                      />
+                      {selectedGod.name}
+                    </div>
+                  ) : (
+                    "Select Major God"
+                  )}
+                  <ChevronDown className="ml-2 h-4 w-4" />
+                </Button>
+              </DropdownMenuTrigger>
+              <DropdownMenuContent>
+                <DropdownMenuItem onSelect={() => setCivilization("")}>
+                  <X className="mr-2 h-4 w-4" />
+                  Clear
+                </DropdownMenuItem>
+                {MAJOR_GODS.map((god) => (
+                  <DropdownMenuItem
+                    key={god.name}
+                    onSelect={() => setCivilization(god.name)}
+                  >
+                    <div className="flex items-center">
+                      <Image
+                        src={god.portraitPath}
+                        alt={god.name}
+                        width={24}
+                        height={24}
+                        className="mr-2"
+                      />
+                      {god.name}
+                    </div>
+                  </DropdownMenuItem>
+                ))}
+              </DropdownMenuContent>
+            </DropdownMenu>
+          </div>
           <div className="flex flex-col">
             <Label htmlFor="gamemode-dropdown" className="mb-1 text-gold">
               Game Mode

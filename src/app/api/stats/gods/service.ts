@@ -3,6 +3,7 @@ import {
   StatsCivsModel,
 } from "@/db/mongo/model/stats/StatsCivsModel";
 import getMongoClient from "@/db/mongo/mongo-client";
+import { ALL_ELO_RANGES } from "@/utils/consts";
 
 export interface IFetchCivStatsParams {
   eloRange: string;
@@ -16,7 +17,7 @@ export async function fetchCivStats(
   const { eloRange, startDate, endDate } = params;
   let lowerElo = 0;
   let higherElo = 5000;
-  if (eloRange !== "All") {
+  if (eloRange !== ALL_ELO_RANGES) {
     [lowerElo, higherElo] = eloRange.split("-").map(Number);
   }
 

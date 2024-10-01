@@ -2,17 +2,18 @@
 import { useEffect, useState } from "react";
 import Loading from "../loading";
 import { MappedCivStats } from "@/app/api/stats/gods/service";
-import EloFilter from "./elo-filter";
 import { Skeleton } from "../ui/skeleton";
-import BuildFilter from "./build-filter";
 import BarChart from "./bar-chart";
 import { Build } from "@/types/Build";
 import { Card } from "../ui/card";
+import { ALL_ELO_RANGES } from "@/utils/consts";
+import EloFilter from "../filters/elo-range-filter";
+import DateBuildPatchFilter from "../filters/date-build-patch-filter";
 
 export interface IFilterOptions {
-  eloRange: string;
-  patch: number | null;
-  godId: number | undefined;
+  eloRange?: string;
+  patch?: number | null;
+  godId?: number | undefined;
 }
 
 export default function Gods() {
@@ -21,19 +22,10 @@ export default function Gods() {
   );
   const [builds, setBuilds] = useState<Build[]>([]);
   const [filterOptions, setFilterOptions] = useState<IFilterOptions>({
-    eloRange: "All",
+    eloRange: ALL_ELO_RANGES,
     patch: null, // Initialize with null
     godId: undefined, // Initialize with null
   });
-  const eloBins = [
-    "All",
-    "0-750",
-    "751-1000",
-    "1001-1250",
-    "1251-1500",
-    "1501-1750",
-    "1751-2000",
-  ];
 
   async function fetchBuilds() {
     const url = "/api/builds";
@@ -97,20 +89,19 @@ export default function Gods() {
         </div>
       ) : (
         <>
-          <div className="flex flex-row-reverse flex-wrap pb-4">
+          <div className="flex flex-col md:flex-row md:space-x-1 sm:justify-end sm:w-full">
             <EloFilter
-              eloFilter={filterOptions.eloRange}
               setFilterOptions={setFilterOptions}
-              eloBins={eloBins}
+              eloFilter={filterOptions.eloRange || ALL_ELO_RANGES}
             />
-            <BuildFilter
-              builds={builds}
+            <DateBuildPatchFilter
               setFilterOptions={setFilterOptions}
+              builds={builds}
               filterOptions={filterOptions}
             />
           </div>
           {/* Win Rate */}
-          <Card style={{ minHeight: "600px" }}>
+          <Card style={{ minHeight: "600px" }} className="mt-2">
             <BarChart
               yAxisKey="godName"
               xAxisKey="Winrate"

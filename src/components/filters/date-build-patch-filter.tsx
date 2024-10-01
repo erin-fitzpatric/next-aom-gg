@@ -17,12 +17,13 @@ export default function DateBuildPatchFilter({
   function getValue(build: Build) {
     return build.buildNumber.toString();
   }
+  console.log("filterOptions", filterOptions);
   return (
     <SelectFilter
       data={builds}
       selectedValue={filterOptions.patch?.toString() || builds[0]?.buildNumber.toString()} // Ensure value is a string
       setSelectedValue={(value: string) => {
-        setFilterOptions((prev) => ({
+        setFilterOptions((prev: any) => ({
           ...prev,
           patch: parseInt(value), // Convert back to number for filterOptions
         }));

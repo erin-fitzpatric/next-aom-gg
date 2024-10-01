@@ -1,15 +1,14 @@
 import { Dispatch, SetStateAction } from "react";
 import { SelectFilter } from "./select-filter";
 import { IFilterOptions } from "../statistics/gods";
+import { eloBins } from "@/utils/consts";
 
 export default function EloFilter({
   setFilterOptions,
   eloFilter,
-  eloBins,
 }: {
   setFilterOptions: Dispatch<SetStateAction<IFilterOptions>>;
   eloFilter: string;
-  eloBins: string[];
 }) {
   return (
     <div>

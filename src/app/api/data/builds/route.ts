@@ -4,7 +4,9 @@ import getMongoClient from "@/db/mongo/mongo-client";
 export const GET = async function GET(req: Request) {
   try {
     await getMongoClient();
-    const builds = await BuildModel.find({}, "description");
+    const builds = await BuildModel.find({}, "description").sort({
+      buildNumber: -1,
+    });
     const buildDescriptions = builds.map((build) => build.description);
 
     return new Response(JSON.stringify(buildDescriptions), {

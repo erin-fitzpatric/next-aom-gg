@@ -1,5 +1,6 @@
 import { listMajorGods } from "@/types/MajorGods";
 import { SelectWithImage } from "./select-with-image-filter";
+import { ALL_GODS } from "@/utils/consts";
 
 interface MajorGodFilterProps {
   civilization: string;
@@ -17,7 +18,7 @@ export function MajorGodFilter({
   const godsWithAllOption = includeAllOption
     ? [
         {
-          name: "All Gods",
+          name: ALL_GODS,
           portraitPath: "/gods/greeks/major-gods/UI_god_pantheon_Greek.png",
         },
         ...majorGods,
@@ -27,7 +28,7 @@ export function MajorGodFilter({
   return (
     <SelectWithImage
       data={godsWithAllOption}
-      selectedValue={civilization || "All Gods"}
+      selectedValue={civilization || ALL_GODS}
       setSelectedValue={setCivilization}
       getLabel={(god) => god.name}
       getImageSrc={(god) => god.portraitPath}

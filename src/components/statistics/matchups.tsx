@@ -14,31 +14,23 @@ import DateBuildPatchFilter from "../filters/date-build-patch-filter";
 import { ALL_ELO_RANGES } from "@/utils/consts";
 
 export interface IFilterOptions {
-  eloRange: string;
-  patch: number | null;
-  godId: number | undefined;
+  eloRange?: string;
+  patch?: number | null;
+  godId?: number | undefined;
 }
 
 export default function Matchups() {
   const [statisticsData, setStatisticsData] = useState<MatchupStats | null>(
     null
   );
-  const [builds, setBuilds] = useState<Build[]>([]);
   const [filterOptions, setFilterOptions] = useState<IFilterOptions>({
     eloRange: ALL_ELO_RANGES,
     patch: null, // Initialize with null
     godId: MajorGods.Zeus, // Initialize with Zeus
   });
   const [civilization, setCivilization] = useState<string>("Zeus");
-  const eloBins = [
-    ALL_ELO_RANGES,
-    "0-750",
-    "751-1000",
-    "1001-1250",
-    "1251-1500",
-    "1501-1750",
-    "1751-2000",
-  ];
+  const [builds, setBuilds] = useState<Build[]>([]);
+
 
   async function fetchBuilds() {
     const url = "/api/builds";
@@ -111,16 +103,15 @@ export default function Matchups() {
       ) : (
         <>
           {/* Filters */}
-          {/* <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 justify-end text-primary py-2 bg-pm"> */}
           <div className="flex flex-col md:flex-row md:space-x-1 sm:justify-end sm:w-full">
+            {/* TODO: refactor civ to use the setFilterOptions instead... */}
             <MajorGodFilter
               civilization={civilization}
               setCivilization={setCivilization}
             />
             <EloFilter
               setFilterOptions={setFilterOptions}
-              eloFilter={filterOptions.eloRange}
-              eloBins={eloBins}
+              eloFilter={filterOptions.eloRange || ALL_ELO_RANGES}
             />
             <DateBuildPatchFilter
               setFilterOptions={setFilterOptions}
