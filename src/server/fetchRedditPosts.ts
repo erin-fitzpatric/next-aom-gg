@@ -7,11 +7,11 @@ let mappedPosts: RedditPost[];
 export default async function fetchRedditPosts(): Promise<RedditPost[]> {
   const token = await getAccessToken();
   const response = await fetch(
-    `https://www.reddit.com/r/ageofmythology/hot.json`,
+    `https://oauth.reddit.com/r/ageofmythology/hot`,
     {
       headers: {
         'User-Agent': 'aom-stats/1.0 by FitzBro',
-        Authorization: `Bearer ${token}`,
+        Authorization: `bearer ${token}`,
       }
     }
   );
