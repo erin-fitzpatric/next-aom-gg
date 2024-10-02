@@ -1,20 +1,22 @@
-'use server';
+"use server";
 
-import { RedditPost } from '@/types/RedditPost';
-import querystring from 'querystring';
+import { RedditPost } from "@/types/RedditPost";
 
 let mappedPosts: RedditPost[];
 export default async function fetchRedditPosts(): Promise<RedditPost[]> {
-  const token = await getAccessToken();
   const response = await fetch(
-    `https://www.reddit.com/r/ageofmythology/hot.json`,
+    "https://www.reddit.com/r/ageofmythology/hot.json",
     {
       headers: {
-        'User-Agent': 'aom-stats/1.0 by FitzBro',
-        Authorization: `Bearer ${token}`,
-      }
+        "User-Agent": "aom-stats/1.0 by FitzBro",
+      },
     }
   );
+
+  if (!response.ok) {
+    throw new Error(`Failed to fetch Reddit posts: ${response.statusText}`);
+  }
+
   const data = await response.json();
   const posts: any[] = data.data.children.map((child: any) => child.data);
   mappedPosts = posts
@@ -33,28 +35,4 @@ export default async function fetchRedditPosts(): Promise<RedditPost[]> {
     }));
 
   return mappedPosts;
-}
-
-async function getAccessToken(): Promise<string> {
-  const { REDDIT_CLIENT_ID, REDDIT_SECRET } = process.env;
-  const auth = Buffer.from(`${REDDIT_CLIENT_ID}:${REDDIT_SECRET}`).toString(
-    'base64'
-  );
-  const response: any = await fetch(
-    'https://www.reddit.com/api/v1/access_token',
-    {
-      method: 'POST',
-      headers: {
-        Authorization: `Basic ${auth}`,
-        'Content-Type': 'application/x-www-form-urlencoded',
-        'User-Agent': 'aom-stats/1.0 by FitzBro',
-      },
-      body: querystring.stringify({
-        grant_type: 'client_credentials',
-      }),
-    }
-  );
-
-  const data = await response.json();
-  return data.access_token;
 }
