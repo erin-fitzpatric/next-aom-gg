@@ -13,7 +13,7 @@ import { MatchHistory } from "./matchHistory";
 import { PaginationComponent } from "./pagination";
 import { PlayerInfo } from "./playerInfo";
 import RatingLineChart from "./ratingGraph";
-import { fetchMatchRatings } from "@/server/services/profile-rating-service";
+import { getMatchRatings } from "@/server/controllers/profile-rating";
 
 interface ChartData {
   date: string;
@@ -45,7 +45,8 @@ function calculatePagesToShow(
 }
 
 export default function Profile() {
-  const [chartData, setChartData] = useState<ChartData[]>([]);
+  const [chartData1v1, setChartData1v1] = useState<ChartData[]>([]);
+  const [chartData2v2, setChartData2v2] = useState<ChartData[]>([]);
   const [state, setState] = useState({
     matchHistoryStats: [] as Match[],
     playerStats: [] as ILeaderboardPlayer[],
@@ -70,12 +71,13 @@ export default function Profile() {
   const fetchChartData = useCallback(
     async (playerId: number) => {
       try {
-        const data: ChartData[] = await fetchMatchRatings({
+        const { chartData1v1, chartData2v2_3v3 } = await getMatchRatings({
           playerId,
           startDate,
           endDate,
         });
-        setChartData(data);
+        setChartData1v1(chartData1v1);
+        setChartData2v2(chartData2v2_3v3);
       } catch (error) {
         console.error("Error fetching chart data:", error);
       }
@@ -233,7 +235,7 @@ export default function Profile() {
           error={state.error}
         />
       </div>
-      <RatingLineChart data={chartData} />
+      <RatingLineChart soloData={chartData1v1} teamData={chartData2v2} />
       <PlayerGodStats playerId={playerId} />
       <MatchHistory
         loading={state.loading}

@@ -1,11 +1,13 @@
-import { fetchMatchRatings } from "../services/profile-rating-service";
+import {
+  fetchMatchRatings,
+  MatchParams,
+} from "../services/profile-rating-service";
 
-export async function getMatchRatings(req: Request) {
-  const { searchParams } = new URL(req.url);
-  const playerId = parseInt(searchParams.get("playerId") || "", 10);
-  const startDate = parseInt(searchParams.get("start_date") || "", 10);
-  const endDate = parseInt(searchParams.get("end_date") || "", 10);
-
+export async function getMatchRatings({
+  playerId,
+  startDate,
+  endDate,
+}: MatchParams): Promise<{ chartData1v1: any; chartData2v2_3v3: any }> {
   try {
     const ratings = await fetchMatchRatings({
       playerId,
@@ -13,17 +15,11 @@ export async function getMatchRatings(req: Request) {
       endDate,
     });
 
-    return Response.json(ratings, {
-      headers: { "Content-Type": "application/json" },
-    });
+    const { chartData1v1, chartData2v2_3v3 } = ratings;
+
+    return { chartData1v1, chartData2v2_3v3 };
   } catch (error: any) {
     console.error("Error fetching matches:", error);
-    return (
-      Response.json({ error: error.message }),
-      {
-        status: 500,
-        headers: { "Content-Type": "application/json" },
-      }
-    );
+    throw new Error(error.message);
   }
 }
