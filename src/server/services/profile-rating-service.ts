@@ -4,19 +4,18 @@ import { MatchModel } from "@/db/mongo/model/MatchModel";
 import getMongoClient from "@/db/mongo/mongo-client";
 
 interface MatchParams {
-  profile_id: number;
-  game_mode: string;
+  playerId: number;
   startDate: number;
   endDate: number;
 }
 
 export async function fetchMatchRatings(params: MatchParams) {
-  const { profile_id, game_mode, startDate, endDate } = params;
+  const { playerId, startDate, endDate } = params;
 
   await getMongoClient();
   const matchCondition: any = {
-    gameMode: game_mode,
-    [`matchHistoryMap.${profile_id}`]: { $exists: true },
+    gameMode: "1V1_SUPREMACY",
+    [`matchHistoryMap.${playerId}`]: { $exists: true },
   };
 
   if (startDate && endDate) {
@@ -32,7 +31,7 @@ export async function fetchMatchRatings(params: MatchParams) {
     {
       $project: {
         matchHistoryEntries: {
-          $ifNull: [`$matchHistoryMap.${profile_id}`, []],
+          $ifNull: [`$matchHistoryMap.${playerId}`, []],
         },
       },
     },
@@ -66,6 +65,6 @@ export async function fetchMatchRatings(params: MatchParams) {
     }));
     return chartData;
   } else {
-    throw new Error(`No match found for profile ID: ${profile_id}`);
+    throw new Error(`No match found for profile ID: ${playerId}`);
   }
 }

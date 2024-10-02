@@ -12,6 +12,13 @@ import { usePagination } from "../leaderboard";
 import { MatchHistory } from "./matchHistory";
 import { PaginationComponent } from "./pagination";
 import { PlayerInfo } from "./playerInfo";
+import RatingLineChart from "./ratingGraph";
+import { fetchMatchRatings } from "@/server/services/profile-rating-service";
+
+interface ChartData {
+  date: string;
+  rating: number;
+}
 
 function LoadingSkeleton() {
   return (
@@ -23,7 +30,7 @@ function LoadingSkeleton() {
 
 function calculatePagesToShow(
   currentPage: number,
-  totalPages: number,
+  totalPages: number
 ): number[] {
   if (totalPages <= 3) {
     return Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -38,6 +45,7 @@ function calculatePagesToShow(
 }
 
 export default function Profile() {
+  const [chartData, setChartData] = useState<ChartData[]>([]);
   const [state, setState] = useState({
     matchHistoryStats: [] as Match[],
     playerStats: [] as ILeaderboardPlayer[],
@@ -56,6 +64,24 @@ export default function Profile() {
 
   const { status } = useSession();
   const { limit, onPaginationChange, skip, pagination } = usePagination();
+  const startDate = 0;
+  const endDate = 0;
+
+  const fetchChartData = useCallback(
+    async (playerId: number) => {
+      try {
+        const data: ChartData[] = await fetchMatchRatings({
+          playerId,
+          startDate,
+          endDate,
+        });
+        setChartData(data);
+      } catch (error) {
+        console.error("Error fetching chart data:", error);
+      }
+    },
+    [startDate, endDate]
+  );
 
   const fetchProfileData = useCallback(
     async (playerId: string) => {
@@ -92,7 +118,7 @@ export default function Profile() {
         setState((prev) => ({ ...prev, loading: false }));
       }
     },
-    [skip, limit],
+    [skip, limit]
   );
 
   const fetchPlayerStats = useCallback(
@@ -138,7 +164,7 @@ export default function Profile() {
         setState((prev) => ({ ...prev, loading: false, dataFetched: true }));
       }
     },
-    [state.leaderboardId],
+    [state.leaderboardId]
   );
 
   const fetchSteamProfile = async (steamId: string) => {
@@ -155,9 +181,16 @@ export default function Profile() {
   };
 
   useEffect(() => {
+    fetchChartData(parseInt(playerId, 10));
     fetchProfileData(playerId);
     fetchPlayerStats(playerId);
-  }, [playerId, pagination.pageIndex, fetchProfileData, fetchPlayerStats]);
+  }, [
+    playerId,
+    pagination.pageIndex,
+    fetchChartData,
+    fetchProfileData,
+    fetchPlayerStats,
+  ]);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
@@ -183,7 +216,7 @@ export default function Profile() {
 
   const showPages = calculatePagesToShow(
     pagination.pageIndex + 1,
-    state.totalPages,
+    state.totalPages
   );
 
   if (status === "loading") return <LoadingSkeleton />;
@@ -200,6 +233,7 @@ export default function Profile() {
           error={state.error}
         />
       </div>
+      <RatingLineChart data={chartData} />
       <PlayerGodStats playerId={playerId} />
       <MatchHistory
         loading={state.loading}
