@@ -4,6 +4,7 @@ import RedditFeed from "@/components/reddit-feed";
 import { Metadata } from "next";
 import TopRecordedGames from "@/components/recs/top-recorded-games";
 import BannerAd from "@/components/ads/bannerAd";
+import { Suspense } from "react";
 
 export const metadata: Metadata = {
   title: "Home - AoM.gg",
@@ -34,7 +35,9 @@ export default function Home() {
         <div className="flex-1">
           <div className="grid grid-cols-1 xl:grid-cols-4 gap-5">
             <div className="xl:col-span-3">
-              <Leaderboard />
+              <Suspense>
+                <Leaderboard />
+              </Suspense>
             </div>
             <div className="xl:col-span-1 space-y-4">
               <FeaturedYoutubeVideos />
