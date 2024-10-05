@@ -1,42 +1,70 @@
 "use client";
 import { useCallback, useEffect, useState, useMemo } from "react";
 import { columns } from "./leaderboardColumns";
-import { DataTable } from "./data-table";
+import { DataTable, PaginationState } from "./data-table";
 import { Card } from "./ui/card";
 import { Input } from "./ui/input";
 import { debounce } from "@/utils/debounce";
 import { Spinner } from "./spinner";
 import { ILeaderboardPlayer } from "@/types/LeaderboardPlayer";
 import { LeaderboardTypeValues } from "@/types/LeaderBoard";
+import { useSearchParams } from "next/navigation";
+import { useQueryParams } from "@/hooks/useQueryParams";
+import { OnChangeFn } from "@tanstack/react-table";
 
 export function usePagination() {
-  const [pagination, setPagination] = useState({
-    pageSize: 50,
-    pageIndex: 0,
-  });
-  const { pageSize, pageIndex } = pagination;
+  const queryParams = useQueryParams({ page: "1" });
+  const searchParams = useSearchParams();
+  const [rows, page] = ["rows", "page"].map((key) => searchParams.get(key));
 
+  const getInitialState = () => {
+    let pageSize = Number(rows) || 50;
+    let pageIndex = Number(page) - 1 || 0;
+    if (pageSize < 0) {
+      pageSize = 50;
+    }
+    if (pageIndex < 0) {
+      pageIndex = 0;
+    }
+    return { pageSize, pageIndex };
+  }
+
+  const [pagination, setPagination] = useState(getInitialState());
+
+  const onPaginationChange: OnChangeFn<{pageSize: number, pageIndex: number}> = (updater: any) =>{
+      setPagination((prev) => {
+        const newState = updater(prev);
+        queryParams.page((newState.pageIndex + 1).toString());
+        return { ...newState };
+      });
+    
+  }
+  const { pageSize, pageIndex } = pagination;
   return {
     limit: pageSize,
-    onPaginationChange: setPagination,
+    setPagination,
+    onPaginationChange,
     pagination,
     skip: pageSize * pageIndex,
   };
 }
 
 export default function Leaderboard() {
+  const searchParams = useSearchParams();
+  const [type, search] = ["type", "search"].map((key) => searchParams.get(key));
+
   const [leaderboardData, setLeaderboardData] = useState<ILeaderboardPlayer[]>(
     []
   );
-  const [leaderboardType, setLeaderboardType] = useState<number>(
+  const [leaderboardType, setLeaderboardType] = useState<number>(Number(type) ||
     LeaderboardTypeValues["1v1Supremacy"]
   );
   const [totalRecords, setTotalRecords] = useState(0);
   const [loading, setLoading] = useState(true);
-  const [searchQuery, setSearchQuery] = useState("");
+  const [searchQuery, setSearchQuery] = useState(search || "");
   const [initialLoad, setInitialLoad] = useState(true);
-
-  const { limit, onPaginationChange, skip, pagination } = usePagination();
+  const queryParams = useQueryParams({ type: "", page: "1", search: ""});
+  const { limit, onPaginationChange, setPagination, skip, pagination } = usePagination();
 
   const getLeaderboardData = useCallback(
     async (searchQuery: string) => {
@@ -96,8 +124,9 @@ export default function Leaderboard() {
   ]);
 
   function handleSearchQueryChange(event: React.ChangeEvent<HTMLInputElement>) {
-    onPaginationChange({ pageIndex: 0, pageSize: pagination.pageSize });
+    setPagination({ pageIndex: 0, pageSize: pagination.pageSize });
     setSearchQuery(event.target.value);
+    queryParams.search(event.target.value);
   }
 
   const handleLeaderboardTypeChange = (
@@ -105,6 +134,7 @@ export default function Leaderboard() {
   ) => {
     const selectedType = parseInt(event.target.value);
     setLeaderboardType(selectedType);
+    queryParams.type(selectedType.toString());
   };
 
   return (

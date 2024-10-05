@@ -17,7 +17,7 @@ export default function DateBuildPatchFilter({
   function getValue(build: Build) {
     return build.buildNumber.toString();
   }
-  console.log("filterOptions", filterOptions);
+
   return (
     <SelectFilter
       data={builds}
