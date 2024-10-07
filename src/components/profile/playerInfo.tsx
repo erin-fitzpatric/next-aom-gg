@@ -66,8 +66,8 @@ export function PlayerInfo({
     <Tabs defaultValue={defaultTab} className="w-full">
       <Card className="pt-5 sm:pt-0 border-0 w-full bg-gradient-to-br from-gray-900 to-gray-800 text-white shadow-xl min-w-96">
         <CardContent className="sm:p-4">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
-            <div className="flex-shrink-0 flex flex-col items-center self-center">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="flex-shrink-0 flex flex-col items-center self-center mb-4 sm:mb-0">
               <ProfileAvatar steamProfile={steamProfile} loading={loading} />
               {loading ? (
                 <Skeleton className="w-48 h-8 rounded-md mt-4" />
@@ -99,7 +99,7 @@ export function PlayerInfo({
                 </div>
               )}
             </div>
-            <div className="w-full sm:w-1/2 lg:w-2/5">
+            <div className="w-full sm:w-1/2 lg:w-2/5 mt-4 sm:mt-0">
               <RatingLineChart
                 soloData={chartData1v1}
                 teamData={chartData2v2}
