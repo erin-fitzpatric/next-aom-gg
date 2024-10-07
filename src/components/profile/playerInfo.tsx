@@ -10,16 +10,7 @@ import { Card, CardContent, CardFooter } from "../ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { getMatchRatings } from "@/server/controllers/profile-rating";
 import RatingLineChart from "./ratingGraph";
-
-interface ChartData {
-  date: string;
-  averageRating: number;
-}
-
-interface CombinedChartData {
-  solo: ChartData[];
-  team: ChartData[];
-}
+import { ChartData, CombinedChartData } from "@/types/ChartData";
 
 export function PlayerInfo({
   playerId,
@@ -38,7 +29,10 @@ export function PlayerInfo({
   steamProfile?: SteamProfile | undefined;
   error: boolean;
 }) {
-  const [chartData, setChartData] = useState<CombinedChartData>({
+  const [chartData, setChartData] = useState<{
+    solo: ChartData[];
+    team: ChartData[];
+  }>({
     solo: [],
     team: [],
   });
@@ -51,15 +45,12 @@ export function PlayerInfo({
   const fetchChartData = useCallback(
     async (playerId: number) => {
       try {
-        const { chartData1v1, chartData2v2_3v3 } = await getMatchRatings({
+        const { chartData } = await getMatchRatings({
           playerId,
           startDate,
           endDate,
         });
-        setChartData({
-          solo: chartData1v1,
-          team: chartData2v2_3v3,
-        });
+        setChartData(chartData);
       } catch (error) {
         console.error("Error fetching chart data:", error);
       }

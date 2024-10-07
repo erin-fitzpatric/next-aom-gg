@@ -2,6 +2,7 @@
 
 import { MatchModel } from "@/db/mongo/model/MatchModel";
 import getMongoClient from "@/db/mongo/mongo-client";
+import { CombinedChartData } from "@/types/ChartData";
 import { PipelineStage } from "mongoose";
 
 export interface MatchParams {
@@ -10,7 +11,9 @@ export interface MatchParams {
   endDate: number;
 }
 
-export async function fetchMatchRatings(params: MatchParams) {
+export async function fetchMatchRatings(
+  params: MatchParams
+): Promise<CombinedChartData> {
   const { playerId, startDate, endDate } = params;
 
   await getMongoClient();
@@ -120,7 +123,9 @@ export async function fetchMatchRatings(params: MatchParams) {
 
   // Return combined chart data
   return {
-    chartData1v1,
-    chartData2v2_3v3,
+    chartData: {
+      solo: chartData1v1,
+      team: chartData2v2_3v3,
+    },
   };
 }
