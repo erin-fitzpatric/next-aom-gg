@@ -5,6 +5,7 @@ import {
   ResponsiveContainer,
   XAxis,
   Tooltip,
+  Legend,
 } from "recharts";
 
 import {
@@ -17,6 +18,7 @@ import {
 import {
   ChartConfig,
   ChartContainer,
+  ChartLegendContent,
   ChartTooltipContent,
 } from "@/components/ui/chart";
 
@@ -47,8 +49,8 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({
     lastTeamRating = currentTeamRating;
     return {
       date: item.date,
-      soloRating: item.averageRating,
-      teamRating: currentTeamRating,
+      "1V1": item.averageRating,
+      TEAM: currentTeamRating,
     };
   });
   return (
@@ -62,7 +64,7 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({
           <ChartContainer config={chartConfig}>
             <LineChart
               data={combinedData}
-              margin={{ top: 5, left: 15, right: 15 }}
+              margin={{ top: 10, left: 15, right: 15 }}
             >
               <CartesianGrid vertical={false} />
               <XAxis
@@ -75,15 +77,17 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({
                 interval={0}
               />
               <Tooltip content={<ChartTooltipContent />} />
+              <Legend content={<ChartLegendContent />} />
+
               <Line
-                dataKey="soloRating"
+                dataKey="1V1"
                 type="monotone"
                 stroke="var(--color-solo)"
                 strokeWidth={2}
                 dot={false}
               />
               <Line
-                dataKey="teamRating"
+                dataKey="TEAM"
                 type="monotone"
                 stroke="var(--color-team)"
                 strokeWidth={2}
