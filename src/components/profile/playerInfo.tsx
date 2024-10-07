@@ -16,6 +16,11 @@ interface ChartData {
   averageRating: number;
 }
 
+interface CombinedChartData {
+  solo: ChartData[];
+  team: ChartData[];
+}
+
 export function PlayerInfo({
   playerId,
   playerName,
@@ -33,8 +38,10 @@ export function PlayerInfo({
   steamProfile?: SteamProfile | undefined;
   error: boolean;
 }) {
-  const [chartData1v1, setChartData1v1] = useState<ChartData[]>([]);
-  const [chartData2v2, setChartData2v2] = useState<ChartData[]>([]);
+  const [chartData, setChartData] = useState<CombinedChartData>({
+    solo: [],
+    team: [],
+  });
   const gameTypes = playerStats.map((stat) => stat.leaderboard_id);
   const defaultTab = gameTypes[0]?.toString() || "1";
 
@@ -49,8 +56,10 @@ export function PlayerInfo({
           startDate,
           endDate,
         });
-        setChartData1v1(chartData1v1);
-        setChartData2v2(chartData2v2_3v3);
+        setChartData({
+          solo: chartData1v1,
+          team: chartData2v2_3v3,
+        });
       } catch (error) {
         console.error("Error fetching chart data:", error);
       }
@@ -101,8 +110,8 @@ export function PlayerInfo({
             </div>
             <div className="w-full sm:w-1/2 lg:w-2/5 mt-4 sm:mt-0">
               <RatingLineChart
-                soloData={chartData1v1}
-                teamData={chartData2v2}
+                soloData={chartData.solo}
+                teamData={chartData.team}
               />
             </div>
           </div>

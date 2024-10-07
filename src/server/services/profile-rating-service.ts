@@ -48,19 +48,19 @@ export async function fetchMatchRatings(params: MatchParams) {
         $project: {
           matchDate: 1,
           matchHistoryEntries: {
-            $ifNull: [`$matchHistoryMap.${playerId}`, []], // Non-null array
+            $ifNull: [`$matchHistoryMap.${playerId}`, []],
           },
         },
       },
       {
         $unwind: {
-          path: "$matchHistoryEntries", // Unwind match history array
+          path: "$matchHistoryEntries",
           preserveNullAndEmptyArrays: true,
         },
       },
       {
         $sort: {
-          matchDate: 1, // Sort by matchDate
+          matchDate: 1,
         },
       },
       {
@@ -88,7 +88,7 @@ export async function fetchMatchRatings(params: MatchParams) {
     if (result.length > 0) {
       const allNewRatings = result[0].allNewRatings;
       const allDates = result[0].allDates;
-      const step = Math.ceil(allNewRatings.length / 5); // Chunk size for 5 data points
+      const step = Math.ceil(allNewRatings.length / 5);
 
       const dataPoints = [];
       for (let i = 0; i < allNewRatings.length; i += step) {
