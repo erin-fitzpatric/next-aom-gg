@@ -23,46 +23,56 @@ import {
 const chartConfig = {
   solo: {
     label: "1V1_SUPREMACY",
-    color: "hsl(var(--chart-1))",
+    color: "#E23670",
   },
   team: {
     label: "TEAM_SUPREMACY",
-    color: "hsl(var(--chart-2))",
+    color: "#2761D9",
   },
 } satisfies ChartConfig;
 
 interface RatingLineChartProps {
-  soloData: { date: string; rating: number }[];
-  teamData: { date: string; rating: number }[];
+  soloData: { date: string; averageRating: number }[];
+  teamData: { date: string; averageRating: number }[];
 }
 
 const RatingLineChart: React.FC<RatingLineChartProps> = ({
   soloData,
   teamData,
 }) => {
-  const combinedData = soloData.map((item, index) => ({
-    date: item.date,
-    soloRating: item.rating,
-    teamRating: teamData[index]?.rating || 0,
-  }));
+  let lastTeamRating = teamData.length > 0 ? teamData[0].averageRating : 0;
 
+  const combinedData = soloData.map((item, index) => {
+    const currentTeamRating = teamData[index]?.averageRating ?? lastTeamRating;
+    lastTeamRating = currentTeamRating;
+    return {
+      date: item.date,
+      soloRating: item.averageRating,
+      teamRating: currentTeamRating,
+    };
+  });
   return (
-    <ResponsiveContainer width="50%" height={200}>
-      <Card>
+    <ResponsiveContainer width="100%">
+      <Card className="shadow-lg rounded-lg border border-gray-700">
         <CardHeader>
           <CardTitle>Player Ratings</CardTitle>
           <CardDescription>Rating trends over time</CardDescription>
         </CardHeader>
         <CardContent>
           <ChartContainer config={chartConfig}>
-            <LineChart data={combinedData} margin={{ left: 12, right: 12 }}>
+            <LineChart
+              data={combinedData}
+              margin={{ top: 5, left: 15, right: 15 }}
+            >
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey="date"
                 tickLine={false}
                 axisLine={false}
                 tickMargin={8}
-                tickFormatter={(value) => value.slice(0, 3)}
+                tickFormatter={(value) => value}
+                type="category"
+                interval={0}
               />
               <Tooltip content={<ChartTooltipContent />} />
               <Line
@@ -77,7 +87,7 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({
                 type="monotone"
                 stroke="var(--color-team)"
                 strokeWidth={2}
-                dot={false}
+                dot={{ r: 4 }}
               />
             </LineChart>
           </ChartContainer>

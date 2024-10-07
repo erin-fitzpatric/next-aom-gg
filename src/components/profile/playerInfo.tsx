@@ -1,7 +1,5 @@
-import React from "react";
-
-import { LeaderboardType, LeaderboardTypeNames } from "@/types/LeaderBoard";
-
+import React, { useCallback, useEffect, useState } from "react";
+import { LeaderboardTypeNames } from "@/types/LeaderBoard";
 import { ILeaderboardPlayer } from "@/types/LeaderboardPlayer";
 import { Frown } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
@@ -10,8 +8,16 @@ import { ProfileAvatar } from "./profileAvatar";
 import { SteamProfile } from "@/types/Steam";
 import { Card, CardContent, CardFooter } from "../ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { getMatchRatings } from "@/server/controllers/profile-rating";
+import RatingLineChart from "./ratingGraph";
+
+interface ChartData {
+  date: string;
+  averageRating: number;
+}
 
 export function PlayerInfo({
+  playerId,
   playerName,
   loading,
   dataFetched,
@@ -19,6 +25,7 @@ export function PlayerInfo({
   steamProfile,
   error,
 }: {
+  playerId: string;
   playerName: string;
   loading: boolean;
   dataFetched: boolean;
@@ -26,12 +33,38 @@ export function PlayerInfo({
   steamProfile?: SteamProfile | undefined;
   error: boolean;
 }) {
+  const [chartData1v1, setChartData1v1] = useState<ChartData[]>([]);
+  const [chartData2v2, setChartData2v2] = useState<ChartData[]>([]);
   const gameTypes = playerStats.map((stat) => stat.leaderboard_id);
   const defaultTab = gameTypes[0]?.toString() || "1";
 
+  const startDate = 0;
+  const endDate = 0;
+
+  const fetchChartData = useCallback(
+    async (playerId: number) => {
+      try {
+        const { chartData1v1, chartData2v2_3v3 } = await getMatchRatings({
+          playerId,
+          startDate,
+          endDate,
+        });
+        setChartData1v1(chartData1v1);
+        setChartData2v2(chartData2v2_3v3);
+      } catch (error) {
+        console.error("Error fetching chart data:", error);
+      }
+    },
+    [startDate, endDate]
+  );
+
+  useEffect(() => {
+    fetchChartData(parseInt(playerId, 10));
+  }, [playerId, fetchChartData]);
+
   return (
     <Tabs defaultValue={defaultTab} className="w-full">
-      <Card className="pt-5 sm:pt-0 border-0 w-full bg-gradient-to-br from-gray-900 to-gray-800 text-white shadow-xl min-w-96 ">
+      <Card className="pt-5 sm:pt-0 border-0 w-full bg-gradient-to-br from-gray-900 to-gray-800 text-white shadow-xl min-w-96">
         <CardContent className="sm:p-4">
           <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
             <div className="flex-shrink-0 flex flex-col items-center self-center">
@@ -65,6 +98,12 @@ export function PlayerInfo({
                   ))}
                 </div>
               )}
+            </div>
+            <div className="w-full sm:w-1/2 lg:w-2/5">
+              <RatingLineChart
+                soloData={chartData1v1}
+                teamData={chartData2v2}
+              />
             </div>
           </div>
         </CardContent>

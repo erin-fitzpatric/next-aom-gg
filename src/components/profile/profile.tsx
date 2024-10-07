@@ -12,13 +12,6 @@ import { usePagination } from "../leaderboard";
 import { MatchHistory } from "./matchHistory";
 import { PaginationComponent } from "./pagination";
 import { PlayerInfo } from "./playerInfo";
-import RatingLineChart from "./ratingGraph";
-import { getMatchRatings } from "@/server/controllers/profile-rating";
-
-interface ChartData {
-  date: string;
-  rating: number;
-}
 
 function LoadingSkeleton() {
   return (
@@ -45,8 +38,6 @@ function calculatePagesToShow(
 }
 
 export default function Profile() {
-  const [chartData1v1, setChartData1v1] = useState<ChartData[]>([]);
-  const [chartData2v2, setChartData2v2] = useState<ChartData[]>([]);
   const [state, setState] = useState({
     matchHistoryStats: [] as Match[],
     playerStats: [] as ILeaderboardPlayer[],
@@ -65,25 +56,6 @@ export default function Profile() {
 
   const { status } = useSession();
   const { limit, onPaginationChange, skip, pagination } = usePagination();
-  const startDate = 0;
-  const endDate = 0;
-
-  const fetchChartData = useCallback(
-    async (playerId: number) => {
-      try {
-        const { chartData1v1, chartData2v2_3v3 } = await getMatchRatings({
-          playerId,
-          startDate,
-          endDate,
-        });
-        setChartData1v1(chartData1v1);
-        setChartData2v2(chartData2v2_3v3);
-      } catch (error) {
-        console.error("Error fetching chart data:", error);
-      }
-    },
-    [startDate, endDate]
-  );
 
   const fetchProfileData = useCallback(
     async (playerId: string) => {
@@ -183,16 +155,9 @@ export default function Profile() {
   };
 
   useEffect(() => {
-    fetchChartData(parseInt(playerId, 10));
     fetchProfileData(playerId);
     fetchPlayerStats(playerId);
-  }, [
-    playerId,
-    pagination.pageIndex,
-    fetchChartData,
-    fetchProfileData,
-    fetchPlayerStats,
-  ]);
+  }, [playerId, pagination.pageIndex, fetchProfileData, fetchPlayerStats]);
 
   useEffect(() => {
     const queryParams = new URLSearchParams(window.location.search);
@@ -227,6 +192,7 @@ export default function Profile() {
     <div className="max-w-[1600px] mx-auto">
       <div className="flex items-center">
         <PlayerInfo
+          playerId={playerId}
           playerName={state.playerName}
           loading={state.loading}
           dataFetched={state.dataFetched}
@@ -235,7 +201,6 @@ export default function Profile() {
           error={state.error}
         />
       </div>
-      <RatingLineChart soloData={chartData1v1} teamData={chartData2v2} />
       <PlayerGodStats playerId={playerId} />
       <MatchHistory
         loading={state.loading}
