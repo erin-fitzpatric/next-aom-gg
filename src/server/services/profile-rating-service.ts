@@ -3,6 +3,7 @@
 import { MatchModel } from "@/db/mongo/model/MatchModel";
 import getMongoClient from "@/db/mongo/mongo-client";
 import { CombinedChartData } from "@/types/ChartData";
+import { processRatings } from "@/utils/processRating";
 import { PipelineStage } from "mongoose";
 
 export interface MatchParams {
@@ -85,37 +86,6 @@ export async function fetchMatchRatings(
   const result2v2_3v3 = await MatchModel.aggregate(
     matchAggregation(matchCondition2v2_3v3)
   );
-
-  // Function to process ratings and return 5 average points
-  const processRatings = (result: any) => {
-    if (result.length > 0) {
-      const allNewRatings = result[0].allNewRatings;
-      const allDates = result[0].allDates;
-      const step = Math.ceil(allNewRatings.length / 5);
-
-      const dataPoints = [];
-      for (let i = 0; i < allNewRatings.length; i += step) {
-        const chunk = allNewRatings.slice(i, i + step);
-        const chunkAvgRating =
-          chunk.reduce((acc: number, rating: number) => acc + rating, 0) /
-          chunk.length;
-        const chunkDate = allDates[i];
-
-        // Format the date as dd/mm
-        const formattedDate = new Date(chunkDate).toLocaleDateString("en-GB", {
-          day: "2-digit",
-          month: "2-digit",
-        });
-
-        dataPoints.push({
-          date: formattedDate,
-          averageRating: Math.round(chunkAvgRating),
-        });
-      }
-      return dataPoints;
-    }
-    return [];
-  };
 
   // Process the results for 1v1 and 2v2/3v3
   const chartData1v1 = processRatings(result1v1);
