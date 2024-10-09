@@ -14,9 +14,9 @@ export const processRatings = (result: any) => {
         chunk.length;
       const chunkDate = allDates[i];
 
-      const formattedDate = new Date(chunkDate).toLocaleDateString("en-GB", {
-        day: "2-digit",
-        month: "2-digit",
+      const formattedDate = new Date(chunkDate).toLocaleDateString("en-US", {
+        month: "short",
+        day: "numeric",
       });
 
       dataPoints.push({

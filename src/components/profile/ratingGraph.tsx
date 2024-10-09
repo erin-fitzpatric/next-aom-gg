@@ -4,6 +4,7 @@ import {
   LineChart,
   ResponsiveContainer,
   XAxis,
+  YAxis,
   Tooltip,
   Legend,
 } from "recharts";
@@ -42,6 +43,7 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({
   soloData,
   teamData,
 }) => {
+  console.log(soloData, teamData);
   let lastTeamRating = teamData.length > 0 ? teamData[0].averageRating : 0;
 
   const combinedData = soloData.map((item, index) => {
@@ -53,6 +55,19 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({
       TEAM: currentTeamRating,
     };
   });
+
+  const isSoloAllZero = soloData.every((item) => item.averageRating === 0);
+  const isTeamAllZero = teamData.every((item) => item.averageRating === 0);
+
+  const formatDate = (dateString: string) => {
+    const date = new Date(dateString);
+    const options: Intl.DateTimeFormatOptions = {
+      month: "short",
+      day: "numeric",
+    };
+    return date.toLocaleDateString("en-US", options);
+  };
+
   return (
     <ResponsiveContainer width="100%">
       <Card className="shadow-lg rounded-lg border border-gray-700">
@@ -62,37 +77,45 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({
         </CardHeader>
         <CardContent>
           <ChartContainer config={chartConfig}>
-            <LineChart
-              data={combinedData}
-              margin={{ top: 10, left: 15, right: 15 }}
-            >
+            <LineChart data={combinedData} margin={{ top: 10, right: 20 }}>
               <CartesianGrid vertical={false} />
               <XAxis
                 dataKey="date"
                 tickLine={false}
                 axisLine={false}
-                tickMargin={8}
-                tickFormatter={(value) => value}
+                tickMargin={10}
+                tickFormatter={formatDate}
                 type="category"
                 interval={0}
+              />
+              <YAxis
+                domain={[0, 2000]}
+                tickLine={false}
+                axisLine={false}
+                tickMargin={25}
+                tickCount={10}
               />
               <Tooltip content={<ChartTooltipContent />} />
               <Legend content={<ChartLegendContent />} />
 
-              <Line
-                dataKey="1V1"
-                type="monotone"
-                stroke="var(--color-solo)"
-                strokeWidth={2}
-                dot={false}
-              />
-              <Line
-                dataKey="TEAM"
-                type="monotone"
-                stroke="var(--color-team)"
-                strokeWidth={2}
-                dot={{ r: 4 }}
-              />
+              {!isSoloAllZero && (
+                <Line
+                  dataKey="1V1"
+                  type="monotone"
+                  stroke="var(--color-solo)"
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                />
+              )}
+              {!isTeamAllZero && (
+                <Line
+                  dataKey="TEAM"
+                  type="monotone"
+                  stroke="var(--color-team)"
+                  strokeWidth={2}
+                  dot={{ r: 4 }}
+                />
+              )}
             </LineChart>
           </ChartContainer>
         </CardContent>
