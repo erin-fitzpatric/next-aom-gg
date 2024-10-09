@@ -178,7 +178,7 @@ const ChartTooltipContent = React.forwardRef<
       <div
         ref={ref}
         className={cn(
-          "grid min-w-[8rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-2.5 py-1.5 text-xs shadow-xl",
+          "grid min-w-[12rem] items-start gap-1.5 rounded-lg border border-border/50 bg-background px-3 py-2 text-xs shadow-xl",
           className
         )}
       >
@@ -287,7 +287,8 @@ const ChartLegendContent = React.forwardRef<
         {payload.map((item) => {
           const key = `${nameKey || item.dataKey || "value"}`;
           const itemConfig = getPayloadConfigFromPayload(config, item, key);
-          const customLabel = item.dataKey === "1V1" ? "1V1" : "TEAM";
+          const customLabel =
+            item.dataKey === "1V1_SUP" ? "1V1_SUP" : "TEAM_SUP";
 
           return (
             <div

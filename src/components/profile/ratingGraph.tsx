@@ -9,13 +9,7 @@ import {
   Legend,
 } from "recharts";
 
-import {
-  Card,
-  CardContent,
-  CardHeader,
-  CardTitle,
-  CardDescription,
-} from "@/components/ui/card";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import {
   ChartConfig,
   ChartContainer,
@@ -51,8 +45,8 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({
     lastTeamRating = currentTeamRating;
     return {
       date: item.date,
-      "1V1": item.averageRating,
-      TEAM: currentTeamRating,
+      "1V1_SUP": item.averageRating,
+      TEAM_SUP: currentTeamRating,
     };
   });
 
@@ -72,8 +66,24 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({
     <ResponsiveContainer width="100%">
       <Card className="shadow-lg rounded-lg border border-gray-700">
         <CardHeader>
-          <CardTitle>Player Ratings</CardTitle>
-          <CardDescription>Rating trends over time</CardDescription>
+          <div className="flex">
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              width="24"
+              height="24"
+              viewBox="0 0 24 24"
+              fill="none"
+              stroke="currentColor"
+              stroke-width="2"
+              stroke-linecap="round"
+              stroke-linejoin="round"
+              className="lucide lucide-chart-line"
+            >
+              <path d="M3 3v16a2 2 0 0 0 2 2h16" />
+              <path d="m19 9-5 5-4-4-3 3" />
+            </svg>
+            <CardTitle className="ml-2">Ratings History</CardTitle>
+          </div>
         </CardHeader>
         <CardContent>
           <ChartContainer config={chartConfig}>
@@ -100,7 +110,7 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({
 
               {!isSoloAllZero && (
                 <Line
-                  dataKey="1V1"
+                  dataKey="1V1_SUP"
                   type="monotone"
                   stroke="var(--color-solo)"
                   strokeWidth={2}
@@ -109,7 +119,7 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({
               )}
               {!isTeamAllZero && (
                 <Line
-                  dataKey="TEAM"
+                  dataKey="TEAM_SUP"
                   type="monotone"
                   stroke="var(--color-team)"
                   strokeWidth={2}
