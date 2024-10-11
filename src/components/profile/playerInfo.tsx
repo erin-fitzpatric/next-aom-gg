@@ -1,7 +1,5 @@
-import React from "react";
-
-import { LeaderboardType, LeaderboardTypeNames } from "@/types/LeaderBoard";
-
+import React, { useCallback, useEffect, useState } from "react";
+import { LeaderboardTypeNames } from "@/types/LeaderBoard";
 import { ILeaderboardPlayer } from "@/types/LeaderboardPlayer";
 import { Frown } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
@@ -10,8 +8,12 @@ import { ProfileAvatar } from "./profileAvatar";
 import { SteamProfile } from "@/types/Steam";
 import { Card, CardContent, CardFooter } from "../ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
+import { getMatchRatings } from "@/server/controllers/profile-rating";
+import RatingLineChart from "./ratingGraph";
+import { ChartData, CombinedChartData } from "@/types/ChartData";
 
 export function PlayerInfo({
+  playerId,
   playerName,
   loading,
   dataFetched,
@@ -19,6 +21,7 @@ export function PlayerInfo({
   steamProfile,
   error,
 }: {
+  playerId: string;
   playerName: string;
   loading: boolean;
   dataFetched: boolean;
@@ -26,15 +29,45 @@ export function PlayerInfo({
   steamProfile?: SteamProfile | undefined;
   error: boolean;
 }) {
+  const [chartData, setChartData] = useState<{
+    solo: ChartData[];
+    team: ChartData[];
+  }>({
+    solo: [],
+    team: [],
+  });
   const gameTypes = playerStats.map((stat) => stat.leaderboard_id);
   const defaultTab = gameTypes[0]?.toString() || "1";
 
+  const startDate = 0;
+  const endDate = 0;
+
+  const fetchChartData = useCallback(
+    async (playerId: number) => {
+      try {
+        const { chartData } = await getMatchRatings({
+          playerId,
+          startDate,
+          endDate,
+        });
+        setChartData(chartData);
+      } catch (error) {
+        console.error("Error fetching chart data:", error);
+      }
+    },
+    [startDate, endDate]
+  );
+
+  useEffect(() => {
+    fetchChartData(parseInt(playerId, 10));
+  }, [playerId, fetchChartData]);
+
   return (
     <Tabs defaultValue={defaultTab} className="w-full">
-      <Card className="pt-5 sm:pt-0 border-0 w-full bg-gradient-to-br from-gray-900 to-gray-800 text-white shadow-xl min-w-96 ">
+      <Card className="pt-5 sm:pt-0 border-0 w-full bg-gradient-to-br from-gray-900 to-gray-800 text-white shadow-xl min-w-96">
         <CardContent className="sm:p-4">
-          <div className="flex flex-col sm:flex-row items-center sm:items-start gap-4">
-            <div className="flex-shrink-0 flex flex-col items-center self-center">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4">
+            <div className="flex-shrink-0 flex flex-col items-center self-center mb-4 sm:mb-0">
               <ProfileAvatar steamProfile={steamProfile} loading={loading} />
               {loading ? (
                 <Skeleton className="w-48 h-8 rounded-md mt-4" />
@@ -65,6 +98,12 @@ export function PlayerInfo({
                   ))}
                 </div>
               )}
+            </div>
+            <div className="w-full sm:w-1/2 lg:w-2/5 mt-4 sm:mt-0">
+              <RatingLineChart
+                soloData={chartData.solo}
+                teamData={chartData.team}
+              />
             </div>
           </div>
         </CardContent>

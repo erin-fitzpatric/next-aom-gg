@@ -23,7 +23,7 @@ function LoadingSkeleton() {
 
 function calculatePagesToShow(
   currentPage: number,
-  totalPages: number,
+  totalPages: number
 ): number[] {
   if (totalPages <= 3) {
     return Array.from({ length: totalPages }, (_, i) => i + 1);
@@ -92,7 +92,7 @@ export default function Profile() {
         setState((prev) => ({ ...prev, loading: false }));
       }
     },
-    [skip, limit],
+    [skip, limit]
   );
 
   const fetchPlayerStats = useCallback(
@@ -138,7 +138,7 @@ export default function Profile() {
         setState((prev) => ({ ...prev, loading: false, dataFetched: true }));
       }
     },
-    [state.leaderboardId],
+    [state.leaderboardId]
   );
 
   const fetchSteamProfile = async (steamId: string) => {
@@ -183,7 +183,7 @@ export default function Profile() {
 
   const showPages = calculatePagesToShow(
     pagination.pageIndex + 1,
-    state.totalPages,
+    state.totalPages
   );
 
   if (status === "loading") return <LoadingSkeleton />;
@@ -192,6 +192,7 @@ export default function Profile() {
     <div className="max-w-[1600px] mx-auto">
       <div className="flex items-center">
         <PlayerInfo
+          playerId={playerId}
           playerName={state.playerName}
           loading={state.loading}
           dataFetched={state.dataFetched}
