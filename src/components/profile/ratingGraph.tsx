@@ -66,23 +66,36 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({
     <ResponsiveContainer width="100%">
       <Card className="shadow-lg rounded-lg border border-gray-700">
         <CardHeader>
-          <div className="flex">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              className="lucide lucide-chart-line"
-            >
-              <path d="M3 3v16a2 2 0 0 0 2 2h16" />
-              <path d="m19 9-5 5-4-4-3 3" />
-            </svg>
-            <CardTitle className="ml-2">Ratings History</CardTitle>
+          <div className="flex justify-between">
+            <div className="flex">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                className="lucide lucide-chart-line"
+              >
+                <path d="M3 3v16a2 2 0 0 0 2 2h16" />
+                <path d="m19 9-5 5-4-4-3 3" />
+              </svg>
+              <CardTitle className="ml-2">Ratings History</CardTitle>
+            </div>
+            <div className="flex gap-2">
+              <div className="py-1 px-2 border-white border rounded-sm cursor-pointer">
+                <div>D</div>
+              </div>
+              <div className="py-1 px-2 border-white border rounded-sm cursor-pointer">
+                <div>W</div>
+              </div>
+              <div className="py-1 px-2 border-white border rounded-sm cursor-pointer">
+                <div>M</div>
+              </div>
+            </div>
           </div>
         </CardHeader>
         <CardContent>
