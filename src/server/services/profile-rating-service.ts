@@ -53,8 +53,19 @@ export async function fetchMatchRatings(
         : filter === "week"
           ? {
               $dateToString: {
-                format: "%Y-%m-%d",
-                date: { $toDate: { $multiply: ["$matchDate", 1] } },
+                format: "%b %d",
+                date: {
+                  $dateFromParts: {
+                    isoWeekYear: {
+                      $isoWeekYear: {
+                        $toDate: { $multiply: ["$matchDate", 1] },
+                      },
+                    },
+                    isoWeek: {
+                      $isoWeek: { $toDate: { $multiply: ["$matchDate", 1] } },
+                    },
+                  },
+                },
               },
             }
           : {
@@ -112,8 +123,6 @@ export async function fetchMatchRatings(
   const result2v2_3v3 = await MatchModel.aggregate(
     matchAggregation(matchCondition2v2_3v3)
   );
-  console.log(result1v1);
-  console.log(result2v2_3v3);
   // Process the results for 1v1 and 2v2/3v3
   const chartData1v1 = processRatings(result1v1);
   const chartData2v2_3v3 = processRatings(result2v2_3v3);
