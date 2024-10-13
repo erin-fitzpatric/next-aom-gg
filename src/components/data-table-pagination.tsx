@@ -7,6 +7,9 @@ import {
 import { Table } from "@tanstack/react-table";
 
 import { Button } from "@/components/ui/button";
+import { useQueryParams } from "@/hooks/useQueryParams";
+import { useSearchParams } from "next/navigation";
+import { useEffect } from "react";
 
 interface DataTablePaginationProps<TData> {
   table: Table<TData>;
@@ -15,6 +18,20 @@ interface DataTablePaginationProps<TData> {
 export function DataTablePagination<TData>({
   table,
 }: DataTablePaginationProps<TData>) {
+  const rowOptions = [50, 100, 200]
+
+  const searchParams = useSearchParams();
+  const rows = searchParams.get("rows");
+  const queryParams = useQueryParams({ rows: "50" });
+
+  useEffect(() => {
+    if (rowOptions.includes(Number(rows))) {
+      table.setPageSize(Number(rows))
+      return
+    }
+    table.setPageSize(rowOptions[0])
+  }, []);
+
   return (
     <div className="flex px-2">
       {/* Left-aligned content */}
@@ -26,9 +43,10 @@ export function DataTablePagination<TData>({
             value={table.getState().pagination.pageSize}
             onChange={(e) => {
               table.setPageSize(Number(e.target.value));
+              queryParams.rows(e.target.value);
             }}
           >
-            {[50, 100, 200].map((pageSize) => (
+            {rowOptions.map((pageSize) => (
               <option
                 className="font-normal text-base"
                 key={pageSize}
