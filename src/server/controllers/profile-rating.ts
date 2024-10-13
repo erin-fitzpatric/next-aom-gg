@@ -6,14 +6,12 @@ import {
 
 export async function getMatchRatings({
   playerId,
-  startDate,
-  endDate,
+  filter,
 }: MatchParams): Promise<CombinedChartData> {
   try {
     const ratings = await fetchMatchRatings({
       playerId,
-      startDate,
-      endDate,
+      filter,
     });
 
     return ratings;

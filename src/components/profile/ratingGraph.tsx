@@ -16,7 +16,9 @@ import {
   ChartLegendContent,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-
+import { ChartData } from "@/types/ChartData";
+import { useCallback, useEffect, useState } from "react";
+import { getMatchRatings } from "@/server/controllers/profile-rating";
 const chartConfig = {
   solo: {
     label: "1V1_SUPREMACY",
@@ -29,15 +31,38 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 interface RatingLineChartProps {
-  soloData: { date: string; averageRating: number }[];
-  teamData: { date: string; averageRating: number }[];
+  playerId: string;
 }
 
-const RatingLineChart: React.FC<RatingLineChartProps> = ({
-  soloData,
-  teamData,
-}) => {
-  console.log(soloData, teamData);
+const RatingLineChart: React.FC<RatingLineChartProps> = ({ playerId }) => {
+  const [chartData, setChartData] = useState<{
+    solo: ChartData[];
+    team: ChartData[];
+  }>({
+    solo: [],
+    team: [],
+  });
+  const soloData = chartData.solo;
+  const teamData = chartData.team;
+  const [filter, setFilter] = useState("day");
+  const fetchChartData = useCallback(
+    async (playerId: number, filter: string) => {
+      try {
+        const { chartData } = await getMatchRatings({
+          playerId,
+          filter,
+        });
+        setChartData(chartData);
+      } catch (error) {
+        console.error("Error fetching chart data:", error);
+      }
+    },
+    []
+  );
+  useEffect(() => {
+    fetchChartData(parseInt(playerId, 10), filter);
+  }, [playerId, filter, fetchChartData]);
+
   let lastTeamRating = teamData.length > 0 ? teamData[0].averageRating : 0;
 
   const combinedData = soloData.map((item, index) => {
@@ -66,23 +91,38 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({
     <ResponsiveContainer width="100%">
       <Card className="shadow-lg rounded-lg border border-gray-700">
         <CardHeader>
-          <div className="flex">
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              width="24"
-              height="24"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              stroke-linecap="round"
-              stroke-linejoin="round"
-              className="lucide lucide-chart-line"
-            >
-              <path d="M3 3v16a2 2 0 0 0 2 2h16" />
-              <path d="m19 9-5 5-4-4-3 3" />
-            </svg>
-            <CardTitle className="ml-2">Ratings History</CardTitle>
+          <div className="flex justify-between">
+            <div className="flex">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                width="24"
+                height="24"
+                viewBox="0 0 24 24"
+                fill="none"
+                stroke="currentColor"
+                stroke-width="2"
+                stroke-linecap="round"
+                stroke-linejoin="round"
+                className="lucide lucide-chart-line"
+              >
+                <path d="M3 3v16a2 2 0 0 0 2 2h16" />
+                <path d="m19 9-5 5-4-4-3 3" />
+              </svg>
+              <CardTitle className="ml-2">Ratings History</CardTitle>
+            </div>
+            <div className="flex gap-2">
+              {["day", "week", "month"].map((f) => (
+                <div
+                  key={f}
+                  className={`py-1 px-2 border-white border rounded-sm cursor-pointer ${
+                    filter === f ? "bg-white text-black" : ""
+                  }`}
+                  onClick={() => setFilter(f)}
+                >
+                  <div>{f.charAt(0).toUpperCase() + f.slice(1)}</div>
+                </div>
+              ))}
+            </div>
           </div>
         </CardHeader>
         <CardContent>
@@ -97,6 +137,8 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({
                 tickFormatter={formatDate}
                 type="category"
                 interval={0}
+                angle={-45}
+                dy={10}
               />
               <YAxis
                 domain={[0, 2000]}
