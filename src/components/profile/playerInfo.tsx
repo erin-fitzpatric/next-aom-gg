@@ -10,7 +10,6 @@ import { Card, CardContent, CardFooter } from "../ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
 import { getMatchRatings } from "@/server/controllers/profile-rating";
 import RatingLineChart from "./ratingGraph";
-import { ChartData, CombinedChartData } from "@/types/ChartData";
 
 export function PlayerInfo({
   playerId,
@@ -29,38 +28,8 @@ export function PlayerInfo({
   steamProfile?: SteamProfile | undefined;
   error: boolean;
 }) {
-  const [chartData, setChartData] = useState<{
-    solo: ChartData[];
-    team: ChartData[];
-  }>({
-    solo: [],
-    team: [],
-  });
   const gameTypes = playerStats.map((stat) => stat.leaderboard_id);
   const defaultTab = gameTypes[0]?.toString() || "1";
-
-  const startDate = 0;
-  const endDate = 0;
-
-  const fetchChartData = useCallback(
-    async (playerId: number) => {
-      try {
-        const { chartData } = await getMatchRatings({
-          playerId,
-          startDate,
-          endDate,
-        });
-        setChartData(chartData);
-      } catch (error) {
-        console.error("Error fetching chart data:", error);
-      }
-    },
-    [startDate, endDate]
-  );
-
-  useEffect(() => {
-    fetchChartData(parseInt(playerId, 10));
-  }, [playerId, fetchChartData]);
 
   return (
     <Tabs defaultValue={defaultTab} className="w-full">
@@ -100,10 +69,7 @@ export function PlayerInfo({
               )}
             </div>
             <div className="w-full sm:w-1/2 lg:w-2/5 mt-4 sm:mt-0">
-              <RatingLineChart
-                soloData={chartData.solo}
-                teamData={chartData.team}
-              />
+              <RatingLineChart playerId={playerId} />
             </div>
           </div>
         </CardContent>

@@ -16,7 +16,9 @@ import {
   ChartLegendContent,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-
+import { ChartData, CombinedChartData } from "@/types/ChartData";
+import { useCallback, useEffect, useState } from "react";
+import { getMatchRatings } from "@/server/controllers/profile-rating";
 const chartConfig = {
   solo: {
     label: "1V1_SUPREMACY",
@@ -29,15 +31,40 @@ const chartConfig = {
 } satisfies ChartConfig;
 
 interface RatingLineChartProps {
-  soloData: { date: string; averageRating: number }[];
-  teamData: { date: string; averageRating: number }[];
+  playerId: string;
 }
 
-const RatingLineChart: React.FC<RatingLineChartProps> = ({
-  soloData,
-  teamData,
-}) => {
-  console.log(soloData, teamData);
+const RatingLineChart: React.FC<RatingLineChartProps> = ({ playerId }) => {
+  const [chartData, setChartData] = useState<{
+    solo: ChartData[];
+    team: ChartData[];
+  }>({
+    solo: [],
+    team: [],
+  });
+  const soloData = chartData.solo;
+  const teamData = chartData.team;
+  const startDate = 0;
+  const endDate = 0;
+  const fetchChartData = useCallback(
+    async (playerId: number) => {
+      try {
+        const { chartData } = await getMatchRatings({
+          playerId,
+          startDate,
+          endDate,
+        });
+        setChartData(chartData);
+      } catch (error) {
+        console.error("Error fetching chart data:", error);
+      }
+    },
+    [startDate, endDate]
+  );
+  useEffect(() => {
+    fetchChartData(parseInt(playerId, 10));
+  }, [playerId, fetchChartData]);
+
   let lastTeamRating = teamData.length > 0 ? teamData[0].averageRating : 0;
 
   const combinedData = soloData.map((item, index) => {
