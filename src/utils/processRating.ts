@@ -1,29 +1,26 @@
+interface RatingEntry {
+  _id: string;
+  averageRating: number;
+}
+
+interface ProcessedRatingPoint {
+  date: string;
+  averageRating: number;
+}
+
 // Function to process ratings of player matches and return average points
-
-export const processRatings = (result: any) => {
+export const processRatings = (
+  result: RatingEntry[]
+): ProcessedRatingPoint[] => {
   if (result.length > 0) {
-    const allNewRatings = result[0].allNewRatings;
-    const allDates = result[0].allDates;
-    const step = Math.ceil(allNewRatings.length / 5);
-
-    const dataPoints = [];
-    for (let i = 0; i < allNewRatings.length; i += step) {
-      const chunk = allNewRatings.slice(i, i + step);
-      const chunkAvgRating =
-        chunk.reduce((acc: number, rating: number) => acc + rating, 0) /
-        chunk.length;
-      const chunkDate = allDates[i];
-
-      const formattedDate = new Date(chunkDate).toLocaleDateString("en-US", {
+    const dataPoints: ProcessedRatingPoint[] = result.map((entry) => ({
+      date: new Date(entry._id).toLocaleDateString("en-US", {
         month: "short",
         day: "numeric",
-      });
+      }),
+      averageRating: Math.round(entry.averageRating),
+    }));
 
-      dataPoints.push({
-        date: formattedDate,
-        averageRating: Math.round(chunkAvgRating),
-      });
-    }
     return dataPoints;
   }
   return [];

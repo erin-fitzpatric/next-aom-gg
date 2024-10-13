@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useState } from "react";
+import React from "react";
 import { LeaderboardTypeNames } from "@/types/LeaderBoard";
 import { ILeaderboardPlayer } from "@/types/LeaderboardPlayer";
 import { Frown } from "lucide-react";
@@ -8,7 +8,6 @@ import { ProfileAvatar } from "./profileAvatar";
 import { SteamProfile } from "@/types/Steam";
 import { Card, CardContent, CardFooter } from "../ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "../ui/tabs";
-import { getMatchRatings } from "@/server/controllers/profile-rating";
 import RatingLineChart from "./ratingGraph";
 
 export function PlayerInfo({

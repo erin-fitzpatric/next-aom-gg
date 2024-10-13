@@ -16,7 +16,7 @@ import {
   ChartLegendContent,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { ChartData, CombinedChartData } from "@/types/ChartData";
+import { ChartData } from "@/types/ChartData";
 import { useCallback, useEffect, useState } from "react";
 import { getMatchRatings } from "@/server/controllers/profile-rating";
 const chartConfig = {
@@ -44,26 +44,24 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({ playerId }) => {
   });
   const soloData = chartData.solo;
   const teamData = chartData.team;
-  const startDate = 0;
-  const endDate = 0;
+  const [filter, setFilter] = useState("day");
   const fetchChartData = useCallback(
-    async (playerId: number) => {
+    async (playerId: number, filter: string) => {
       try {
         const { chartData } = await getMatchRatings({
           playerId,
-          startDate,
-          endDate,
+          filter,
         });
         setChartData(chartData);
       } catch (error) {
         console.error("Error fetching chart data:", error);
       }
     },
-    [startDate, endDate]
+    []
   );
   useEffect(() => {
-    fetchChartData(parseInt(playerId, 10));
-  }, [playerId, fetchChartData]);
+    fetchChartData(parseInt(playerId, 10), filter);
+  }, [playerId, filter, fetchChartData]);
 
   let lastTeamRating = teamData.length > 0 ? teamData[0].averageRating : 0;
 
@@ -113,15 +111,17 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({ playerId }) => {
               <CardTitle className="ml-2">Ratings History</CardTitle>
             </div>
             <div className="flex gap-2">
-              <div className="py-1 px-2 border-white border rounded-sm cursor-pointer">
-                <div>D</div>
-              </div>
-              <div className="py-1 px-2 border-white border rounded-sm cursor-pointer">
-                <div>W</div>
-              </div>
-              <div className="py-1 px-2 border-white border rounded-sm cursor-pointer">
-                <div>M</div>
-              </div>
+              {["day", "week", "month"].map((f) => (
+                <div
+                  key={f}
+                  className={`py-1 px-2 border-white border rounded-sm cursor-pointer ${
+                    filter === f ? "bg-white text-black" : ""
+                  }`}
+                  onClick={() => setFilter(f)}
+                >
+                  <div>{f.charAt(0).toUpperCase() + f.slice(1)}</div>
+                </div>
+              ))}
             </div>
           </div>
         </CardHeader>
@@ -137,6 +137,8 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({ playerId }) => {
                 tickFormatter={formatDate}
                 type="category"
                 interval={0}
+                angle={-45}
+                dy={10}
               />
               <YAxis
                 domain={[0, 2000]}
