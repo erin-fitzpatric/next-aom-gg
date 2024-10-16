@@ -58,14 +58,6 @@ export const columns: ColumnDef<ILeaderboardPlayer>[] = [
       const genesisElo = ((Number(row.original.highestrating) + Number(row.original.rating)) / 2).toFixed();
       return <span className="flex">{genesisElo}</span>;
     },
-    // Custom sort function based on the computed genesisElo
-    enableSorting: true,
-    sortingFn: (a, b) => {
-      const genesisEloA = (Number(a.original.highestrating) + Number(a.original.rating)) / 2;
-      const genesisEloB = (Number(b.original.highestrating) + Number(b.original.rating)) / 2;
-  
-      return genesisEloA - genesisEloB; // Sort in ascending order
-    }
   },
   {
     accessorKey: "highestrating",
