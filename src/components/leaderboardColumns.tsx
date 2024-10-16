@@ -41,7 +41,9 @@ export const columns: ColumnDef<ILeaderboardPlayer>[] = [
           height={40}
           className="mr-4 rounded-full"
         /> */}
-        <span className="text-primary hover:underline">{row.original.name}</span>
+        <span className="text-primary hover:underline">
+          {row.original.name}
+        </span>
       </div>
     ),
   },
@@ -49,15 +51,14 @@ export const columns: ColumnDef<ILeaderboardPlayer>[] = [
     accessorKey: "rating",
     header: "Rating",
   },
-  // {
-  //   accessorKey: "redBullRating",
-  //   header: () => <span className="flex">Red Bull Elo</span>,
-  //   cell: ({ row }) => {
-  //     const redBullElo =
-  //       (Number(row.original.highestrating) + Number(row.original.rating)) / 2;
-  //     return <span className="flex">{redBullElo}</span>;
-  //   },
-  // },
+  {
+    accessorKey: "genesisRating",
+    header: () => <span className="flex">Genesis Elo</span>,
+    cell: ({ row }) => {
+      const genesisElo = ((Number(row.original.highestrating) + Number(row.original.rating)) / 2).toFixed();
+      return <span className="flex">{genesisElo}</span>;
+    },
+  },
   {
     accessorKey: "highestrating",
     header: () => <span className="hidden lg:flex">Highest Elo</span>,
