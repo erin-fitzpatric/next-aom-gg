@@ -31,11 +31,11 @@ bun install
 You will need to set up the following environment variables in your `.env` file for MongoDB:
 
 ```
-MONGO_USER= ask in discord
-MONGO_PASSWORD= ask in discord
-MONGODB_URI="ask in discord"
+MONGO_USER= https://discord.gg/53NxUdAD5F
+MONGO_PASSWORD= https://discord.gg/53NxUdAD5F
+MONGODB_URI= https://discord.gg/53NxUdAD5F
 MONGO_APPNAME= Dev
-MONGO_HOST= " ask in discord"
+MONGO_HOST= "https://discord.gg/53NxUdAD5F"
 ```
 
 Then, run the development server:
