@@ -72,8 +72,8 @@ export function PlayerInfo({
             </div>
           </div>
         </CardContent>
-        <CardFooter className="w-full lg:w-96 m-0 p-0">
-          <TabsList className={`grid w-full grid-cols-${gameTypes.length}`}>
+        <CardFooter className="w-full md:w-96 m-0 p-0">
+          <TabsList className="flex w-full">
             {gameTypes.map((type) => (
               <TabsTrigger key={type?.toString()} value={type.toString()}>
                 {LeaderboardTypeNames[type]}

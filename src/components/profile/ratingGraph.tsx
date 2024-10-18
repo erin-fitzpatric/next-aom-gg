@@ -108,18 +108,25 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({ playerId }) => {
                 <path d="M3 3v16a2 2 0 0 0 2 2h16" />
                 <path d="m19 9-5 5-4-4-3 3" />
               </svg>
-              <CardTitle className="ml-2">Ratings History</CardTitle>
+              <CardTitle className="ml-1 text-sm sm:ml-2 sm:text-base lg:text-xl">
+                Ratings History
+              </CardTitle>
             </div>
-            <div className="flex gap-2">
+            <div className="flex flex-wrap gap-2 justify-center sm:justify-start">
               {["day", "week", "month"].map((f) => (
                 <div
                   key={f}
-                  className={`py-1 px-2 border-white border rounded-sm cursor-pointer ${
+                  className={`py-0.5 px-1.5 text-xs sm:text-sm border-white border rounded-sm cursor-pointer ${
                     filter === f ? "bg-white text-black" : ""
                   }`}
                   onClick={() => setFilter(f)}
                 >
-                  <div>{f.charAt(0).toUpperCase() + f.slice(1)}</div>
+                  <div className="block lg:hidden">
+                    {f === "day" ? "D" : f === "week" ? "W" : "M"}
+                  </div>
+                  <div className="hidden lg:block">
+                    {f.charAt(0).toUpperCase() + f.slice(1)}
+                  </div>
                 </div>
               ))}
             </div>

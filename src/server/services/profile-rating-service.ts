@@ -47,23 +47,18 @@ export async function fetchMatchRatings(
         ? {
             $dateToString: {
               format: "%Y-%m-%d",
-              date: { $toDate: { $multiply: ["$matchDate", 1] } },
+              date: { $toDate: "$matchDate" },
             },
           }
         : filter === "week"
           ? {
               $dateToString: {
-                format: "%b %d",
+                format: "%Y-%m-%d",
                 date: {
                   $dateFromParts: {
-                    isoWeekYear: {
-                      $isoWeekYear: {
-                        $toDate: { $multiply: ["$matchDate", 1] },
-                      },
-                    },
-                    isoWeek: {
-                      $isoWeek: { $toDate: { $multiply: ["$matchDate", 1] } },
-                    },
+                    isoWeekYear: { $isoWeekYear: { $toDate: "$matchDate" } },
+                    isoWeek: { $isoWeek: { $toDate: "$matchDate" } },
+                    isoDayOfWeek: 1,
                   },
                 },
               },
@@ -71,7 +66,7 @@ export async function fetchMatchRatings(
           : {
               $dateToString: {
                 format: "%Y-%m",
-                date: { $toDate: { $multiply: ["$matchDate", 1] } },
+                date: { $toDate: "$matchDate" },
               },
             };
 
@@ -101,7 +96,7 @@ export async function fetchMatchRatings(
             $first: {
               $dateToString: {
                 format: "%Y-%m-%d",
-                date: { $toDate: { $multiply: ["$matchDate", 1] } },
+                date: { $toDate: "$matchDate" },
               },
             },
           },
