@@ -19,6 +19,8 @@ import {
 import { ChartData } from "@/types/ChartData";
 import { useCallback, useEffect, useState } from "react";
 import { getMatchRatings } from "@/server/controllers/profile-rating";
+import { Spinner } from "../spinner";
+
 const chartConfig = {
   solo: {
     label: "1V1_SUPREMACY",
@@ -42,23 +44,46 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({ playerId }) => {
     solo: [],
     team: [],
   });
+
+  const [cachedData, setCachedData] = useState<{
+    [filter: string]: {
+      solo: ChartData[];
+      team: ChartData[];
+    };
+  }>({});
+
   const soloData = chartData.solo;
   const teamData = chartData.team;
+  const [loading, setLoading] = useState(true);
   const [filter, setFilter] = useState("day");
+
   const fetchChartData = useCallback(
     async (playerId: number, filter: string) => {
-      try {
-        const { chartData } = await getMatchRatings({
-          playerId,
-          filter,
-        });
-        setChartData(chartData);
-      } catch (error) {
-        console.error("Error fetching chart data:", error);
+      if (cachedData[filter]) {
+        setChartData(cachedData[filter]);
+        setLoading(false);
+      } else {
+        try {
+          setLoading(true);
+          const { chartData } = await getMatchRatings({
+            playerId,
+            filter,
+          });
+          setChartData(chartData);
+          setCachedData((prevCache) => ({
+            ...prevCache,
+            [filter]: chartData,
+          }));
+        } catch (error) {
+          console.error("Error fetching chart data:", error);
+        } finally {
+          setLoading(false);
+        }
       }
     },
-    []
+    [cachedData]
   );
+
   useEffect(() => {
     fetchChartData(parseInt(playerId, 10), filter);
   }, [playerId, filter, fetchChartData]);
@@ -155,50 +180,54 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({ playerId }) => {
           </div>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={chartConfig}>
-            <LineChart data={combinedData} margin={{ top: 10, right: 20 }}>
-              <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey="date"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={10}
-                tickFormatter={formatDate}
-                type="category"
-                interval={0}
-                angle={-45}
-                dy={10}
-              />
-              <YAxis
-                domain={[yMin, yMax]}
-                tickLine={false}
-                axisLine={false}
-                tickMargin={25}
-                tickCount={(yMax - yMin) / 100 + 1}
-              />
-              <Tooltip content={<ChartTooltipContent />} />
-              <Legend content={<ChartLegendContent />} />
+          {loading ? (
+            <Spinner />
+          ) : (
+            <ChartContainer config={chartConfig}>
+              <LineChart data={combinedData} margin={{ top: 10, right: 20 }}>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="date"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={10}
+                  tickFormatter={formatDate}
+                  type="category"
+                  interval={0}
+                  angle={-45}
+                  dy={10}
+                />
+                <YAxis
+                  domain={[yMin, yMax]}
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={25}
+                  tickCount={(yMax - yMin) / 100 + 1}
+                />
+                <Tooltip content={<ChartTooltipContent />} />
+                <Legend content={<ChartLegendContent />} />
 
-              {!isSoloAllZero && (
-                <Line
-                  dataKey="1V1_SUP"
-                  type="monotone"
-                  stroke="var(--color-solo)"
-                  strokeWidth={2}
-                  dot={{ r: 4 }}
-                />
-              )}
-              {!isTeamAllZero && (
-                <Line
-                  dataKey="TEAM_SUP"
-                  type="monotone"
-                  stroke="var(--color-team)"
-                  strokeWidth={2}
-                  dot={{ r: 4 }}
-                />
-              )}
-            </LineChart>
-          </ChartContainer>
+                {!isSoloAllZero && (
+                  <Line
+                    dataKey="1V1_SUP"
+                    type="monotone"
+                    stroke="var(--color-solo)"
+                    strokeWidth={2}
+                    dot={{ r: 4 }}
+                  />
+                )}
+                {!isTeamAllZero && (
+                  <Line
+                    dataKey="TEAM_SUP"
+                    type="monotone"
+                    stroke="var(--color-team)"
+                    strokeWidth={2}
+                    dot={{ r: 4 }}
+                  />
+                )}
+              </LineChart>
+            </ChartContainer>
+          )}
         </CardContent>
       </Card>
     </ResponsiveContainer>
