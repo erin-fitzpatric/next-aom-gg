@@ -74,18 +74,17 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({ playerId }) => {
   const minTeamRating =
     teamData.length > 0
       ? Math.min(...teamData.map((item) => item.averageRating))
-      : 0;
+      : minSoloRating;
   const maxTeamRating =
     teamData.length > 0
       ? Math.max(...teamData.map((item) => item.averageRating))
-      : 0;
+      : maxSoloRating;
 
   const minRating = Math.min(minSoloRating, minTeamRating);
   const maxRating = Math.max(maxSoloRating, maxTeamRating);
 
   const yMin = Math.floor(minRating / 100) * 100;
   const yMax = Math.ceil(maxRating / 100) * 100;
-
   let lastTeamRating = teamData.length > 0 ? teamData[0].averageRating : 0;
 
   const combinedData = soloData.map((item, index) => {
