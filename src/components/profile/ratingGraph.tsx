@@ -63,6 +63,29 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({ playerId }) => {
     fetchChartData(parseInt(playerId, 10), filter);
   }, [playerId, filter, fetchChartData]);
 
+  const minSoloRating =
+    soloData.length > 0
+      ? Math.min(...soloData.map((item) => item.averageRating))
+      : 0;
+  const maxSoloRating =
+    soloData.length > 0
+      ? Math.max(...soloData.map((item) => item.averageRating))
+      : 0;
+  const minTeamRating =
+    teamData.length > 0
+      ? Math.min(...teamData.map((item) => item.averageRating))
+      : 0;
+  const maxTeamRating =
+    teamData.length > 0
+      ? Math.max(...teamData.map((item) => item.averageRating))
+      : 0;
+
+  const minRating = Math.min(minSoloRating, minTeamRating);
+  const maxRating = Math.max(maxSoloRating, maxTeamRating);
+
+  const yMin = Math.floor(minRating / 100) * 100;
+  const yMax = Math.ceil(maxRating / 100) * 100;
+
   let lastTeamRating = teamData.length > 0 ? teamData[0].averageRating : 0;
 
   const combinedData = soloData.map((item, index) => {
@@ -148,11 +171,11 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({ playerId }) => {
                 dy={10}
               />
               <YAxis
-                domain={[0, 2000]}
+                domain={[yMin, yMax]}
                 tickLine={false}
                 axisLine={false}
                 tickMargin={25}
-                tickCount={10}
+                tickCount={(yMax - yMin) / 100 + 1}
               />
               <Tooltip content={<ChartTooltipContent />} />
               <Legend content={<ChartLegendContent />} />
