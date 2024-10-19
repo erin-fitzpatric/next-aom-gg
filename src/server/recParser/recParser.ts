@@ -90,15 +90,22 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
     parseProfileKeys(root, couldBeBenchmark, output);
     const typedOutput = output as RecordedGameMetadata;
 
+    // Now that base data is loaded, trim output.playerdata to the correct number of players
+    typedOutput.playerData.splice(typedOutput.gameNumPlayers+1, 13-typedOutput.gameNumPlayers);
+
     // Reject any games with AI players
     if (typedOutput.playerData.some((player) => { return player.aiPersonality !== undefined && player.aiPersonality.length > 0}))
-        throw new Error(Errors.GAME_HAS_AI_PLAYERS);
+    {
+        if (!process.env.RECPARSER_ACCEPT_AIS)
+            throw new Error(Errors.GAME_HAS_AI_PLAYERS);
+    }
     
-    // TODO - Fitz should remove this when he wants team games to be uploadable
-    if (typedOutput.gameNumPlayers > 2)
+    if (!process.env.RECPARSER_ACCEPT_TGS && typedOutput.gameNumPlayers > 2)
         throw new Error(Errors.UNSUPPORTED_GAME_SIZE, {cause:`Currently uploads are limited to 1v1s only - this game has ${typedOutput.gameNumPlayers} players!`});
     
-    parseTeams(typedOutput, root);
+    // Resolves random teams into their real numbers
+    // and anything else that needs deriving from the player data sections
+    parsePlayerDataSections(typedOutput, root);
     const xmbData = parseRecXMBList(root);
 
     parseMajorGodsToNames(typedOutput, xmbData);
@@ -255,9 +262,6 @@ function parseProfileKeys(root: RecordedGameHierarchyContainer, couldBeBenchmark
             throw new Error(Errors.PARSER_INTERNAL_ERROR, {cause:`Recorded game metadata missing required key ${key}`});
         }
     }
-
-    // Now that everything is there, trim output.playerdata to the correct number of players
-    typedOutput.playerData.splice(typedOutput.gameNumPlayers+1, 13-typedOutput.gameNumPlayers);
 }
 
 function fixMetadataKey(keyName: string)
@@ -315,7 +319,7 @@ function addMetadataKeyToOutput(output: any, keyName: string, value: number | st
 }
 
 
-function parseTeams(output: RecordedGameMetadata, hierarchy: RecordedGameHierarchyContainer)
+function parsePlayerDataSections(output: RecordedGameMetadata, hierarchy: RecordedGameHierarchyContainer)
 {
     // Profile keys has teamid = -1 for random teams, which is no good
     // This gets the real team ids out of the binary player data section instead
@@ -354,6 +358,12 @@ function parseTeams(output: RecordedGameMetadata, hierarchy: RecordedGameHierarc
             if (teamId > 12)
                 throw new Error(Errors.PARSER_INTERNAL_ERROR, {cause: `Parsing teams for section at ${section.data.byteOffset}: read invalid team ID ${teamId} at ${teamIdOffset} for ${nameOne.content}`});
             output.playerData[playerNumber].teamId = teamId;
+            // For AI players: the profile keys simply names them "Player 2" etc, in this section we just got their "real" name instead
+            // So using that instead
+            if (output.playerData[playerNumber].aiPersonality)
+            {
+                output.playerData[playerNumber].name = nameOne.content + " (AI)";
+            }
         }
         playerNumber++;
     }
