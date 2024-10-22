@@ -21,7 +21,7 @@ export async function fetchMatchRatings(
 
   // Define start dates for day, week, and month
   const startDateDay = new Date(today);
-  startDateDay.setDate(today.getDate() - 90); // 30 days ago
+  startDateDay.setDate(today.getDate() - 30); // 30 days ago
 
   const startDateWeek = new Date(today);
   startDateWeek.setDate(today.getDate() - 60); // 7-8 weeks ago
