@@ -16,7 +16,7 @@ import {
   ChartLegendContent,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { ChartData } from "@/types/ChartData";
+import { ChartData, CombinedChartData, ChartDataItem } from "@/types/ChartData";
 import { useCallback, useEffect, useState } from "react";
 import { getMatchRatings } from "@/server/controllers/profile-rating";
 import { Spinner } from "../spinner";
@@ -37,72 +37,49 @@ interface RatingLineChartProps {
 }
 
 const RatingLineChart: React.FC<RatingLineChartProps> = ({ playerId }) => {
-  const [chartData, setChartData] = useState<{
-    solo: ChartData[];
-    team: ChartData[];
-  }>({
-    solo: [],
-    team: [],
+  const [chartData, setChartData] = useState<CombinedChartData>({
+    solo: { day: [], week: [], month: [] },
+    team: { day: [], week: [], month: [] },
   });
-
-  const [cachedData, setCachedData] = useState<{
-    [filter: string]: {
-      solo: ChartData[];
-      team: ChartData[];
-    };
-  }>({});
 
   const soloData = chartData.solo;
   const teamData = chartData.team;
   const [loading, setLoading] = useState(true);
-  const [filter, setFilter] = useState("day");
+  const [filter, setFilter] = useState<"day" | "week" | "month">("day");
 
-  const fetchChartData = useCallback(
-    async (playerId: number, filter: string) => {
-      if (cachedData[filter]) {
-        setChartData(cachedData[filter]);
-        setLoading(false);
-      } else {
-        try {
-          setLoading(true);
-          const { chartData } = await getMatchRatings({
-            playerId,
-            filter,
-          });
-          setChartData(chartData);
-          setCachedData((prevCache) => ({
-            ...prevCache,
-            [filter]: chartData,
-          }));
-        } catch (error) {
-          console.error("Error fetching chart data:", error);
-        } finally {
-          setLoading(false);
-        }
-      }
-    },
-    [cachedData]
-  );
+  const fetchChartData = useCallback(async (playerId: number) => {
+    try {
+      setLoading(true);
+      const chartData = await getMatchRatings({
+        playerId,
+      });
+      setChartData(chartData);
+    } catch (error) {
+      console.error("Error fetching chart data:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
 
   useEffect(() => {
-    fetchChartData(parseInt(playerId, 10), filter);
-  }, [playerId, filter, fetchChartData]);
+    fetchChartData(parseInt(playerId, 10));
+  }, [playerId, fetchChartData]);
 
   const minSoloRating =
-    soloData.length > 0
-      ? Math.min(...soloData.map((item) => item.averageRating))
+    soloData[filter].length > 0
+      ? Math.min(...soloData[filter].map((item) => item.averageRating))
       : 0;
   const maxSoloRating =
-    soloData.length > 0
-      ? Math.max(...soloData.map((item) => item.averageRating))
+    soloData[filter].length > 0
+      ? Math.max(...soloData[filter].map((item) => item.averageRating))
       : 0;
   const minTeamRating =
-    teamData.length > 0
-      ? Math.min(...teamData.map((item) => item.averageRating))
+    teamData[filter].length > 0
+      ? Math.min(...teamData[filter].map((item) => item.averageRating))
       : minSoloRating;
   const maxTeamRating =
-    teamData.length > 0
-      ? Math.max(...teamData.map((item) => item.averageRating))
+    teamData[filter].length > 0
+      ? Math.max(...teamData[filter].map((item) => item.averageRating))
       : maxSoloRating;
 
   const minRating = Math.min(minSoloRating, minTeamRating);
@@ -110,10 +87,12 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({ playerId }) => {
 
   const yMin = Math.floor(minRating / 100) * 100;
   const yMax = Math.ceil(maxRating / 100) * 100;
-  let lastTeamRating = teamData.length > 0 ? teamData[0].averageRating : 0;
+  let lastTeamRating =
+    teamData[filter].length > 0 ? teamData[filter][0].averageRating : 0;
 
-  const combinedData = soloData.map((item, index) => {
-    const currentTeamRating = teamData[index]?.averageRating ?? lastTeamRating;
+  const combinedData = soloData[filter].map((item, index) => {
+    const currentTeamRating =
+      teamData[filter][index]?.averageRating ?? lastTeamRating;
     lastTeamRating = currentTeamRating;
     return {
       date: item.date,
@@ -122,8 +101,12 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({ playerId }) => {
     };
   });
 
-  const isSoloAllZero = soloData.every((item) => item.averageRating === 0);
-  const isTeamAllZero = teamData.every((item) => item.averageRating === 0);
+  const isSoloAllZero = soloData[filter].every(
+    (item) => item.averageRating === 0
+  );
+  const isTeamAllZero = teamData[filter].every(
+    (item) => item.averageRating === 0
+  );
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -147,9 +130,9 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({ playerId }) => {
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 className="lucide lucide-chart-line"
               >
                 <path d="M3 3v16a2 2 0 0 0 2 2h16" />
@@ -166,7 +149,7 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({ playerId }) => {
                   className={`py-0.5 px-1.5 text-xs sm:text-sm border-white border rounded-sm cursor-pointer ${
                     filter === f ? "bg-white text-black" : ""
                   }`}
-                  onClick={() => setFilter(f)}
+                  onClick={() => setFilter(f as "day" | "week" | "month")}
                 >
                   <div className="block lg:hidden">
                     {f === "day" ? "D" : f === "week" ? "W" : "M"}

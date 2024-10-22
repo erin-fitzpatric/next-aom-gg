@@ -1,11 +1,15 @@
-export interface ChartData {
+export type ChartDataItem = {
   date: string;
   averageRating: number;
-}
+};
 
-export interface CombinedChartData {
-  chartData: {
-    solo: ChartData[];
-    team: ChartData[];
-  };
-}
+export type ChartData = {
+  day: ChartDataItem[];
+  week: ChartDataItem[];
+  month: ChartDataItem[];
+};
+
+export type CombinedChartData = {
+  solo: ChartData;
+  team: ChartData;
+};
