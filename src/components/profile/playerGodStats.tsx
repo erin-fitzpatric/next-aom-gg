@@ -53,6 +53,7 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
 
   const MAJOR_GODS = listMajorGods();
 
+  // Fetch Builds
   useEffect(() => {
     const fetchBuilds = async () => {
       try {
@@ -70,9 +71,9 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
     fetchBuilds();
   }, []);
 
+  // Fetch Game Modes
   useEffect(() => {
     const fetchGameModes = async () => {
-      console.log("Fetching available game modes");
       try {
         const response = await fetch(`/api/data/game_modes`);
         if (!response.ok) {
@@ -88,9 +89,9 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
     fetchGameModes();
   }, []);
 
+  // Fetch God Stats
   useEffect(() => {
     const fetchData = async () => {
-      console.log("Fetching user god stats");
       setLoading(true);
       try {
         const params = new URLSearchParams({ playerId: playerId.toString() });
