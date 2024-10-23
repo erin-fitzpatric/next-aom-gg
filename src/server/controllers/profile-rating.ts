@@ -6,14 +6,11 @@ import {
 
 export async function getMatchRatings({
   playerId,
-  filter,
 }: MatchParams): Promise<CombinedChartData> {
   try {
     const ratings = await fetchMatchRatings({
       playerId,
-      filter,
     });
-
     return ratings;
   } catch (error: any) {
     console.error("Error fetching matches:", error);

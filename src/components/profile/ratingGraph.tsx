@@ -16,9 +16,11 @@ import {
   ChartLegendContent,
   ChartTooltipContent,
 } from "@/components/ui/chart";
-import { ChartData } from "@/types/ChartData";
+import { ChartData, CombinedChartData, ChartDataItem } from "@/types/ChartData";
 import { useCallback, useEffect, useState } from "react";
 import { getMatchRatings } from "@/server/controllers/profile-rating";
+import { Spinner } from "../spinner";
+
 const chartConfig = {
   solo: {
     label: "1V1_SUPREMACY",
@@ -35,38 +37,62 @@ interface RatingLineChartProps {
 }
 
 const RatingLineChart: React.FC<RatingLineChartProps> = ({ playerId }) => {
-  const [chartData, setChartData] = useState<{
-    solo: ChartData[];
-    team: ChartData[];
-  }>({
-    solo: [],
-    team: [],
+  const [chartData, setChartData] = useState<CombinedChartData>({
+    solo: { day: [], week: [], month: [] },
+    team: { day: [], week: [], month: [] },
   });
+
   const soloData = chartData.solo;
   const teamData = chartData.team;
-  const [filter, setFilter] = useState("day");
-  const fetchChartData = useCallback(
-    async (playerId: number, filter: string) => {
-      try {
-        const { chartData } = await getMatchRatings({
-          playerId,
-          filter,
-        });
-        setChartData(chartData);
-      } catch (error) {
-        console.error("Error fetching chart data:", error);
-      }
-    },
-    []
-  );
+  const [loading, setLoading] = useState(true);
+  const [filter, setFilter] = useState<"day" | "week" | "month">("day");
+
+  const fetchChartData = useCallback(async (playerId: number) => {
+    try {
+      setLoading(true);
+      const chartData = await getMatchRatings({
+        playerId,
+      });
+      setChartData(chartData);
+    } catch (error) {
+      console.error("Error fetching chart data:", error);
+    } finally {
+      setLoading(false);
+    }
+  }, []);
+
   useEffect(() => {
-    fetchChartData(parseInt(playerId, 10), filter);
-  }, [playerId, filter, fetchChartData]);
+    fetchChartData(parseInt(playerId, 10));
+  }, [playerId, fetchChartData]);
 
-  let lastTeamRating = teamData.length > 0 ? teamData[0].averageRating : 0;
+  const minSoloRating =
+    soloData[filter].length > 0
+      ? Math.min(...soloData[filter].map((item) => item.averageRating))
+      : 0;
+  const maxSoloRating =
+    soloData[filter].length > 0
+      ? Math.max(...soloData[filter].map((item) => item.averageRating))
+      : 0;
+  const minTeamRating =
+    teamData[filter].length > 0
+      ? Math.min(...teamData[filter].map((item) => item.averageRating))
+      : minSoloRating;
+  const maxTeamRating =
+    teamData[filter].length > 0
+      ? Math.max(...teamData[filter].map((item) => item.averageRating))
+      : maxSoloRating;
 
-  const combinedData = soloData.map((item, index) => {
-    const currentTeamRating = teamData[index]?.averageRating ?? lastTeamRating;
+  const minRating = Math.min(minSoloRating, minTeamRating);
+  const maxRating = Math.max(maxSoloRating, maxTeamRating);
+
+  const yMin = Math.floor(minRating / 100) * 100;
+  const yMax = Math.ceil(maxRating / 100) * 100;
+  let lastTeamRating =
+    teamData[filter].length > 0 ? teamData[filter][0].averageRating : 0;
+
+  const combinedData = soloData[filter].map((item, index) => {
+    const currentTeamRating =
+      teamData[filter][index]?.averageRating ?? lastTeamRating;
     lastTeamRating = currentTeamRating;
     return {
       date: item.date,
@@ -75,8 +101,12 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({ playerId }) => {
     };
   });
 
-  const isSoloAllZero = soloData.every((item) => item.averageRating === 0);
-  const isTeamAllZero = teamData.every((item) => item.averageRating === 0);
+  const isSoloAllZero = soloData[filter].every(
+    (item) => item.averageRating === 0
+  );
+  const isTeamAllZero = teamData[filter].every(
+    (item) => item.averageRating === 0
+  );
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
@@ -100,9 +130,9 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({ playerId }) => {
                 viewBox="0 0 24 24"
                 fill="none"
                 stroke="currentColor"
-                stroke-width="2"
-                stroke-linecap="round"
-                stroke-linejoin="round"
+                strokeWidth="2"
+                strokeLinecap="round"
+                strokeLinejoin="round"
                 className="lucide lucide-chart-line"
               >
                 <path d="M3 3v16a2 2 0 0 0 2 2h16" />
@@ -119,7 +149,7 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({ playerId }) => {
                   className={`py-0.5 px-1.5 text-xs sm:text-sm border-white border rounded-sm cursor-pointer ${
                     filter === f ? "bg-white text-black" : ""
                   }`}
-                  onClick={() => setFilter(f)}
+                  onClick={() => setFilter(f as "day" | "week" | "month")}
                 >
                   <div className="block lg:hidden">
                     {f === "day" ? "D" : f === "week" ? "W" : "M"}
@@ -133,50 +163,54 @@ const RatingLineChart: React.FC<RatingLineChartProps> = ({ playerId }) => {
           </div>
         </CardHeader>
         <CardContent>
-          <ChartContainer config={chartConfig}>
-            <LineChart data={combinedData} margin={{ top: 10, right: 20 }}>
-              <CartesianGrid vertical={false} />
-              <XAxis
-                dataKey="date"
-                tickLine={false}
-                axisLine={false}
-                tickMargin={10}
-                tickFormatter={formatDate}
-                type="category"
-                interval={0}
-                angle={-45}
-                dy={10}
-              />
-              <YAxis
-                domain={[0, 2000]}
-                tickLine={false}
-                axisLine={false}
-                tickMargin={25}
-                tickCount={10}
-              />
-              <Tooltip content={<ChartTooltipContent />} />
-              <Legend content={<ChartLegendContent />} />
+          {loading ? (
+            <Spinner />
+          ) : (
+            <ChartContainer config={chartConfig}>
+              <LineChart data={combinedData} margin={{ top: 10, right: 20 }}>
+                <CartesianGrid vertical={false} />
+                <XAxis
+                  dataKey="date"
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={10}
+                  tickFormatter={formatDate}
+                  type="category"
+                  interval={0}
+                  angle={-45}
+                  dy={10}
+                />
+                <YAxis
+                  domain={[yMin, yMax]}
+                  tickLine={false}
+                  axisLine={false}
+                  tickMargin={25}
+                  tickCount={(yMax - yMin) / 100 + 1}
+                />
+                <Tooltip content={<ChartTooltipContent />} />
+                <Legend content={<ChartLegendContent />} />
 
-              {!isSoloAllZero && (
-                <Line
-                  dataKey="1V1_SUP"
-                  type="monotone"
-                  stroke="var(--color-solo)"
-                  strokeWidth={2}
-                  dot={{ r: 4 }}
-                />
-              )}
-              {!isTeamAllZero && (
-                <Line
-                  dataKey="TEAM_SUP"
-                  type="monotone"
-                  stroke="var(--color-team)"
-                  strokeWidth={2}
-                  dot={{ r: 4 }}
-                />
-              )}
-            </LineChart>
-          </ChartContainer>
+                {!isSoloAllZero && (
+                  <Line
+                    dataKey="1V1_SUP"
+                    type="monotone"
+                    stroke="var(--color-solo)"
+                    strokeWidth={2}
+                    dot={{ r: 4 }}
+                  />
+                )}
+                {!isTeamAllZero && (
+                  <Line
+                    dataKey="TEAM_SUP"
+                    type="monotone"
+                    stroke="var(--color-team)"
+                    strokeWidth={2}
+                    dot={{ r: 4 }}
+                  />
+                )}
+              </LineChart>
+            </ChartContainer>
+          )}
         </CardContent>
       </Card>
     </ResponsiveContainer>

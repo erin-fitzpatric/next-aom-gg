@@ -3,76 +3,73 @@
 import { MatchModel } from "@/db/mongo/model/MatchModel";
 import getMongoClient from "@/db/mongo/mongo-client";
 import { CombinedChartData } from "@/types/ChartData";
-import { getStartDate } from "@/utils/getStartDate";
 import { processRatings } from "@/utils/processRating";
 import { PipelineStage } from "mongoose";
 
 export interface MatchParams {
   playerId: number;
-  filter: string;
 }
 
 export async function fetchMatchRatings(
   params: MatchParams
 ): Promise<CombinedChartData> {
-  const { playerId, filter } = params;
+  const { playerId } = params;
 
   await getMongoClient();
 
   const today = new Date();
-  const startDateLimit = getStartDate(filter);
-  // Define match conditions for 1v1 and 2v2/3v3
-  const matchCondition1v1: any = {
+
+  // Define start dates for day, week, and month
+  const startDateDay = new Date(today);
+  startDateDay.setDate(today.getDate() - 30); // 30 days ago
+
+  const startDateWeek = new Date(today);
+  startDateWeek.setDate(today.getDate() - 60); // 7-8 weeks ago
+
+  const startDateMonth = new Date(today);
+  startDateMonth.setMonth(today.getMonth() - 4); // 3-4 months ago
+
+  // Define match conditions for solo and team matches (same for all time ranges)
+  const matchCondition_Solo: any = {
     gameMode: "1V1_SUPREMACY",
     [`matchHistoryMap.${playerId}`]: { $exists: true },
-    matchDate: {
-      $gte: startDateLimit,
-      $lte: today.getTime(),
-    },
+    matchDate: { $lte: today.getTime() }, // Data before today
   };
 
-  const matchCondition2v2_3v3: any = {
-    gameMode: { $in: ["2V2_SUPREMACY", "3V3_SUPREMACY"] },
+  const matchCondition_Team: any = {
+    gameMode: { $in: ["2V2_SUPREMACY", "3V3_SUPREMACY", "4V4_SUPREMACY"] },
     [`matchHistoryMap.${playerId}`]: { $exists: true },
-    matchDate: {
-      $gte: startDateLimit,
-      $lte: today.getTime(),
-    },
+    matchDate: { $lte: today.getTime() },
   };
-  // Create aggregation pipeline for 1v1 and 2v2/3v3 matches
 
-  const matchAggregation = (matchCondition: any): PipelineStage[] => {
-    const groupByDateFormat =
-      filter === "day"
-        ? {
-            $dateToString: {
-              format: "%Y-%m-%d",
-              date: { $toDate: "$matchDate" },
-            },
-          }
-        : filter === "week"
-          ? {
-              $dateToString: {
-                format: "%Y-%m-%d",
-                date: {
-                  $dateFromParts: {
-                    isoWeekYear: { $isoWeekYear: { $toDate: "$matchDate" } },
-                    isoWeek: { $isoWeek: { $toDate: "$matchDate" } },
-                    isoDayOfWeek: 1,
-                  },
-                },
-              },
-            }
-          : {
-              $dateToString: {
-                format: "%Y-%m",
-                date: { $toDate: "$matchDate" },
-              },
-            };
+  // Aggregation function that groups data by different time formats (day, week, month)
+  const matchAggregation = (
+    matchCondition: any,
+    startDate: number,
+    format: string,
+    weekFormat: boolean = false
+  ): PipelineStage[] => {
+    const groupByDate = weekFormat
+      ? {
+          $dateFromParts: {
+            isoWeekYear: { $isoWeekYear: { $toDate: "$matchDate" } },
+            isoWeek: { $isoWeek: { $toDate: "$matchDate" } },
+            isoDayOfWeek: 1, // Start from Monday
+          },
+        }
+      : {
+          $dateToString: {
+            format, // Date format depends on whether it's day or month
+            date: { $toDate: "$matchDate" },
+          },
+        };
 
     return [
       {
-        $match: matchCondition,
+        $match: {
+          ...matchCondition,
+          matchDate: { $gte: startDate }, // Filter by start date (day/week/month)
+        },
       },
       {
         $project: {
@@ -90,15 +87,10 @@ export async function fetchMatchRatings(
       },
       {
         $group: {
-          _id: groupByDateFormat,
+          _id: groupByDate, // Group by day, week, or month
           averageRating: { $avg: "$matchHistoryEntries.newrating" },
           matchDate: {
-            $first: {
-              $dateToString: {
-                format: "%Y-%m-%d",
-                date: { $toDate: "$matchDate" },
-              },
-            },
+            $first: groupByDate, // Use the formatted date as matchDate
           },
         },
       },
@@ -110,23 +102,65 @@ export async function fetchMatchRatings(
     ];
   };
 
-  // Fetch 1v1 matches
-  const result1v1 = await MatchModel.aggregate(
-    matchAggregation(matchCondition1v1)
+  // Aggregation pipelines for day, week, and month data
+  const dayPipeline = matchAggregation(
+    matchCondition_Solo,
+    startDateDay.getTime(),
+    "%Y-%m-%d"
   );
-  // Fetch 2v2 and 3v3 matches
-  const result2v2_3v3 = await MatchModel.aggregate(
-    matchAggregation(matchCondition2v2_3v3)
+  const weekPipeline = matchAggregation(
+    matchCondition_Solo,
+    startDateWeek.getTime(),
+    "%Y-%m-%d", // Use "%Y-%m-%d" but group by ISO week manually
+    true // Enable week format using ISO week
   );
-  // Process the results for 1v1 and 2v2/3v3
-  const chartData1v1 = processRatings(result1v1);
-  const chartData2v2_3v3 = processRatings(result2v2_3v3);
+  const monthPipeline = matchAggregation(
+    matchCondition_Solo,
+    startDateMonth.getTime(),
+    "%Y-%m"
+  );
 
-  // Return combined chart data
+  // Fetch data for all three pipelines (solo and team matches)
+  const [resultDaySolo, resultWeekSolo, resultMonthSolo] = await Promise.all([
+    MatchModel.aggregate(dayPipeline),
+    MatchModel.aggregate(weekPipeline),
+    MatchModel.aggregate(monthPipeline),
+  ]);
+
+  // Process solo match data
+  const chartData_Solo = {
+    day: processRatings(resultDaySolo),
+    week: processRatings(resultWeekSolo),
+    month: processRatings(resultMonthSolo),
+  };
+
+  // Repeat the same logic for team matches
+  const [resultDayTeam, resultWeekTeam, resultMonthTeam] = await Promise.all([
+    MatchModel.aggregate(
+      matchAggregation(matchCondition_Team, startDateDay.getTime(), "%Y-%m-%d")
+    ),
+    MatchModel.aggregate(
+      matchAggregation(
+        matchCondition_Team,
+        startDateWeek.getTime(),
+        "%Y-%m-%d",
+        true
+      )
+    ),
+    MatchModel.aggregate(
+      matchAggregation(matchCondition_Team, startDateMonth.getTime(), "%Y-%m")
+    ),
+  ]);
+
+  // Process team match data
+  const chartData_Team = {
+    day: processRatings(resultDayTeam),
+    week: processRatings(resultWeekTeam),
+    month: processRatings(resultMonthTeam),
+  };
+  // Return combined data for both solo and team matches
   return {
-    chartData: {
-      solo: chartData1v1,
-      team: chartData2v2_3v3,
-    },
+    solo: chartData_Solo,
+    team: chartData_Team,
   };
 }
