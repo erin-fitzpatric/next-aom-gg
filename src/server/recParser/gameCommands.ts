@@ -87,7 +87,7 @@ const commandRefiners: Record<number, GameCommandRefiner> = {
     },
     4: {
         type: "setGatherPoint",
-        parseFunctions: [unpackInt32, unpackInt32, unpackVector, unpackFloat, unpackInt32],
+        parseFunctions: [unpackInt32, unpackInt32, unpackVector, unpackFloat, unpackInt32, unpackInt32],
         refinerFunction: (base: any, raw) => {
             base.sourceUnits = raw.sourceUnits;
             base.countsForCPM = false;
@@ -477,7 +477,7 @@ function parseRawGameCommand(view: DataView, offset: number): RawGameCommand
     for (let i=0; i<numPreArgumentBytes; i++)
         preArgumentBytes.push(view.getUint8(offset+i))
     offset += numPreArgumentBytes;
-
+    //console.log(`Before args at ${offset}`);
     const refiner = getCommandRefiner(commandType, offset);
     const argList: RawGameCommandArgumentTypes[] = [];
     for (const parseFunctionData of refiner.parseFunctions)

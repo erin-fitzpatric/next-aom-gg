@@ -104,7 +104,8 @@ export const RecordedGameRawKeysToCamelCase = new Map<string, string>([
     ["gameismpcoop", "gameIsMpCoop"],
     ["gamemaprecommendedsettings", "gameMapRecommendedSettings"],
     ["gamearenaseason", "gameArenaSeason"],
-    ["usedenforcedagesettings", "usedEnforcedAgeSettings"]
+    ["usedenforcedagesettings", "usedEnforcedAgeSettings"],
+    ["gamecontrolleronly", "gameControllerOnly"],
 ]);
 
 // These arrays define the type and required/optional-ness of the final interfaces
@@ -279,6 +280,7 @@ export const RecordedGameMetadataBooleansRequired = [
 
 export const RecordedGameMetadataBooleansOptional = [
     "commandParserGeneratedWarnings",
+    "gameControllerOnly",
 ] as const;
 
 export interface RecordedGameMetadata extends Record<typeof RecordedGameMetadataStringsRequired[number], string>,
@@ -381,5 +383,8 @@ Version notes:
             added commandParserWarnings
             added commandParserGeneratedWarnings
             added unresignedPlayers
+
+    3:
+        add gameControllerOnly
 
 */
