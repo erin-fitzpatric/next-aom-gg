@@ -1,6 +1,6 @@
-import { BuildModel } from "@/db/mongo/model/BuildNumber";
 import { MatchModel } from "@/db/mongo/model/MatchModel";
 import getMongoClient from "@/db/mongo/mongo-client";
+import { getPatchDates } from "@/utils/getPatchDates";
 
 export interface IFetchUserGodStatsParams {
   playerId: number;
@@ -9,29 +9,10 @@ export interface IFetchUserGodStatsParams {
   gameMode?: string;
 }
 
-async function getPatchDates(patchDescription: string) {
-  await getMongoClient();
-  const builds = await BuildModel.find().sort({ releaseDate: 1 });
-  const patchIndex = builds.findIndex(
-    (build) => build.description === patchDescription
-  );
-
-  if (patchIndex === -1) {
-    throw new Error("Patch description not found");
-  }
-
-  const startDate = builds[patchIndex].releaseDate;
-  const endDate =
-    patchIndex < builds.length - 1
-      ? builds[patchIndex + 1].releaseDate
-      : new Date();
-
-  return { startDate, endDate };
-}
-
 export async function getUserGodStats(params: IFetchUserGodStatsParams) {
   await getMongoClient();
   const { playerId, patchDescription, civilization, gameMode } = params;
+  
   let matchQuery: any = {
     "teams.results.profile_id": playerId,
   };
@@ -48,118 +29,98 @@ export async function getUserGodStats(params: IFetchUserGodStatsParams) {
     matchQuery.gameMode = gameMode;
   }
 
-  // Separate query for total games (without civilization filter)
-  const totalGamesQuery = { ...matchQuery };
-
-  if (civilization) {
-    matchQuery["teams.results"] = {
-      $elemMatch: {
-        profile_id: playerId,
-        civilization_id: civilization,
-      },
-    };
-  }
-
-  const matches = await MatchModel.find(matchQuery);
-  const totalMatches = await MatchModel.find(totalGamesQuery);
-
-  const godStatsMap = new Map<
-    string,
+  // Aggregation pipeline to calculate the stats on the server
+  const pipeline = [
+    { $match: matchQuery },
     {
-      civilization_id: number;
-      race_id: number;
-      wins: number;
-      losses: number;
-      number_of_games: number;
-    }
-  >();
-
-  const totalGamesMap = new Map<number, number>();
-
-  for (const match of totalMatches) {
-    for (const team of match.teams) {
-      for (const result of team.results) {
-        if (result.profile_id === playerId) {
-          const { civilization_id } = result;
-          totalGamesMap.set(
-            civilization_id,
-            (totalGamesMap.get(civilization_id) || 0) + 1
-          );
-        }
+      $unwind: "$teams"
+    },
+    {
+      $unwind: "$teams.results"
+    },
+    {
+      $match: {
+        "teams.results.profile_id": playerId,
+        ...(civilization && { "teams.results.civilization_id": civilization })
+      }
+    },
+    {
+      $group: {
+        _id: {
+          civilization_id: "$teams.results.civilization_id",
+          race_id: "$teams.results.race_id",
+          gameMode: "$gameMode"
+        },
+        wins: {
+          $sum: {
+            $cond: [{ $eq: ["$teams.results.resulttype", 1] }, 1, 0]
+          }
+        },
+        losses: {
+          $sum: {
+            $cond: [{ $ne: ["$teams.results.resulttype", 1] }, 1, 0]
+          }
+        },
+        totalGames: { $sum: 1 }
+      }
+    },
+    {
+      $group: {
+        _id: "$_id.civilization_id",
+        race_id: { $first: "$_id.race_id" },
+        total_wins: { $sum: "$wins" },
+        total_games: { $sum: "$totalGames" }
+      }
+    },
+    {
+      $project: {
+        _id: 0,
+        civilization_id: "$_id",
+        race_id: 1,
+        win_rate: { $divide: ["$total_wins", "$total_games"] },
+        number_of_games: "$total_games"
       }
     }
-  }
+  ];
 
-  const totalGames = Array.from(totalGamesMap.values()).reduce(
-    (acc, count) => acc + count,
-    0
-  );
+  const stats = await MatchModel.aggregate(pipeline);
 
-  for (const match of matches) {
-    const gameMode = match.gameMode;
-    for (const team of match.teams) {
-      for (const result of team.results) {
-        if (result.profile_id === playerId) {
-          const { civilization_id, race_id, resulttype } = result;
-          const key = `${gameMode}-${civilization_id}`;
-          if (!godStatsMap.has(key)) {
-            godStatsMap.set(key, {
-              civilization_id,
-              race_id,
-              wins: 0,
-              losses: 0,
-              number_of_games: 0,
-            });
-          }
-          const godStats = godStatsMap.get(key)!;
-          godStats.number_of_games += 1;
-          if (resulttype === 1) {
-            godStats.wins += 1;
-          } else {
-            godStats.losses += 1;
-          }
-        }
+  // Get total games played for play_rate calculation
+  const totalGamesQuery: any = { ...matchQuery };
+  delete totalGamesQuery["teams.results.civilization_id"];  // Remove the civilization filter for total games
+
+  const totalGamesPipeline = [
+    { $match: totalGamesQuery },
+    {
+      $unwind: "$teams"
+    },
+    {
+      $unwind: "$teams.results"
+    },
+    {
+      $match: {
+        "teams.results.profile_id": playerId
+      }
+    },
+    {
+      $group: {
+        _id: "$teams.results.civilization_id",
+        totalGames: { $sum: 1 }
       }
     }
-  }
+  ];
 
-  const combinedGodStats = new Map<
-    number,
-    {
-      civilization_id: number;
-      race_id: number;
-      total_wins: number;
-      total_games: number;
-    }
-  >();
+  const totalGamesStats = await MatchModel.aggregate(totalGamesPipeline);
+  const totalGamesMap = new Map(totalGamesStats.map((g) => [g._id, g.totalGames]));
+  const totalGamesCount = Array.from(totalGamesMap.values()).reduce((acc, count) => acc + count, 0);
 
-  // Combine the stats across game modes
-  Array.from(godStatsMap.entries()).forEach(([_, stat]) => {
-    const { civilization_id, race_id, wins, number_of_games } = stat;
-
-    if (!combinedGodStats.has(civilization_id)) {
-      combinedGodStats.set(civilization_id, {
-        civilization_id,
-        race_id,
-        total_wins: 0,
-        total_games: 0,
-      });
-    }
-
-    const combinedStat = combinedGodStats.get(civilization_id)!;
-    combinedStat.total_wins += wins;
-    combinedStat.total_games += number_of_games;
-  });
-
-  const godStatsArray = Array.from(combinedGodStats.values()).map((stat) => {
-    return {
-      civilization_id: stat.civilization_id,
-      race_id: stat.race_id,
-      win_rate: stat.total_wins / stat.total_games,
-      play_rate: totalGamesMap.get(stat.civilization_id)! / totalGames,
-      number_of_games: stat.total_games,
-    };
-  });
+  const godStatsArray = stats.map((stat) => ({
+    civilization_id: stat.civilization_id,
+    race_id: stat.race_id,
+    win_rate: stat.win_rate,
+    play_rate: (totalGamesMap.get(stat.civilization_id) || 0) / totalGamesCount,
+    number_of_games: stat.number_of_games,
+  }));
 
   return godStatsArray;
 }

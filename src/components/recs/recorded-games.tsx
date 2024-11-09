@@ -32,7 +32,10 @@ export default function RecordedGames() {
   const [query, setQuery] = useState<string>("");
   const [filters, setFilters] = useState<Filters>({});
   const [buildNumbers, setBuildNumbers] = useState<number[]>([]);
-  const [selectedBuild, setSelectedBuild] = useState<number | null>(null);
+  // TODO - This can probably be refactored to be part of the filters state
+  const [selectedBuild, setSelectedBuild] = useState<
+    number | "All Builds" | null
+  >(null);
   const initialFetch = useRef(true);
   const searchParams = useSearchParams();
 
@@ -160,8 +163,7 @@ export default function RecordedGames() {
                     <RecTile
                       key={`rec-tile-${rec.gameGuid}`}
                       rec={rec}
-                      refetchRecs={() => fetchRecs(0, filters)}
-                      filters={filters}
+                      setRecs={setRecs}
                     ></RecTile>
                   </div>
                 </Card>

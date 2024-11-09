@@ -145,7 +145,7 @@ function parseProfileKeys(root: RecordedGameHierarchyContainer, couldBeBenchmark
         {
             throw new Error(Errors.GAME_IS_BENCHMARK, {cause:"This looks like a recorded game of the benchmark - it is not a multiplayer game!"});
         }
-        throw new Error(Errors.NOT_A_MULTIPLAYER_GAME, {cause:"Could not find metadata - ensure this is a multiplayer Retold recorded game"});
+        // throw new Error(Errors.NOT_A_MULTIPLAYER_GAME, {cause:"Could not find metadata - ensure this is a multiplayer Retold recorded game"});
     }
     const profileKeys = profileKeysMatches[0];
     // This is a table of mapped key names to values.

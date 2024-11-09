@@ -53,6 +53,7 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
 
   const MAJOR_GODS = listMajorGods();
 
+  // Fetch Builds
   useEffect(() => {
     const fetchBuilds = async () => {
       try {
@@ -70,9 +71,9 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
     fetchBuilds();
   }, []);
 
+  // Fetch Game Modes
   useEffect(() => {
     const fetchGameModes = async () => {
-      console.log("Fetching available game modes");
       try {
         const response = await fetch(`/api/data/game_modes`);
         if (!response.ok) {
@@ -80,7 +81,6 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
           throw new Error("Failed to fetch game modes");
         }
         const data = await response.json();
-        console.log("TEST", data);
         setGameModes(data);
       } catch (error) {
         console.error("Error fetching game modes:", error);
@@ -89,9 +89,9 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
     fetchGameModes();
   }, []);
 
+  // Fetch God Stats
   useEffect(() => {
     const fetchData = async () => {
-      console.log("Fetching user god stats");
       setLoading(true);
       try {
         const params = new URLSearchParams({ playerId: playerId.toString() });
@@ -117,7 +117,6 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
           throw new Error("Failed to fetch user god stats");
         }
         const data = await response.json();
-        console.log("TEST", data);
         const mappedData = data.map((item: any) => {
           const godData = majorGodIndexToData(item.civilization_id);
           return {
@@ -174,8 +173,8 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
 
   return (
     <Card>
-      <CardContent className="space-y-4 p-6">
-        <div className="flex space-x-4 justify-start">
+      <CardContent className="p-6 sm:space-x-2">
+        <div className="flex flex-wrap  justify-start gap-2">
           <div className="flex flex-col">
             <Label htmlFor="patch-dropdown" className="mb-1 text-gold">
               Patch
@@ -293,7 +292,7 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
           </div>
         </div>
 
-        <div className="w-[90vw] overflow-x-auto">
+        <div>
           {loading ? (
             <div className="flex justify-center items-center h-64">
               <p>Loading...</p>
@@ -303,7 +302,7 @@ export default function PlayerGodStats({ playerId }: PlayerGodStatsProps) {
               <p>No Games Played</p>
             </div>
           ) : (
-            <div style={{ maxHeight: "25vh", overflowY: "auto" }}>
+            <div>
               <Table>
                 <TableHeader>
                   <TableRow>
