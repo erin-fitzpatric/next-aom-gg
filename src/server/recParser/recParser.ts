@@ -11,7 +11,7 @@ import { RecordedGameXMBData } from "@/types/recParser/Xmb";
 import { parseRecordedGameCommandList } from "./gameCommands";
 import { RecordedGameRefinedCommands, RefinedGameCommand } from "@/types/recParser/GameCommands";
 
-const REC_PARSER_STRUCTURE_VERSION = 2;
+const REC_PARSER_STRUCTURE_VERSION = 3;
 
 // The max allowed decompressed size of files that are passed as "recorded games".
 // This needs to be limited to avoid someone uploading a huge zlib decompression bomb and trying to decompress the entire thing in memory
@@ -165,13 +165,8 @@ function parseProfileKeys(root: RecordedGameHierarchyContainer, couldBeBenchmark
     
     // Points to the length of the string of the first key
     let currentOffset = keyCountOffset + 4;
-    let foundKeyType3 = false;
     for (let keyIndex=0; keyIndex<keyCount; keyIndex++)
     {
-        if (foundKeyType3)
-        {
-            throw new Error(Errors.PARSER_INTERNAL_ERROR, {cause: `Profile key index ${keyIndex} found after a type 3, cannot continue due to unknown data length`});
-        }
         const keyData = readRecordedGameString(profileKeys.data, currentOffset);
         const key = keyData.content;
         currentOffset += keyData.streamBytesConsumed;
@@ -218,10 +213,9 @@ function parseProfileKeys(root: RecordedGameHierarchyContainer, couldBeBenchmark
             }
             case 3:
             {
-                // Only gamesyncstate uses this, and I have no idea what its value is
-                // or its length, because it's at the end of the list
-                // Because of that, the safest thing to do is to throw an error if there's ever a key after it
-                foundKeyType3 = true;
+                // Only gamesyncstate uses this, and its value is probably always very useless (binary data)
+                // But we know it's 8 bytes long now
+                currentOffset += 8;
                 break;
             }
             default:
