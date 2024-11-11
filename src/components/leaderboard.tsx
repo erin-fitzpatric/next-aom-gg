@@ -9,9 +9,13 @@ import { Spinner } from "./spinner";
 import { ILeaderboardPlayer } from "@/types/LeaderboardPlayer";
 import { LeaderboardTypeValues } from "@/types/LeaderBoard";
 
-export function usePagination() {
+export function usePagination({
+  defaultPageSize = 50
+}: {
+  defaultPageSize?: number;
+}) {
   const [pagination, setPagination] = useState({
-    pageSize: 50,
+    pageSize: defaultPageSize,
     pageIndex: 0,
   });
   const { pageSize, pageIndex } = pagination;
@@ -36,7 +40,7 @@ export default function Leaderboard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [initialLoad, setInitialLoad] = useState(true);
 
-  const { limit, onPaginationChange, skip, pagination } = usePagination();
+  const { limit, onPaginationChange, skip, pagination } = usePagination({});
 
   const getLeaderboardData = useCallback(
     async (searchQuery: string) => {

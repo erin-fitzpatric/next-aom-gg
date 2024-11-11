@@ -19,52 +19,40 @@ export async function fetchMongoMatchHistory(
 
   // Build the Pipeline
   const pipeline: PipelineStage[] = [
-    {
-      $addFields: {
-        matchHistoryArray: { $objectToArray: "$matchHistoryMap" },
-      },
-    },
+    // Match documents first to reduce the result set as much as possible
     {
       $match: {
-        "matchHistoryArray.v.profile_id": playerId,
-      },
-    },
-    {
-      $facet: {
-        data: [
-          {
-            $project: {
-              matchHistoryArray: 0, // Exclude the temporary field
-              _id: 0, // Remove BSON _id field
-              __v: 0, // Remove __v field
-              "teams._id": 0, // Remove BSON _id field inside teams
-              "teams.results._id": 0, // Remove BSON _id field inside results
-              "matchHistoryMap.v._id": 0, // Remove BSON _id field inside matchHistoryMap
-            },
-          },
-          { $sort: { matchId: -1 } },
-          { $skip: skip },
-          { $limit: limit },
-        ],
-        totalCount: [
-          {
-            $count: "count",
-          },
-        ],
+        [`matchHistoryMap.${playerId}`]: { $exists: true }
       },
     },
     {
       $project: {
-        data: 1,
-        totalCount: { $arrayElemAt: ["$totalCount.count", 0] }, // Unwrap the count from the array
+        matchHistoryArray: 0,
+        _id: 0,
+        __v: 0,
+        "teams._id": 0,
+        "teams.results._id": 0,
+        [`matchHistoryMap.${playerId}._id`]: 0, // Exclude BSON _id inside matchHistoryMap
       },
     },
+    // Sort, Skip, and Limit
+    { $sort: { matchId: -1 } },
+    { $skip: skip },
+    { $limit: limit },
   ];
 
   // Fetch Data
-  const response = await MatchModel.aggregate(pipeline).exec();
-  return response[0] as MatchResults;
+  const data = await MatchModel.aggregate(pipeline).exec();
+  const totalCount = await MatchModel.countDocuments({
+    [`matchHistoryMap.${playerId}`]: { $exists: true }
+  });
+
+  return {
+    data,
+    totalCount,
+  };
 }
+
 
 export function mapMatchHistoryData(
   matchData: Match[],
@@ -85,31 +73,3 @@ export function mapMatchHistoryData(
   });
   return mappedMatchData;
 }
-
-
-// deprecated
-// export async function fetchMatchHistory(
-//   playerId: string
-// ): Promise<FetchMatchHistoryResponse> {
-//   const baseUrl =
-//     "https://athens-live-api.worldsedgelink.com/community/leaderboard/getRecentMatchHistory";
-//   const profileIds = JSON.stringify([playerId]);
-//   const url = `${baseUrl}?title=athens&profile_ids=${encodeURIComponent(
-//     profileIds
-//   )}`;
-
-//   const response = await fetch(url);
-//   if (!response.ok) {
-//     throw new Error("Failed to fetch profile data");
-//   }
-
-//   const data = await response.json();
-//   if (data.result.code !== 0) {
-//     // No match found for the playerId
-//     throw new Error(Errors.PLAYER_NOT_FOUND);
-//   }
-//   return {
-//     matchHistoryStats: data.matchHistoryStats,
-//     profiles: data.profiles,
-//   };
-// }
