@@ -55,7 +55,7 @@ export default function Profile() {
   const playerId = String(id);
 
   const { status } = useSession();
-  const { limit, onPaginationChange, skip, pagination } = usePagination();
+  const { limit, onPaginationChange, skip, pagination } = usePagination({defaultPageSize: 10});
 
   const fetchProfileData = useCallback(
     async (playerId: string) => {
@@ -67,7 +67,7 @@ export default function Profile() {
       });
       const url = `${baseUrl}?${params.toString()}`;
 
-      setState((prev) => ({ ...prev, loading: true }));
+      setState((prev) => ({ ...prev, loading: false }));
 
       try {
         const response = await fetch(url);
