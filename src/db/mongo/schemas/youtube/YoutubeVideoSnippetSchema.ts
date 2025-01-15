@@ -6,7 +6,7 @@ const YoutubeVideoSnippetSchema = new Schema({
   publishedAt: { type: Date, required: true },
   channelId: { type: String, required: true },
   title: { type: String, required: true },
-  description: { type: String, required: true },
+  description: { type: String, required: false },
   thumbnails: { type: YoutubeSnippetThumbnailSchema, required: true },
   channelTitle: { type: String, required: true },
 });

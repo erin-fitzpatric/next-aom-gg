@@ -8,6 +8,7 @@ export interface IYoutubeVideo {
     thumbnails: IYoutubeThumbnail;
     channelTitle: string;
   };
+  viewCount?: number;
 }
 
 export interface IYoutubeThumbnail {

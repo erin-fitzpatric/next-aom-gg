@@ -10,56 +10,91 @@ const youtubeClient = google.youtube({
   auth: process.env.YOUTUBE_API_KEY,
 });
 
-const FITZBRO_CHANNEL_ID = "UCnwcH2ufz2_Tq0gr8IIa5wg";
-
 export async function fetchNewYoutubeVideos(): Promise<IYoutubeVideo[]> {
-  const channelResponse = await youtubeClient.channels.list({
-    id: [FITZBRO_CHANNEL_ID],
-    part: ["contentDetails"],
-  });
+  try {
+    // Step 1: Fetch videos sorted by date
+    const searchResponse = await youtubeClient.search.list({
+      part: ["snippet"], // Required: includes video details
+      q: "Age of Mythology: Retold", // Game title
+      type: ["video"], // Restrict results to videos
+      videoCategoryId: "20", // Gaming category
+      maxResults: 25, // Adjust as needed
+      order: "date", // Sort by date
+      regionCode: "US", // Optional: Region filter
+      relevanceLanguage: "en", // Optional: Language filter
+    });
 
-  const uploadsPlaylistId =
-    channelResponse.data.items?.[0]?.contentDetails?.relatedPlaylists?.uploads;
-  const playlistItemsResponse = await youtubeClient.playlistItems.list({
-    playlistId: uploadsPlaylistId,
-    part: ["snippet"],
-    maxResults: 6,
-  });
-  if (!playlistItemsResponse.data.items) {
-    throw new Error("Unable to fetch new youtube videos");
-  }
-  const mappedVideoData = playlistItemsResponse.data.items.map((item) => {
-    if (
-      !item.snippet ||
-      !item.snippet.publishedAt ||
-      !item.snippet.resourceId?.videoId ||
-      !item.snippet.channelId ||
-      !item.snippet.title ||
-      !item.snippet.description ||
-      !item.snippet.thumbnails ||
-      !item.snippet.channelTitle
-    ) {
-      throw new Error("Unable to fetch new youtube videos");
+    const searchItems = searchResponse.data.items || [];
+    if (searchItems.length === 0) {
+      throw new Error("No videos found for the specified query.");
     }
-    return {
-      videoId: item?.snippet?.resourceId?.videoId,
-      snippet: {
-        publishedAt: new Date(item.snippet.publishedAt),
-        channelId: item?.snippet?.channelId,
-        title: item?.snippet?.title,
-        description: item?.snippet?.description,
-        thumbnails: item?.snippet?.thumbnails as IYoutubeThumbnail,
-        channelTitle: item?.snippet?.channelTitle,
-      },
-    };
-  });
-  // Save results to mongo
-  await getMongoClient();
-  const youtubeVideoDocs = mappedVideoData.map((video: IYoutubeVideo) => {
-    return new YoutubeVideoModel(video);
-  });
-  await YoutubeVideoModel.insertMany(youtubeVideoDocs);
-  return mappedVideoData;
+
+    // Step 2: Extract video IDs
+    const videoIds = searchItems
+      .map((item) => item.id?.videoId)
+      .filter(Boolean) as string[];
+
+    if (videoIds.length === 0) {
+      throw new Error("No valid video IDs found in search results.");
+    }
+
+    // Step 3: Fetch video statistics for view count
+    const statsResponse = await youtubeClient.videos.list({
+      part: ["statistics"],
+      id: videoIds,
+    });
+
+    const videoStatsMap = new Map(
+      statsResponse.data.items?.map((video) => [
+        video.id,
+        video.statistics?.viewCount || 0,
+      ])
+    );
+
+    // Step 4: Map video data
+    const mappedVideoData = searchItems.map((item) => {
+      if (
+        !item.snippet ||
+        !item.snippet.publishedAt ||
+        !item.snippet.channelId ||
+        !item.snippet.title ||
+        !item.snippet.thumbnails ||
+        !item.snippet.channelTitle
+      ) {
+        throw new Error("Invalid video data received from API.");
+      }
+
+      return {
+        videoId: item.id?.videoId,
+        snippet: {
+          publishedAt: new Date(item.snippet.publishedAt),
+          channelId: item.snippet.channelId,
+          title: item.snippet.title,
+          description: item.snippet.description,
+          thumbnails: item.snippet.thumbnails as IYoutubeThumbnail,
+          channelTitle: item.snippet.channelTitle,
+        },
+        viewCount: videoStatsMap.get(item.id?.videoId) || 0,
+      } as IYoutubeVideo;
+    });
+
+    // Step 5: Sort videos by view count (popularity) in descending order and limit to 6
+    const sortedVideos = mappedVideoData.sort(
+      (a, b) => (b.viewCount || 0) - (a.viewCount || 0)
+    ).slice(0, 6);
+
+    // Step 6: Save results to MongoDB
+    await getMongoClient();
+    const youtubeVideoDocs = sortedVideos.map((video: IYoutubeVideo) => {
+      return new YoutubeVideoModel(video);
+    });
+    await YoutubeVideoModel.insertMany(youtubeVideoDocs);
+
+    return sortedVideos;
+  } catch (error) {
+    console.error("Error fetching YouTube videos:", error);
+    throw new Error("Unable to fetch new YouTube videos.");
+  }
 }
 
 export async function getStoredYoutubeVideos(): Promise<IYoutubeVideo[]> {

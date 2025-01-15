@@ -34,7 +34,7 @@ export default function RedditFeed() {
             <h2 className='card-header'>Top Reddit Posts</h2>
           </div>
         </div>
-        <Carousel className='pt-4'>
+        <Carousel className='pt-4 mx-10'>
           <CarouselContent className='flex items-center'>
             <Suspense fallback={<PlaceHolder />}>
               <GalleryItems />
