@@ -1,5 +1,4 @@
 import BannerAd from "@/components/ads/bannerAd";
-import UnderConstruction from "@/components/statistics/under-construction";
 
 export default function Layout({ children }: { children: React.ReactNode }) {
   return (
@@ -12,7 +11,7 @@ export default function Layout({ children }: { children: React.ReactNode }) {
 
         {/* Main Content Wrapper */}
         <div className="flex-1 w-full max-w-screen-xl mx-auto px-4 lg:px-0">
-          <UnderConstruction />
+          {/* <UnderConstruction /> */}
           {children}
         </div>
 
