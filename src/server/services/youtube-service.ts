@@ -19,39 +19,55 @@ export async function fetchNewYoutubeVideos(): Promise<IYoutubeVideo[]> {
       type: ["video"], // Restrict results to videos
       videoCategoryId: "20", // Gaming category
       maxResults: 25, // Adjust as needed
-      order: "date", // Sort by date
+      order: "viewCount", // Sort by view count
       regionCode: "US", // Optional: Region filter
-      relevanceLanguage: "en", // Optional: Language filter
+      relevanceLanguage: "en", // Optional: Language filter,
+      publishedAfter: new Date(
+        Date.now() - 7 * 24 * 60 * 60 * 1000
+      ).toISOString(), // Last 7 days
+      videoDuration: "any", // Excludes Shorts
     });
 
     const searchItems = searchResponse.data.items || [];
-    if (searchItems.length === 0) {
-      throw new Error("No videos found for the specified query.");
-    }
+    if (!searchItems.length) throw new Error("No videos found for the specified query.");
+
 
     // Step 2: Extract video IDs
-    const videoIds = searchItems
-      .map((item) => item.id?.videoId)
-      .filter(Boolean) as string[];
+    const videoIds = searchItems.map((item) => item.id?.videoId).filter(Boolean) as string[];
+    if (!videoIds.length) throw new Error("No valid video IDs found in search results.");
 
-    if (videoIds.length === 0) {
-      throw new Error("No valid video IDs found in search results.");
-    }
 
     // Step 3: Fetch video statistics for view count
     const statsResponse = await youtubeClient.videos.list({
-      part: ["statistics"],
+      part: ["statistics, contentDetails, liveStreamingDetails, snippet"],
       id: videoIds,
     });
 
+    // Step 4: Filter out live videos, previously live videos, and Shorts
+    const filteredVideos = (statsResponse.data.items ?? []).filter((video) => {
+      const isEnglish =
+        video.snippet?.defaultAudioLanguage?.startsWith("en") ||
+        video.snippet?.defaultLanguage?.startsWith("en");
+
+      const durationInSeconds = parseISO8601DurationToSeconds(video.contentDetails?.duration ?? undefined);
+      const isNotShort = durationInSeconds >= 60; // Exclude Shorts
+      const isNotLive = !video.liveStreamingDetails; // Exclude live videos
+      const hasValidDuration = video.contentDetails?.duration !== "PT0S"; // Exclude indefinite duration
+
+      return isEnglish && isNotShort && isNotLive && hasValidDuration;
+    });
+
+    if (!filteredVideos.length) throw new Error("No valid videos after filtering.");
+
+
+
+    // Step 5: Map video data for mongoDB insertion
     const videoStatsMap = new Map(
-      statsResponse.data.items?.map((video) => [
+      filteredVideos.map((video) => [
         video.id,
         video.statistics?.viewCount || 0,
       ])
     );
-
-    // Step 4: Map video data
     const mappedVideoData = searchItems.map((item) => {
       if (
         !item.snippet ||
@@ -78,12 +94,13 @@ export async function fetchNewYoutubeVideos(): Promise<IYoutubeVideo[]> {
       } as IYoutubeVideo;
     });
 
-    // Step 5: Sort videos by view count (popularity) in descending order and limit to 6
-    const sortedVideos = mappedVideoData.sort(
-      (a, b) => (b.viewCount || 0) - (a.viewCount || 0)
-    ).slice(0, 6);
+    // Step 6: Sort videos by view count (popularity) in descending order and limit to 6
+    const sortedVideos = mappedVideoData
+      .sort((a, b) => (b.viewCount || 0) - (a.viewCount || 0))
+      .slice(0, 6)
+      .sort((a, b) => b.snippet.publishedAt.getTime() - a.snippet.publishedAt.getTime()); // Sort by publish date in descending order
 
-    // Step 6: Save results to MongoDB
+    // Step 7: Save results to MongoDB
     await getMongoClient();
     const youtubeVideoDocs = sortedVideos.map((video: IYoutubeVideo) => {
       return new YoutubeVideoModel(video);
@@ -97,6 +114,17 @@ export async function fetchNewYoutubeVideos(): Promise<IYoutubeVideo[]> {
   }
 }
 
+function parseISO8601DurationToSeconds(duration: string | undefined): number {
+  if (!duration) return 0;
+
+  const match = duration.match(/PT(?:(\d+)H)?(?:(\d+)M)?(?:(\d+)S)?/);
+  const hours = parseInt(match?.[1] || "0", 10);
+  const minutes = parseInt(match?.[2] || "0", 10);
+  const seconds = parseInt(match?.[3] || "0", 10);
+
+  return hours * 3600 + minutes * 60 + seconds;
+}
+
 export async function getStoredYoutubeVideos(): Promise<IYoutubeVideo[]> {
   await getMongoClient();
   let todaysVideos: IYoutubeVideo[] = [];
@@ -104,10 +132,11 @@ export async function getStoredYoutubeVideos(): Promise<IYoutubeVideo[]> {
     const result = await YoutubeVideoModel.find({
       // created at today
       createdAt: {
-        $gte: new Date(new Date().setHours(0, 0, 0, 0))
+        $gte: new Date(new Date().setHours(0, 0, 0, 0)),
       },
-
-    }).sort('asc').limit(6);
+    })
+      .sort("asc")
+      .limit(6);
     todaysVideos = result.map((video) => {
       return {
         videoId: video.videoId,
@@ -120,17 +149,17 @@ export async function getStoredYoutubeVideos(): Promise<IYoutubeVideo[]> {
             default: {
               url: video.snippet.thumbnails.default.url,
               width: video.snippet.thumbnails.default.width,
-              height: video.snippet.thumbnails.default.height
+              height: video.snippet.thumbnails.default.height,
             },
             medium: {
               url: video.snippet.thumbnails.medium.url,
               width: video.snippet.thumbnails.medium.width,
-              height: video.snippet.thumbnails.medium.height
+              height: video.snippet.thumbnails.medium.height,
             },
             high: {
               url: video.snippet.thumbnails.high.url,
               width: video.snippet.thumbnails.high.width,
-              height: video.snippet.thumbnails.high.height
+              height: video.snippet.thumbnails.high.height,
             },
           },
           channelTitle: video.snippet.channelTitle,
