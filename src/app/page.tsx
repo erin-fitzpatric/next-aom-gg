@@ -18,20 +18,16 @@ export default function Home() {
       <div>
         <RedditFeed />
       </div>
-      {/* Horizontal Top Banner Ad */}
-      <div className="flex mx-auto justify-center w-full pt-1">
-        <BannerAd adSlot={5638566067} width={970} height={90} />
-      </div>
 
       {/* Main Section with Vertical Banners */}
       <div className="flex justify-center">
         {/* Vertical Left Banner Ad */}
-        <div className="hidden lg:block pr-2">
+        <div className="hidden lg:block pr-2 pt-2">
           <BannerAd adSlot={2054113074} width={160} height={600} />
         </div>
 
         {/* Main Content (Leaderboard, YouTube, TopRecordedGames) */}
-        <div className="flex-1">
+        <div className="flex-1 pt-2">
           <div className="grid grid-cols-1 xl:grid-cols-4 gap-5">
             <div className="xl:col-span-3">
               <Leaderboard />
@@ -44,7 +40,7 @@ export default function Home() {
         </div>
 
         {/* Vertical Right Banner Ad */}
-        <div className="hidden lg:block pl-2">
+        <div className="hidden lg:block pl-2 pt-2">
           <BannerAd adSlot={9288136655} width={160} height={600} />
         </div>
       </div>
