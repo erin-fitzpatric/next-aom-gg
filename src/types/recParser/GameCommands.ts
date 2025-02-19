@@ -5,9 +5,9 @@ export type RawGameCommandArgumentTypes = string | number | Vector3 | boolean;
 
 export interface RawGameCommandFooter
 {
-    early: ArrayBuffer
-    extraBytes: number[]
-    late: ArrayBuffer
+    early: ArrayBuffer | SharedArrayBuffer
+    extraBytes: number[] 
+    late: ArrayBuffer | SharedArrayBuffer
     offsetEnd: number
 }
 
@@ -16,7 +16,7 @@ export interface RawGameCommand
     /**
      * In most cases, first 10 bytes of the command structure. For ungarrison actions (14) this section is 30 bytes long instead for some reason.
      */
-    tenBytes: ArrayBuffer
+    tenBytes: ArrayBuffer | SharedArrayBuffer
     /**
      * The command type (internal enum) issued by this command
      */
