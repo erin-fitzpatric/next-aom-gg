@@ -44,7 +44,7 @@ import { RecordedGameHierarchyData, RecordedGameHierarchyContainer, RecordedGame
 import { Errors } from "@/utils/errors";
 
 const MAX_SCAN_LENGTH = 50;
-const OUTER_HIERARCHY_START_OFFSET = 0x101;
+const OUTER_HIERARCHY_START_OFFSET = 0;
 
 interface ParseHierarchyDataOptions
 {
