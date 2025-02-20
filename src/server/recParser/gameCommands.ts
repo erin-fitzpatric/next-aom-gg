@@ -515,8 +515,10 @@ function parseRawGameCommandFooter(view: DataView, offset: number): RawGameComma
     offset += extraByteCount;
     if (extraByteCount > 0)
     {
-        console.log(`parseRawGameCommandFooter has ${extraByteCount} extra bytes: ${extraBytes}`);
+        // This typically seems to have to do with a player resigning. But the command list tells us that already
+        //console.log(`parseRawGameCommandFooter: has ${extraByteCount} extra bytes, finished reading them at offset ${offset}: ${extraBytes}`);
     }
+    
     const unk = view.getUint8(offset);
     if (unk != 1)
         throw new Error(Errors.PARSER_INTERNAL_ERROR, {cause: `parseRawGameCommandFooter: expected unk=1 at ${offset}, got ${unk}`});
@@ -536,6 +538,7 @@ function parseRawGameCommandFooter(view: DataView, offset: number): RawGameComma
 function parseRawGameCommandListEntry(view: DataView, offset: number): RawGameCommandListEntry
 {
     const entryType = view.getUint32(offset, true);
+
     //console.log(`parseRawGameCommandListEntry starting at ${offset}, entryType ${entryType}`);
     // entryType is a bitmask.
     // 1: If set, unknown int8 is immediately afterwards. If not set, it's a (negative) int32 instead.
@@ -547,6 +550,7 @@ function parseRawGameCommandListEntry(view: DataView, offset: number): RawGameCo
     const unknowns: Record<string, any> = {};
     unknowns["EarlyByte"] = view.getUint8(offset);
     offset++;
+
     // Other values are unknown and we should reject them
     if ((entryType & 225) != entryType)
         throw new Error(Errors.PARSER_INTERNAL_ERROR, {cause: `parseRawGameCommandListEntry: Entry at offset ${offset} has unknown entryType bits ${entryType}`});
@@ -622,12 +626,14 @@ function parseRawGameCommandListEntry(view: DataView, offset: number): RawGameCo
     }
 }
 
-function parseRawGameCommandList(decompressed: Buffer, offset: number): RawGameCommandListEntry[]
+function parseRawGameCommandList(decompressed: Buffer, offset: number, numItems: number): RawGameCommandListEntry[]
 {
     const view = new DataView(decompressed.buffer);
     offset = decompressed.indexOf(FOOTER, offset);
     if (offset == -1)
         throw new Error(Errors.PARSER_INTERNAL_ERROR, {cause: "parseRawGameCommandList: couldn't find first footer"});
+    //console.log(`First footer at ${offset}`);
+    //console.log(`Early bytes: ${Array.prototype.slice.call(decompressed, 0).slice(offset, offset+70)}`);
     const firstFooter = parseRawGameCommandFooter(view, offset);
     offset = firstFooter.offsetEnd + 5;
     let lastIndex = 1;
@@ -635,12 +641,12 @@ function parseRawGameCommandList(decompressed: Buffer, offset: number): RawGameC
     //console.log(`starting offset: ${offset}`);
     while (true)
     {
-        if (offset == view.buffer.byteLength)
-            break;
         const thisItem = parseRawGameCommandListEntry(view, offset);
         if (thisItem.entryIndex != lastIndex + 1)
             throw new Error(Errors.PARSER_INTERNAL_ERROR, {cause: `parseRawGameCommandList: expected entry near ${offset} to be sequential to ${lastIndex}, found ${thisItem.entryIndex}`});
         lastIndex++;
+        if (lastIndex >= numItems)
+            break;
         if (thisItem.commands.length > 0 || thisItem.selectedUnits.length > 0 || thisItem.footer.extraBytes.length > 0)
             commandList.push(thisItem);
         offset = thisItem.offsetEnd;
@@ -649,12 +655,12 @@ function parseRawGameCommandList(decompressed: Buffer, offset: number): RawGameC
 }
 
 
-export function parseRecordedGameCommandList(root: RecordedGameHierarchyContainer, decompressed: Buffer): RecordedGameRefinedCommands
+export function parseRecordedGameCommandList(decompressed: Buffer, startOffset: number, numItems: number): RecordedGameRefinedCommands
 {
     try
     {
         const warnings: string[] = [];
-        const rawCommands = parseRawGameCommandList(decompressed, root.offsetEnd);
+        const rawCommands = parseRawGameCommandList(decompressed, startOffset, numItems);
         const commandsByPlayer: Record<number, RefinedGameCommand[]> = {};
         for (const commandListEntry of rawCommands)
         {

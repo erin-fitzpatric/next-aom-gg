@@ -17,14 +17,16 @@ const REC_PARSER_STRUCTURE_VERSION = 3;
 // This needs to be limited to avoid someone uploading a huge zlib decompression bomb and trying to decompress the entire thing in memory
 const RECORDED_GAME_MAX_BYTES_TO_DECOMPRESS = 500000000; // 50mb
 
+const RECORDED_GAME_COMPRESSED_DATA_LENGTH_OFFSET = 0x10d;
+const RECORDED_GAME_COMMAND_LIST_LENGTH_OFFSET = 0x17;
+
 
 const inflatePromisify = promisify((buf: InputType, callback: CompressCallback) => { inflate(buf, {maxOutputLength: RECORDED_GAME_MAX_BYTES_TO_DECOMPRESS}, callback)});
 
 export async function parseRecordedGameMetadata(file: File): Promise<RecordedGameMetadata>
 {
     console.log(`Starting reading recorded game: ${file.name}`);
-    const decompressed = await decompressL33tZlib(await file.arrayBuffer());
-    return await parseMetadataFromDecompressedRecordedGame(decompressed);
+    return await parseMetadataFromDecompressedRecordedGame(await file.arrayBuffer());
 }
 
 
@@ -62,9 +64,16 @@ function encodeUtf16(str: string)
     return new Uint8Array(buffer);
 }
 
-async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): Promise<RecordedGameMetadata>
+export async function parseMetadataFromDecompressedRecordedGame(content: ArrayBuffer): Promise<RecordedGameMetadata>
 {
-    const root = parseRecordedGameHierarchy(decompressed);
+    const view = new DataView(content);
+    const numCompressedBytes = view.getUint32(RECORDED_GAME_COMPRESSED_DATA_LENGTH_OFFSET, true);
+    const l33tzlibStart = RECORDED_GAME_COMPRESSED_DATA_LENGTH_OFFSET+4;
+    const l33tzlibEnd = l33tzlibStart + numCompressedBytes;
+    const decompressedHierarchy = await decompressL33tZlib(content.slice(l33tzlibStart, l33tzlibEnd));
+    //console.log(`decompressed ${l33tzlibStart} to ${l33tzlibEnd}`);
+    const root = parseRecordedGameHierarchy(decompressedHierarchy);
+
     const buildInfoData = traverseRecordedGameHierarchy(root, ["FH"], "data", 1)[0];
     const buildInfoString = readRecordedGameString(buildInfoData.data, 0).content;
     // eg "AoMRT_s.exe 452295 //stream/Athens/beta"
@@ -103,7 +112,15 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
 
     parseMajorGodsToNames(typedOutput, xmbData);
 
-    const commandData = parseRecordedGameCommandList(root, decompressed);
+    // This is not an exact start of the command list - the error is probably ~50 bytes or so.
+    // The bytes before the command list starts are unknown
+    //console.log(`starting comlist at ${l33tzlibEnd}`);
+
+    const commandListLength = view.getUint32(RECORDED_GAME_COMMAND_LIST_LENGTH_OFFSET, true);
+    // Commands are generated at the rate of 20 per second
+    typedOutput.gameLength = commandListLength/20;
+    
+    const commandData = parseRecordedGameCommandList(Buffer.from(content), l33tzlibEnd, commandListLength);
     if (commandData.success)
     {
         parseCommandDerivedValues(typedOutput, commandData, xmbData);
@@ -119,13 +136,7 @@ async function parseMetadataFromDecompressedRecordedGame(decompressed: Buffer): 
     //console.log(formatRecordedGameHierarchy(root));
 
     typedOutput.version = REC_PARSER_STRUCTURE_VERSION;
-    const view = new DataView(decompressed.buffer);
-    // The end of the file is the command list, with one entry per 20th of a second
-    // 5 bytes before the end of the file is the index of the last one
-    // If the actual command list fails to parse for any reason, this should still be able to get the game duration successfully
-    const numGameEntriesOffset = decompressed.length - 5;
-    const numGameEntries = view.getUint32(numGameEntriesOffset, true);
-    typedOutput.gameLength = numGameEntries / 20;
+    
     return typedOutput;
 }
 
