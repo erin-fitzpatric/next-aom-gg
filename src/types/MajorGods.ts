@@ -20,6 +20,9 @@ export enum MajorGods {
   Oranos = 11,
   Gaia = 12,
   Freyr = 13,
+  Fuxi = 14,
+  Nuwa = 15,
+  Shennong = 16,
 }
 
 const MajorGodsByIndex = new Map<number, MajorGodData>([
@@ -119,6 +122,27 @@ const MajorGodsByIndex = new Map<number, MajorGodData>([
     {
       name: "Freyr",
       portraitPath: "/gods/norse/major-gods/freyr_icon.png",
+    },
+  ],
+  [
+    14,
+    {
+      name: "Fuxi",
+      portraitPath: "/gods/chinese/major-gods/fuxi_icon.png",
+    },
+  ],
+  [
+    15,
+    {
+      name: "Nuwa",
+      portraitPath: "/gods/chinese/major-gods/nuwa_icon.png",
+    },
+  ],
+  [
+    16,
+    {
+      name: "Shennong",
+      portraitPath: "/gods/chinese/major-gods/shennong_icon.png",
     },
   ],
 ]);
