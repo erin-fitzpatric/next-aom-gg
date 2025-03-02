@@ -56,6 +56,14 @@ export const RandomMapDataMap = new Map<string, RandomMapData>([
     },
   ],
   [
+    "bamboo_grove",
+    {
+      name: "Bamboo Grove",
+      imagePath: "/maps/bamboo_grove.png",
+      isWater: false,
+    },
+  ],
+  [
     "black_sea",
     {
       name: "Black Sea",
@@ -108,6 +116,14 @@ export const RandomMapDataMap = new Map<string, RandomMapData>([
     {
       name: "Gold Rush",
       imagePath: "/maps/gold_rush.png",
+      isWater: false,
+    },
+  ],
+  [
+    "great_wall",
+    {
+      name: "Great Wall",
+      imagePath: "/maps/great_wall.png",
       isWater: false,
     },
   ],
@@ -248,6 +264,22 @@ export const RandomMapDataMap = new Map<string, RandomMapData>([
     },
   ],
   [
+    "peach_blossom_land",
+    {
+      name: "Peach Blossom",
+      imagePath: "/maps/peach_blossom_land.png",
+      isWater: true,
+    },
+  ],
+  [
+    "qinghai_lake",
+    {
+      name: "Qinghai Lake",
+      imagePath: "/maps/qinghai_lake.png",
+      isWater: true,
+    },
+  ],
+  [
     "river_nile",
     {
       name: "River Nile",
@@ -277,6 +309,22 @@ export const RandomMapDataMap = new Map<string, RandomMapData>([
       name: "Sea of Worms",
       imagePath: "/maps/sea_of_worms.png",
       isWater: true,
+    },
+  ],
+  [
+    "silk_road",
+    {
+      name: "Silk Road",
+      imagePath: "/maps/silk_road.png",
+      isWater: false,
+    },
+  ],
+  [
+    "steppe",
+    {
+      name: "Steppe",
+      imagePath: "/maps/steppe.png",
+      isWater: false,
     },
   ],
   [
@@ -333,6 +381,14 @@ export const RandomMapDataMap = new Map<string, RandomMapData>([
       name: "Watering Hole",
       imagePath: "/maps/watering_hole.png",
       isWater: false,
+    },
+  ],
+  [
+    "yellow_river",
+    {
+      name: "Yellow River",
+      imagePath: "/maps/yellow_river.png",
+      isWater: true,
     },
   ],
 ]);
