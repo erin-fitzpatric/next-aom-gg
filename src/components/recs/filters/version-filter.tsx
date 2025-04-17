@@ -1,7 +1,7 @@
 "use client";
 
 import { FilterProps } from "@/types/Filters";
-import { useEffect } from "react";
+import React, { useEffect } from "react";
 
 export function VersionFilter({
   setFilters,
@@ -17,7 +17,7 @@ export function VersionFilter({
   }, [buildNumbers, selectedBuild, setSelectedBuild]);
 
   async function handleFilterChange(
-    event: React.ChangeEvent<HTMLSelectElement>
+    event: React.ChangeEvent<HTMLSelectElement>,
   ) {
     const buildString = event.target.value;
     const isAllBuilds = buildString === "ALL_BUILDS";
