@@ -24,11 +24,10 @@ export default function RecSearch({
   useEffect(() => {
     const fetchRecs = async () => {
       setIsLoading(true);
-      setRecs([]);
+      // Fetch new records before clearing the old ones to prevent flashing
       const recs = await getMythRecs(0, filters);
-      if (recs) {
-        setRecs(recs);
-      }
+      // Only update the records once we have the new data
+      setRecs(recs || []);
       setIsLoading(false);
     };
 
