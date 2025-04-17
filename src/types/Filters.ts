@@ -8,8 +8,8 @@ export type Filters = {
 };
 
 export interface FilterProps {
-  setRecs: Dispatch<SetStateAction<any[]>>;
-  setIsLoading: Dispatch<SetStateAction<boolean>>;
+  setRecs?: Dispatch<SetStateAction<any[]>>;
+  setIsLoading?: Dispatch<SetStateAction<boolean>>;
   setFilters: Dispatch<SetStateAction<Filters>>;
   filters: Filters;
   buildNumbers?: number[];
