@@ -6,7 +6,7 @@ import {
   getMythRecs,
 } from "@/server/controllers/mongo-controller";
 import { Filters } from "@/types/Filters";
-import { useSearchParams } from "next/navigation";
+import { IRecordedGame } from "@/types/RecordedGame";
 import { DefaultSession, User } from "next-auth";
 
 // Types for user and session
@@ -18,9 +18,45 @@ export interface ExtendedSession extends DefaultSession {
   userId?: ExtendedUser;
 }
 
-// Custom hook for managing recorded games data
-export function useRecordedGames(searchParams) {
-  const [gameState, setGameState] = useState({
+// SearchParams interface for better type safety
+export interface SearchParamsType {
+  get: (key: string) => string | null;
+}
+
+// Game state interface with proper typing
+interface GameState {
+  recs: IRecordedGame[];
+  currentPage: number;
+  isLoading: boolean;
+  hasMore: boolean;
+  query: string;
+  buildNumbers: number[];
+}
+
+// Return type for the hook
+interface UseRecordedGamesReturn extends GameState {
+  filters: Filters;
+  setFilters: React.Dispatch<React.SetStateAction<Filters>>;
+  selectedBuild: number | "All Builds" | null;
+  setSelectedBuild: React.Dispatch<React.SetStateAction<number | "All Builds" | null>>;
+  setRecs: (newRecs: IRecordedGame[] | ((prevRecs: IRecordedGame[]) => IRecordedGame[])) => void;
+  setQuery: (newQuery: string | ((prevQuery: string) => string)) => void;
+  initialFetch: React.RefObject<boolean>;
+}
+
+/**
+ * Custom hook for managing recorded games data with infinite scrolling
+ *
+ * Features:
+ * - Fetches and manages recorded game data
+ * - Handles filtering and search
+ * - Implements infinite scrolling
+ * - Manages loading states
+ * - Handles URL parameters
+ */
+export function useRecordedGames(searchParams: SearchParamsType): UseRecordedGamesReturn {
+  // Main state for game data and UI state
+  const [gameState, setGameState] = useState<GameState>({
     recs: [],
     currentPage: 0,
     isLoading: false,
@@ -29,76 +65,83 @@ export function useRecordedGames(searchParams) {
     buildNumbers: [],
   });
 
-  // Consolidated filters state, including selectedBuild
+  // Filter state
   const [filters, setFilters] = useState<Filters>({});
-  const [selectedBuild, setSelectedBuild] = useState<
-    number | "All Builds" | null
-  >(null);
+  const [selectedBuild, setSelectedBuild] = useState<number | "All Builds" | null>(null);
 
+  // Refs for tracking fetch state
   const initialFetch = useRef(true);
   const isFetchingRef = useRef(false);
 
-  // Update game state helper
-  const updateGameState = (updates) => {
-    setGameState((prev) => ({ ...prev, ...updates }));
-  };
+  // Memoized state update helper
+  const updateGameState = useCallback((
+    updates: Partial<GameState> | ((prev: GameState) => GameState)
+  ) => {
+    if (typeof updates === 'function') {
+      setGameState(updates);
+    } else {
+      setGameState((prev) => ({ ...prev, ...updates }));
+    }
+  }, []);
 
-  // Fetch recorded games data
-  const fetchRecs = useCallback(
-    async (
-      pageNum: number,
-      currentFilters: Filters,
-      isFilterChange = false,
-    ) => {
-      // Prevent concurrent fetches
-      if (isFetchingRef.current) return;
-      isFetchingRef.current = true;
+  // Fetch recorded games with debounce protection
+  const fetchRecs = useCallback(async (
+    pageNum: number,
+    currentFilters: Filters,
+    isFilterChange = false,
+  ) => {
+    // Prevent concurrent fetches
+    if (isFetchingRef.current) return;
+    isFetchingRef.current = true;
 
-      updateGameState({ isLoading: true });
+    updateGameState({ isLoading: true });
 
-      try {
-        const mythRecs = await getMythRecs(pageNum, currentFilters);
+    try {
+      const mythRecs = await getMythRecs(pageNum, currentFilters);
 
-        if (mythRecs.length === 0) {
-          updateGameState({ hasMore: false });
-          // If it was a filter change and no results, clear the list
-          if (isFilterChange) {
-            updateGameState({ recs: [] });
-          }
-        } else {
-          updateGameState({ hasMore: true });
-
-          if (pageNum === 0) {
-            // New filter applied or initial load, replace recs
-            updateGameState({ recs: mythRecs });
-          } else {
-            // Infinite scroll, append recs
-            updateGameState((prev) => ({
-              ...prev,
-              recs: [...prev.recs, ...mythRecs],
-            }));
-          }
-        }
-      } catch (error) {
-        console.error("Failed to fetch recs:", error);
+      if (mythRecs.length === 0) {
         updateGameState({ hasMore: false });
-      } finally {
-        updateGameState({ isLoading: false });
-        isFetchingRef.current = false;
+        // Clear list on filter change with no results
+        if (isFilterChange) {
+          updateGameState({ recs: [] });
+        }
+      } else {
+        updateGameState({ hasMore: true });
+
+        if (pageNum === 0) {
+          // Replace recs on new filter or initial load
+          updateGameState({ recs: mythRecs });
+        } else {
+          // Append recs for infinite scroll
+          updateGameState((prev) => ({
+            ...prev,
+            recs: [...prev.recs, ...mythRecs],
+          }));
+        }
       }
-    },
-    [],
-  );
+    } catch (error) {
+      console.error("Failed to fetch recs:", error);
+      updateGameState({ hasMore: false });
+    } finally {
+      updateGameState({ isLoading: false });
+      isFetchingRef.current = false;
+    }
+  }, [updateGameState]);
 
-  // Handle infinite scrolling
+  // Optimized scroll handler with throttling
   const handleScroll = useCallback(() => {
-    if (gameState.isLoading || !gameState.hasMore || isFetchingRef.current)
+    // Skip if already loading, no more data, or currently fetching
+    if (gameState.isLoading || !gameState.hasMore || isFetchingRef.current) {
       return;
+    }
 
+    // Calculate scroll position
     const scrollPosition = window.scrollY + window.innerHeight;
     const pageHeight = document.documentElement.scrollHeight;
+    const scrollThreshold = 500; // Load more when within 500px of bottom
 
-    if (pageHeight - scrollPosition <= 500) {
+    // Load more data when approaching bottom of page
+    if (pageHeight - scrollPosition <= scrollThreshold) {
       const nextPage = gameState.currentPage + 1;
       updateGameState({ currentPage: nextPage });
       fetchRecs(nextPage, filters);
@@ -109,22 +152,27 @@ export function useRecordedGames(searchParams) {
     gameState.currentPage,
     fetchRecs,
     filters,
+    updateGameState,
   ]);
 
-  // Initialize data and set up filters
+  // Initialize data and set up filters from URL params
   useEffect(() => {
     const initialize = async () => {
+      // Set initial loading state
       isFetchingRef.current = true;
-      updateGameState({ isLoading: true });
+      updateGameState({ isLoading: true, recs: [] });
 
       try {
+        // Fetch build numbers first
         const builds = await getBuildNumbers();
         updateGameState({ buildNumbers: builds });
 
+        // Parse URL parameters
         const search = searchParams.get("search");
         const buildNumber = searchParams.get("build");
         let initialFilters: Filters = {};
 
+        // Set up initial filters based on URL params
         if (search && buildNumber) {
           const buildNumInt = parseInt(buildNumber);
           initialFilters = {
@@ -134,23 +182,26 @@ export function useRecordedGames(searchParams) {
           updateGameState({ query: search });
           setSelectedBuild(buildNumInt);
         } else if (builds.length > 0) {
+          // Default to first build if no params
           initialFilters = { buildNumbers: [builds[0]] };
           setSelectedBuild(builds[0]);
         }
 
         setFilters(initialFilters);
+
+        // Fetch initial data
         await fetchRecs(0, initialFilters, true);
       } catch (error) {
         console.error("Initialization failed:", error);
         updateGameState({ isLoading: false, hasMore: false });
       } finally {
-        initialFetch.current = false;
         isFetchingRef.current = false;
+        initialFetch.current = false;
       }
     };
 
     initialize();
-  }, [fetchRecs, searchParams]);
+  }, [fetchRecs, searchParams, updateGameState]);
 
   // Handle filter changes after initial load
   useEffect(() => {
@@ -158,24 +209,41 @@ export function useRecordedGames(searchParams) {
       return;
     }
 
+    // Reset pagination and fetch with new filters
     updateGameState({ currentPage: 0, hasMore: true });
     fetchRecs(0, filters, true);
-  }, [filters, fetchRecs]);
+  }, [filters, fetchRecs, updateGameState]);
 
-  // Set up scroll listener
+  // Set up scroll listener with cleanup
   useEffect(() => {
-    window.addEventListener("scroll", handleScroll);
+    // Use passive listener for better performance
+    window.addEventListener("scroll", handleScroll, { passive: true });
     return () => window.removeEventListener("scroll", handleScroll);
   }, [handleScroll]);
 
+  // Return all necessary state and functions
   return {
     ...gameState,
     filters,
     setFilters,
     selectedBuild,
     setSelectedBuild,
-    setRecs: (newRecs) => updateGameState({ recs: newRecs }),
-    setQuery: (newQuery) => updateGameState({ query: newQuery }),
+    setRecs: (newRecs: IRecordedGame[] | ((prevRecs: IRecordedGame[]) => IRecordedGame[])) => {
+      if (typeof newRecs === 'function') {
+        const updateFn = newRecs as (prevRecs: IRecordedGame[]) => IRecordedGame[];
+        updateGameState((prev) => ({ ...prev, recs: updateFn(prev.recs) }));
+      } else {
+        updateGameState({ recs: newRecs });
+      }
+    },
+    setQuery: (newQuery: string | ((prevQuery: string) => string)) => {
+      if (typeof newQuery === 'function') {
+        const updateFn = newQuery as (prevQuery: string) => string;
+        updateGameState((prev) => ({ ...prev, query: updateFn(prev.query) }));
+      } else {
+        updateGameState({ query: newQuery });
+      }
+    },
     initialFetch,
   };
 }
