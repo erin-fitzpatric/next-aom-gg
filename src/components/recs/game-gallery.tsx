@@ -37,17 +37,22 @@ export const GameGallery = memo(({ recs, isLoading, setRecs }: GameGalleryProps)
 
   // Handle fade animation when loading state or results change
   useEffect(() => {
-    // Hide content during loading
-    if (recs.length > 0 && isLoading) {
-      setFadeIn(false);
-    }
-
-    // Fade in content when loaded
-    if (recs.length > 0 && !isLoading) {
-      const timer = setTimeout(() => {
-        setFadeIn(true);
-      }, 100); // Short delay for smoother transition
-      return () => clearTimeout(timer);
+    // When we have data and loading is complete, fade in the content
+    if (recs.length > 0) {
+      if (isLoading) {
+        // Keep content visible during subsequent loading (like filtering)
+        // Only hide if we're coming from a state with no content
+        if (prevRecsLength.current === 0) {
+          setFadeIn(false);
+        }
+      } else {
+        // When loading completes, ensure content fades in smoothly
+        // Use a slightly longer delay for a smoother transition
+        const timer = setTimeout(() => {
+          setFadeIn(true);
+        }, 150);
+        return () => clearTimeout(timer);
+      }
     }
 
     // Update refs for next comparison
@@ -114,9 +119,14 @@ export const GameGallery = memo(({ recs, isLoading, setRecs }: GameGalleryProps)
     <Card className="p-4">
       <div
         className={cn(
-          "transition-all duration-300 ease-in-out",
+          "transition-opacity duration-300 ease-in-out will-change-opacity",
           fadeIn ? "opacity-100" : "opacity-0"
         )}
+        style={{
+          // Force hardware acceleration for smoother transitions
+          transform: 'translateZ(0)',
+          backfaceVisibility: 'hidden'
+        }}
       >
         <div className="flex flex-row flex-wrap justify-center gap-2">
           {recs?.map(renderGameTile)}
