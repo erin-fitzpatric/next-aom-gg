@@ -37,10 +37,8 @@ function RecordedGames() {
     initialFetch,
   } = useRecordedGames(searchParams);
 
-  // Show loading component during initial data fetch
-  if (initialFetch.current && buildNumbers.length === 0) {
-    return <Loading />;
-  }
+  // With loading.js, we don't need to show a loading component here
+  // The page-level loading state will be handled by Next.js
 
   return (
     <div className="relative">

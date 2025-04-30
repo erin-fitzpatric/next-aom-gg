@@ -94,7 +94,11 @@ export function useRecordedGames(searchParams: SearchParamsType): UseRecordedGam
     if (isFetchingRef.current) return;
     isFetchingRef.current = true;
 
-    updateGameState({ isLoading: true });
+    // Only set isLoading for subsequent fetches (filtering, pagination)
+    // Initial load is handled by Next.js loading.js
+    if (!initialFetch.current) {
+      updateGameState({ isLoading: true });
+    }
 
     try {
       const mythRecs = await getMythRecs(pageNum, currentFilters);
@@ -126,7 +130,7 @@ export function useRecordedGames(searchParams: SearchParamsType): UseRecordedGam
       updateGameState({ isLoading: false });
       isFetchingRef.current = false;
     }
-  }, [updateGameState]);
+  }, [updateGameState, initialFetch]);
 
   // Optimized scroll handler with throttling
   const handleScroll = useCallback(() => {
@@ -160,7 +164,10 @@ export function useRecordedGames(searchParams: SearchParamsType): UseRecordedGam
     const initialize = async () => {
       // Set initial loading state
       isFetchingRef.current = true;
-      updateGameState({ isLoading: true, recs: [] });
+
+      // With Next.js loading.js, we don't need to set isLoading for initial load
+      // as it's handled by the loading.js file
+      updateGameState({ recs: [] });
 
       try {
         // Fetch build numbers first
@@ -193,7 +200,7 @@ export function useRecordedGames(searchParams: SearchParamsType): UseRecordedGam
         await fetchRecs(0, initialFilters, true);
       } catch (error) {
         console.error("Initialization failed:", error);
-        updateGameState({ isLoading: false, hasMore: false });
+        updateGameState({ hasMore: false });
       } finally {
         isFetchingRef.current = false;
         initialFetch.current = false;

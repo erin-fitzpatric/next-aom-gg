@@ -103,16 +103,18 @@ export const GameGallery = memo(({ recs, isLoading, setRecs }: GameGalleryProps)
     );
   }
 
-  // Show loading spinner when initially loading
-  if (isLoading && recs.length === 0) {
-    return (
-      <Card className="p-4">
-        <div className="flex justify-center mt-4">
-          <SpinnerWithText text={"Loading recorded games..."} />
-        </div>
-      </Card>
-    );
-  }
+  // We don't need to show the initial loading spinner anymore
+  // as it's handled by Next.js loading.js
+  // Only show loading spinner for subsequent data fetches (filtering, etc.)
+  // if (isLoading && recs.length === 0) {
+  //   return (
+  //     <Card className="p-4">
+  //       <div className="flex justify-center mt-4">
+  //         <SpinnerWithText text={"Loading recorded games..."} />
+  //       </div>
+  //     </Card>
+  //   );
+  // }
 
   // Main gallery view with fade-in animation
   return (
