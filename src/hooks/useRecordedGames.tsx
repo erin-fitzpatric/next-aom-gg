@@ -96,7 +96,8 @@ export function useRecordedGames(searchParams: SearchParamsType): UseRecordedGam
 
     // Only set isLoading for subsequent fetches (filtering, pagination)
     // Initial load is handled by Next.js loading.js
-    if (!initialFetch.current) {
+    // Only set loading state if we're fetching the first page or if we have no records
+    if (!initialFetch.current && (pageNum === 0 || gameState.recs.length === 0)) {
       updateGameState({ isLoading: true });
     }
 

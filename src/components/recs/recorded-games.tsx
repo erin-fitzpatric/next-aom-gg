@@ -60,7 +60,7 @@ function RecordedGames() {
         <HelpCard />
       </div>
 
-      {/* Game Gallery with Smooth Loading Transitions */}
+      {/* Game Gallery */}
       <GameGallery
         recs={recs as IRecordedGame[]}
         isLoading={isLoading}

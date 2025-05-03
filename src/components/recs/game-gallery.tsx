@@ -18,64 +18,27 @@ interface GameGalleryProps {
 }
 
 /**
- * GameGallery - Displays a grid of recorded game tiles with smooth loading transitions
+ * GameGallery - Displays a grid of recorded game tiles
  *
  * Features:
- * - Smooth fade-in animations when loading new content
+ * - Immediate content display without transitions
  * - Delayed "No results" message to prevent flickering
  * - Loading indicators
  * - Responsive grid layout
  */
 export const GameGallery = memo(({ recs, isLoading, setRecs }: GameGalleryProps) => {
-  // State for UI transitions and animations
+  // State for "No results" message
   const [showNoResults, setShowNoResults] = useState(false);
-  const [fadeIn, setFadeIn] = useState(false);
 
-  // Refs to track previous state for comparison
-  const prevLoadingState = useRef(isLoading);
-  const prevRecsLength = useRef(recs.length);
-
-  // Handle fade animation when loading state or results change
+  // Handle "No results" message without delay
   useEffect(() => {
-    // When we have data and loading is complete, fade in the content
-    if (recs.length > 0) {
-      if (isLoading) {
-        // Keep content visible during subsequent loading (like filtering)
-        // Only hide if we're coming from a state with no content
-        if (prevRecsLength.current === 0) {
-          setFadeIn(false);
-        }
-      } else {
-        // When loading completes, ensure content fades in smoothly
-        // Use a slightly longer delay for a smoother transition
-        const timer = setTimeout(() => {
-          setFadeIn(true);
-        }, 150);
-        return () => clearTimeout(timer);
-      }
-    }
-
-    // Update refs for next comparison
-    prevLoadingState.current = isLoading;
-    prevRecsLength.current = recs.length;
-  }, [isLoading, recs.length]);
-
-  // Handle "No results" message with delay to prevent flickering
-  useEffect(() => {
-    // Reset no results state when loading or when we have results
-    if (isLoading || recs.length > 0) {
+    // Show "No results" message immediately when not loading and no results
+    if (!isLoading && recs.length === 0) {
+      setShowNoResults(true);
+    } else {
+      // Reset no results state when loading or when we have results
       setShowNoResults(false);
-      return;
     }
-
-    // Show "No results" message after a delay
-    const timer = setTimeout(() => {
-      if (!isLoading && recs.length === 0) {
-        setShowNoResults(true);
-      }
-    }, 500);
-
-    return () => clearTimeout(timer);
   }, [isLoading, recs.length]);
 
   // Memoized render function for individual game tiles
@@ -92,16 +55,7 @@ export const GameGallery = memo(({ recs, isLoading, setRecs }: GameGalleryProps)
     </Card>
   ), [setRecs]);
 
-  // Show "No recorded games found!" message
-  if (!isLoading && recs.length === 0 && showNoResults) {
-    return (
-      <div className="flex justify-center mt-4">
-        <Card className="p-4 w-full">
-          <p className="flex justify-center">No recorded games found!</p>
-        </Card>
-      </div>
-    );
-  }
+  // We'll handle the "No recorded games found!" message in the main return
 
   // We don't need to show the initial loading spinner anymore
   // as it's handled by Next.js loading.js
@@ -116,30 +70,22 @@ export const GameGallery = memo(({ recs, isLoading, setRecs }: GameGalleryProps)
   //   );
   // }
 
-  // Main gallery view with fade-in animation
+  // Main gallery view without transition
   return (
     <Card className="p-4">
-      <div
-        className={cn(
-          "transition-opacity duration-300 ease-in-out will-change-opacity",
-          fadeIn ? "opacity-100" : "opacity-0"
-        )}
-        style={{
-          // Force hardware acceleration for smoother transitions
-          transform: 'translateZ(0)',
-          backfaceVisibility: 'hidden'
-        }}
-      >
+      <div>
         <div className="flex flex-row flex-wrap justify-center gap-2">
           {recs?.map(renderGameTile)}
         </div>
 
-        {/* Loading indicator for infinite scroll or filtering */}
-        {isLoading && (
-          <div className="flex justify-center mt-4">
+        {/* Loading indicator or No results message */}
+        <div className="min-h-[100px] flex items-center justify-center">
+          {(isLoading && recs.length === 0) ? (
             <SpinnerWithText text={"Loading recorded games..."} />
-          </div>
-        )}
+          ) : (!isLoading && recs.length === 0 && showNoResults) ? (
+            <p>No recorded games found!</p>
+          ) : null}
+        </div>
       </div>
     </Card>
   );
