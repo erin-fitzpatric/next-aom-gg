@@ -1,13 +1,22 @@
-import { Dispatch, SetStateAction } from "react";
+import { memo } from "react";
+import { FilterProps } from "@/types/Filters";
+
+// Filter components
 import { MajorGodFilter } from "./major-god-filter";
 import { MapFilter } from "./map-filter";
-import { Filters } from "@/types/Filters";
 import RecSearch from "./rec-search";
 import { VersionFilter } from "./version-filter";
 
-export default function RecFilters({
-  setRecs,
-  setIsLoading,
+/**
+ * RecFilters - Component for filtering recorded games
+ *
+ * This component combines multiple filter controls:
+ * - Search by text
+ * - Filter by major god
+ * - Filter by map
+ * - Filter by game version/build
+ */
+const RecFilters = memo(({
   filters,
   setFilters,
   buildNumbers,
@@ -15,34 +24,30 @@ export default function RecFilters({
   setQuery,
   selectedBuild,
   setSelectedBuild,
-}: {
-  setRecs: Dispatch<SetStateAction<any[]>>;
-  setIsLoading: Dispatch<SetStateAction<boolean>>;
-  filters: Filters;
-  setFilters: Dispatch<SetStateAction<Filters>>;
-  buildNumbers: number[];
-  query: string;
-  setQuery: Dispatch<SetStateAction<string>>;
-  selectedBuild: number | string | null;
-  setSelectedBuild: Dispatch<SetStateAction<number | "All Builds" | null>>;
-}) {
+}: FilterProps) => {
   return (
     <div className="flex flex-col sm:flex-row space-y-2 sm:space-y-0 sm:space-x-2 justify-end text-primary py-2 bg-pm w-full">
+      {/* Text search filter */}
       <RecSearch
-        setRecs={setRecs}
-        setIsLoading={setIsLoading}
-        filters={filters}
         setFilters={setFilters}
         query={query || ""}
         setQuery={setQuery}
-        selectedBuild={selectedBuild}
-        setSelectedBuild={setSelectedBuild}
       />
-      <MajorGodFilter filters={filters} setFilters={setFilters} />
-      <MapFilter filters={filters} setFilters={setFilters} />
+
+      {/* God selection filter */}
+      <MajorGodFilter
+        filters={filters}
+        setFilters={setFilters}
+      />
+
+      {/* Map selection filter */}
+      <MapFilter
+        filters={filters}
+        setFilters={setFilters}
+      />
+
+      {/* Game version/build filter */}
       <VersionFilter
-        setRecs={setRecs}
-        setIsLoading={setIsLoading}
         filters={filters}
         setFilters={setFilters}
         buildNumbers={buildNumbers}
@@ -53,4 +58,9 @@ export default function RecFilters({
       />
     </div>
   );
-}
+});
+
+// Display name for debugging
+RecFilters.displayName = "RecFilters";
+
+export default RecFilters;

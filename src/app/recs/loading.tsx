@@ -1,14 +1,7 @@
-import RecordedGames from "@/components/recs/recorded-games";
-import { Metadata } from "next";
+import { Spinner } from "@/components/spinner";
 import BannerAd from "@/components/ads/bannerAd";
 
-export const metadata: Metadata = {
-  title: "Recorded Games - AoM.gg",
-  description:
-    "AoM.gg is your home for Age of Mythology Retold leaderboards, news, recorded games, and more. Built by FitzBro for the AoM community.",
-};
-
-export default function Recs() {
+export default function Loading() {
   return (
     <div className="min-h-screen">
       <div className="flex justify-center">
@@ -17,9 +10,11 @@ export default function Recs() {
           <BannerAd adSlot={2054113074} width={160} height={600} />
         </div>
 
-        {/* Main Content */}
+        {/* Main Content Loading State */}
         <div className="flex-1">
-          <RecordedGames />
+          <div className="flex justify-center mt-4">
+            <Spinner />
+          </div>
         </div>
 
         {/* Vertical Right Banner Ad */}

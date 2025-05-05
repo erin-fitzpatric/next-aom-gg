@@ -27,7 +27,7 @@ import {
   DialogTitle,
   DialogDescription,
 } from "../ui/dialog";
-import { ExtendedSession } from "./recorded-games";
+import { ExtendedSession } from "@/hooks/useRecordedGames";
 import { useSession } from "next-auth/react";
 
 interface RecTileProps {
