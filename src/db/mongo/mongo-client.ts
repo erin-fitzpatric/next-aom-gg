@@ -1,36 +1,40 @@
 "use server";
-import mongoose, { ConnectOptions, Mongoose } from "mongoose";
 
-let mongoClient: Mongoose | null = null;
-export default async function getMongoClient() {
-  if (mongoClient) {
-    return mongoClient;
-  }
-  const { MONGO_USER, MONGO_PASSWORD, MONGO_HOST, MONGO_APPNAME } = process.env;
-  if (!MONGO_USER || !MONGO_PASSWORD || !MONGO_HOST) {
-    throw new Error("Mongo credentials not found in environment variables.");
+import mongoose, { Mongoose } from "mongoose";
+
+// Construct the URI using environment variables
+const MONGO_URI = `mongodb+srv://${process.env.MONGO_USER}:${process.env.MONGO_PASSWORD}@cluster0.ecbmcuc.mongodb.net/`;
+
+if (!MONGO_URI) {
+  throw new Error("MongoDB connection string is not defined in environment variables.");
+}
+
+// Use a global cache to persist connection across serverless invocations
+let globalWithMongoose = global as typeof globalThis & {
+  mongoose: { conn: Mongoose | null; promise: Promise<Mongoose> | null };
+};
+
+if (!globalWithMongoose.mongoose) {
+  globalWithMongoose.mongoose = { conn: null, promise: null };
+}
+
+export default async function getMongoClient(): Promise<Mongoose> {
+  if (globalWithMongoose.mongoose.conn) {
+    return globalWithMongoose.mongoose.conn;
   }
 
-  // These options can be moved to configuration if they are different across environments
-  const connectOptions: ConnectOptions = {
-    retryWrites: true,
-    writeConcern: {
-      w: "majority",
-    },
-  };
-
-  if (MONGO_APPNAME) {
-    connectOptions.appName = MONGO_APPNAME;
+  if (!globalWithMongoose.mongoose.promise) {
+    globalWithMongoose.mongoose.promise = mongoose.connect(MONGO_URI, {
+      appName: "Cluster0",
+      maxPoolSize: 100,               // Production-safe connection pool size
+      serverSelectionTimeoutMS: 5000, // Fail fast if server not found
+      socketTimeoutMS: 45000,         // Close slow sockets
+      connectTimeoutMS: 10000,        // Timeout for initial connection
+      retryWrites: true,              // Ensure safe write retries
+      w: "majority",                  // Confirm write concern
+    });
   }
 
-  try {
-    mongoClient = await mongoose.connect(
-      `mongodb+srv://${MONGO_USER}:${MONGO_PASSWORD}@${MONGO_HOST}`,
-      connectOptions
-    );
-    return mongoClient;
-  } catch (err) {
-    console.error(err);
-    throw new Error("Failed to connect to MongoDB error: " + err);
-  }
+  globalWithMongoose.mongoose.conn = await globalWithMongoose.mongoose.promise;
+  return globalWithMongoose.mongoose.conn;
 }
