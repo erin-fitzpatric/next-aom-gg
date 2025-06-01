@@ -28,8 +28,8 @@ export default async function getMongoClient(): Promise<Mongoose> {
       appName: "Cluster0",
       maxPoolSize: 100,               // Production-safe connection pool size
       serverSelectionTimeoutMS: 5000, // Fail fast if server not found
-      socketTimeoutMS: 45000,         // Close slow sockets
-      connectTimeoutMS: 10000,        // Timeout for initial connection
+      socketTimeoutMS: 120000,         // Close slow sockets
+      connectTimeoutMS: 30000,        // Timeout for initial connection
       retryWrites: true,              // Ensure safe write retries
       w: "majority",                  // Confirm write concern
     });
