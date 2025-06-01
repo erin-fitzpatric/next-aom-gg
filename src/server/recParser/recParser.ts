@@ -98,10 +98,6 @@ export async function parseMetadataFromDecompressedRecordedGame(content: ArrayBu
     const couldBeBenchmark = buildInfoData.data.indexOf(encodeUtf16("benchmark")) >= 0;
     parseProfileKeys(root, couldBeBenchmark, output);
     const typedOutput = output as RecordedGameMetadata;
-
-    // Reject any games with AI players
-    if (typedOutput.playerData.some((player) => { return player.aiPersonality !== undefined && player.aiPersonality.length > 0}))
-        throw new Error(Errors.GAME_HAS_AI_PLAYERS);
     
     // TODO - Fitz should remove this when he wants team games to be uploadable
     if (typedOutput.gameNumPlayers > 2)
